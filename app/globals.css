@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/*
+ * The dashboard reads like a publication, not a control panel: a warm paper
+ * plane, an ink-on-paper text ramp, hairline rules instead of boxes, and the
+ * eight category hues used only as accents (kickers, dots, meters) so the page
+ * has one focal point per section rather than eight competing ones.
+ */
+:root {
+  color-scheme: light;
+
+  /* paper & ink */
+  --paper: #f7f5f0;
+  --surface-1: #fffefb;
+  --surface-2: #f1eee7;
+  --text-primary: #171614;
+  --text-secondary: #4b4842;
+  --text-muted: #8a857b;
+  --rule: rgba(23, 22, 20, 0.11);
+  --rule-strong: rgba(23, 22, 20, 0.26);
+  --ink-wash: rgba(23, 22, 20, 0.04);
+
+  /* categorical (fixed order, one per category — see lib/categoryMeta.ts) */
+  --cat-policy: #2a78d6; /* blue */
+  --cat-subsidy: #eb6834; /* orange */
+  --cat-tech: #1baf7a; /* aqua */
+  --cat-business: #eda100; /* yellow */
+  --cat-investment: #e87ba4; /* magenta */
+  --cat-economy: #008300; /* green */
+  --cat-trade: #4a3aa7; /* violet */
+  --cat-geopolitics: #e34948; /* red */
+
+  --background: var(--paper);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-newsreader);
+}
+
+/* Dark values live in one place and are applied by both the media query
+   (system preference) and the explicit [data-theme] hook. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --paper: #0e0e10;
+    --surface-1: #17171a;
+    --surface-2: #1e1e22;
+    --text-primary: #f5f3ef;
+    --text-secondary: #b6b2aa;
+    --text-muted: #807b73;
+    --rule: rgba(245, 243, 239, 0.13);
+    --rule-strong: rgba(245, 243, 239, 0.3);
+    --ink-wash: rgba(245, 243, 239, 0.045);
+
+    --cat-policy: #4d95ea;
+    --cat-subsidy: #f0824f;
+    --cat-tech: #2ec894;
+    --cat-business: #e0ac2e;
+    --cat-investment: #ef94b6;
+    --cat-economy: #35ac35;
+    --cat-trade: #9085e9;
+    --cat-geopolitics: #ef7070;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0e0e10;
+  --surface-1: #17171a;
+  --surface-2: #1e1e22;
+  --text-primary: #f5f3ef;
+  --text-secondary: #b6b2aa;
+  --text-muted: #807b73;
+  --rule: rgba(245, 243, 239, 0.13);
+  --rule-strong: rgba(245, 243, 239, 0.3);
+  --ink-wash: rgba(245, 243, 239, 0.045);
+
+  --cat-policy: #4d95ea;
+  --cat-subsidy: #f0824f;
+  --cat-tech: #2ec894;
+  --cat-business: #e0ac2e;
+  --cat-investment: #ef94b6;
+  --cat-economy: #35ac35;
+  --cat-trade: #9085e9;
+  --cat-geopolitics: #ef7070;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- editorial primitives ---------------------------------------------- */
+
+/* Headlines. Newsreader is an optical-size variable serif — letting the
+   browser pick the optical size is what keeps a 40px lead and a 15px row
+   headline both looking correct rather than one being a scaled copy. */
+.headline {
+  font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.011em;
+  text-wrap: balance;
+}
+
+.headline-tight {
+  font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  line-height: 1.28;
+  text-wrap: pretty;
+}
+
+/* Small all-caps metadata: katakana-tight tracking is wrong here, caps need
+   to open up to stay readable at 10–11px. */
+.kicker {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.meta {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Body copy is capped at a comfortable measure regardless of container. */
+.measure {
+  max-width: 62ch;
+}
+
+/* Underline that grows from the left on hover — a quieter link affordance
+   than a color change, and it keeps headlines reading as headlines. */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size 220ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  padding-bottom: 0.06em;
+  /* Headlines wrap. Without `clone` the background is sliced across line
+     fragments and only the last line gets a rule under it. */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Descendant, not child: the span sits inside an <h3> inside the <a>. */
+a:hover .link-underline,
+a:focus-visible .link-underline,
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-underline {
+    transition: none;
+  }
+}
+
+/* Thin scrollbars on the horizontal rails so they don't eat vertical rhythm. */
+.rail {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
+.rail::-webkit-scrollbar {
+  height: 4px;
+}
+
+.rail::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+  border-radius: 2px;
+}

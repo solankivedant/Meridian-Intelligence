@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SourceType {
+  RSS
+  API
+  SCRAPE
+}
+
+enum Category {
+  POLICY_REGULATORY
+  SUBSIDY_SCHEME
+  BUSINESS_STARTUP
+  TECH_INNOVATION
+  ECONOMY_MARKETS
+  INVESTMENT_FDI
+  TRADE_IMPORT_EXPORT
+  GEOPOLITICS
+}
+
+model Source {
+  id              String     @id @default(cuid())
+  name            String     @unique
+  url             String
+  type            SourceType
+  defaultCategory Category
+  active          Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  articles        Article[]
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  excerpt     String   @db.Text
+  url         String   @unique
+  category    Category
+  tags        String[]
+  publishedAt DateTime
+  fetchedAt   DateTime @default(now())
+
+  sourceId String
+  source   Source @relation(fields: [sourceId], references: [id])
+
+  @@index([category, publishedAt])
+  @@index([publishedAt])
+}
+
+model DailyBrief {
+  id          String   @id @default(cuid())
+  date        DateTime @unique @db.Date
+  highlights  Json
+  generatedAt DateTime @default(now())
+}
