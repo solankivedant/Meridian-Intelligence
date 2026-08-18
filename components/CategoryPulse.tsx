@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Category } from "@prisma/client";
+import { Category } from "@/lib/enums";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 
 /**

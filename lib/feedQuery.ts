@@ -1,4 +1,5 @@
-import { Category, Prisma, Region } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Category, Region } from "@/lib/enums";
 import { TAG_META } from "@/lib/categorize";
 import { normalizeRange, rangeCutoff, isValidMonthKey, monthDateRange, TimeRangeKey } from "@/lib/timeRange";
 

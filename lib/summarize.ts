@@ -1,4 +1,4 @@
-import { Category } from "@prisma/client";
+import { Category } from "@/lib/enums";
 import { generateJson, geminiModel, isGeminiConfigured } from "@/lib/gemini";
 import { metaForCategory } from "@/lib/categoryMeta";
 

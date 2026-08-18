@@ -1,4 +1,4 @@
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import { ARCHIVE_QUERIES, fetchGoogleNews } from "./googleNews";
 import { SourceCache, archiveSourceConfig, ingestArticles, loadRecentTitleKeys } from "./run";
 

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import {
   CONFIGURED_SOURCE_NAMES,
   ALL_CONFIGURED_SOURCES,

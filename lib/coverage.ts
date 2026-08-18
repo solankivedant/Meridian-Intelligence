@@ -1,4 +1,4 @@
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 

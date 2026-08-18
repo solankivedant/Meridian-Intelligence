@@ -1,4 +1,4 @@
-import { Category, Region } from "@prisma/client";
+import { Category, Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
 import { Section } from "@/components/Section";

@@ -1,4 +1,4 @@
-import { Category } from "@prisma/client";
+import { Category } from "@/lib/enums";
 import { CategoryBadge } from "./CategoryBadge";
 import { AskArticleButton } from "./AskArticleButton";
 import { metaForCategory } from "@/lib/categoryMeta";

@@ -1,4 +1,4 @@
-import { Category, Region, SourceType } from "@prisma/client";
+import { Category, Region, SourceType } from "@/lib/enums";
 import { SourceConfig, SourceDefinition } from "./types";
 
 const C = Category;

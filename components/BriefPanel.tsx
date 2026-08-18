@@ -1,4 +1,4 @@
-import { Category } from "@prisma/client";
+import { Category } from "@/lib/enums";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { timeAgo } from "@/lib/formatTime";
 

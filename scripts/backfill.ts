@@ -7,7 +7,7 @@
  * on normalized headline.
  */
 import "dotenv/config";
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import { runBackfill } from "../lib/ingestion/backfill";
 
 function intArg(name: string, fallback: number): number {

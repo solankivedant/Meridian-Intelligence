@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
 import { metaForSlug } from "@/lib/categoryMeta";

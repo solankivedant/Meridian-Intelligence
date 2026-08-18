@@ -1,4 +1,5 @@
-import { Category, Prisma, Region } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Category, Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import type { FeedArticle } from "@/components/ArticleRow";
 

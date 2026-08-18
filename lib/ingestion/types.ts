@@ -1,4 +1,4 @@
-import { Category, Region, SourceType } from "@prisma/client";
+import { Category, Region, SourceType } from "@/lib/enums";
 
 export type RawArticle = {
   title: string;

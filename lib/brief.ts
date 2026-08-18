@@ -1,4 +1,5 @@
-import { Category, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Category } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { BriefSummary, SummarizableArticle, summarizeBrief } from "@/lib/summarize";
 

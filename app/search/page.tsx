@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Region } from "@prisma/client";
+import { Region } from "@/lib/enums";
 import { safeQuery } from "@/lib/safeQuery";
 import { searchArticles, MAX_QUERY_LENGTH } from "@/lib/search";
 import { metaForSlug, CATEGORY_META } from "@/lib/categoryMeta";

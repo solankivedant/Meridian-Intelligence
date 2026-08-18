@@ -1,5 +1,5 @@
 import Parser from "rss-parser";
-import { Category, Region } from "@prisma/client";
+import { Category, Region } from "@/lib/enums";
 import { RawArticle } from "./types";
 import { stripHtml, truncate } from "./util";
 

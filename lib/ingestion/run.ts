@@ -1,4 +1,4 @@
-import { Category, Region, SourceType } from "@prisma/client";
+import { Category, Region, SourceType } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { categorize } from "@/lib/categorize";
 import { RSS_SOURCES, NEWSDATA_SOURCE } from "./sources";

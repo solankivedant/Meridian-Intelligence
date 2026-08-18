@@ -1,4 +1,4 @@
-import { Category } from "@prisma/client";
+import { Category } from "@/lib/enums";
 
 type Rule = {
   category: Category;
