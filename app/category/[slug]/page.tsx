@@ -1,45 +1,51 @@
 import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
+import Link from "next/link";
+import { Region } from "@prisma/client";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
 import { metaForSlug } from "@/lib/categoryMeta";
-import { SectionHeading } from "@/components/SectionHeading";
+import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
-import { DayFeed } from "@/components/DayFeed";
-import { FeedFilterBar } from "@/components/FeedFilterBar";
-import { Pagination } from "@/components/Pagination";
-import { EmptyState } from "@/components/EmptyState";
+import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
+import { ArchiveSection } from "@/components/ArchiveSection";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
-import { normalizeRange, rangeCutoff, isValidMonthKey, monthDateRange } from "@/lib/timeRange";
+import {
+  PAGE_SIZE,
+  FeedSearchParams,
+  parseFeedParams,
+  buildFeedWhere,
+  isNarrowed,
+} from "@/lib/feedQuery";
 
 export const revalidate = 0;
 
-const PAGE_SIZE = 60;
+const ALONGSIDE_ITEMS = 5;
+
+type CategoryParams = FeedSearchParams & { desk?: string };
+
+function parseDesk(value: string | undefined): Region | undefined {
+  if (value === "world") return Region.WORLD;
+  if (value === "india") return Region.INDIA;
+  return undefined;
+}
 
 export default async function CategoryPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ range?: string; tag?: string; month?: string; page?: string }>;
+  searchParams: Promise<CategoryParams>;
 }) {
   const { slug } = await params;
   const meta = metaForSlug(slug);
   if (!meta) notFound();
 
   const search = await searchParams;
-  const range = normalizeRange(search.range);
-  const tag = search.tag ?? "";
-  const month = isValidMonthKey(search.month) ? search.month : "";
-  const page = Math.max(1, Number.parseInt(search.page ?? "1", 10) || 1);
-  const cutoff = rangeCutoff(range);
-
-  const where: Prisma.ArticleWhereInput = {
-    category: meta.category,
-    ...(month ? { publishedAt: monthDateRange(month) } : cutoff ? { publishedAt: { gte: cutoff } } : {}),
-    ...(tag ? { tags: { has: tag } } : {}),
-  };
+  const parsed = parseFeedParams(search);
+  // A section spans both desks; the reader can narrow it to one.
+  const desk = parseDesk(search.desk);
+  const where = buildFeedWhere(parsed, { category: meta.category, region: desk });
 
   const [articles, total] = await Promise.all([
     safeQuery(
@@ -48,7 +54,7 @@ export default async function CategoryPage({
           where,
           orderBy: { publishedAt: "desc" },
           include: { source: true },
-          skip: (page - 1) * PAGE_SIZE,
+          skip: (parsed.page - 1) * PAGE_SIZE,
           take: PAGE_SIZE,
         }),
       []
@@ -58,68 +64,130 @@ export default async function CategoryPage({
 
   // Only the first page of an unfiltered view gets a lead treatment — deeper
   // in the archive there is no "top story", just more of the record.
-  const showLead = page === 1 && !tag && !month;
+  const showLead = parsed.page === 1 && !isNarrowed(parsed);
   const { lead, rest } = showLead
     ? withLeadFirst(articles)
     : { lead: undefined, rest: articles };
 
+  // The lead would otherwise sit alone across the panel with its deck capped
+  // at a reading measure and the right third of the box empty; the next few
+  // stories fill it, the same way the world desk's lead is framed.
+  const alongside: BriefEntry[] = rest.slice(0, ALONGSIDE_ITEMS).map((article) => ({
+    id: article.id,
+    title: article.title,
+    url: article.url,
+    sourceName: article.source.name,
+    publishedAt: article.publishedAt,
+    category: article.category,
+  }));
+
   const basePath = `/category/${meta.slug}`;
+  const deskHref = (next: string) => {
+    const qs = new URLSearchParams();
+    if (next) qs.set("desk", next);
+    return qs.toString() ? `${basePath}?${qs.toString()}` : basePath;
+  };
 
   return (
-    <div className="flex flex-col gap-12 pt-8">
+    <div className="flex flex-col gap-8 pt-6">
       <header
-        className="border-b pb-6"
-        style={{ borderColor: "var(--rule-strong)" }}
+        className="border-t-4 pt-4"
+        style={{ borderColor: `var(${meta.colorVar})` }}
       >
-        <span className="kicker flex items-center gap-2" style={{ color: `var(${meta.colorVar})` }}>
-          <span
-            className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: `var(${meta.colorVar})` }}
-            aria-hidden
-          />
+        <span className="kicker" style={{ color: `var(${meta.colorVar})` }}>
           Section
         </span>
-        <h1 className="headline mt-2 text-[32px] leading-[1.08] text-[var(--text-primary)] sm:text-[44px]">
+        <h1 className="headline mt-1.5 text-[32px] leading-[1.06] text-[var(--text-primary)] sm:text-[46px]">
           {meta.label}
         </h1>
         <p className="measure mt-3 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
           {meta.description}
         </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-1.5 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
+          <span className="kicker mr-1 text-[10px] text-[var(--text-muted)]">Desk</span>
+          <DeskChip href={deskHref("")} active={!desk} color={`var(${meta.colorVar})`}>
+            Both
+          </DeskChip>
+          <DeskChip href={deskHref("india")} active={desk === Region.INDIA} color={`var(${meta.colorVar})`}>
+            India
+          </DeskChip>
+          <DeskChip href={deskHref("world")} active={desk === Region.WORLD} color={`var(${meta.colorVar})`}>
+            World
+          </DeskChip>
+        </div>
       </header>
 
       {lead && (
-        <section>
-          <SectionHeading
-            title="Leading this section"
-            note={timeAgo(lead.publishedAt)}
-            accentVar={meta.colorVar}
-          />
-          <ArticleRow article={lead} variant="lead" showCategory={false} />
-        </section>
+        <Section
+          index="01"
+          title="Leading this section"
+          note={timeAgo(lead.publishedAt)}
+          accentVar={meta.colorVar}
+        >
+          <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <ArticleRow article={lead} variant="lead" showCategory={false} />
+            </div>
+            {alongside.length > 0 && (
+              <div
+                className="flex flex-col lg:col-span-5 lg:border-l lg:pl-12"
+                style={{ borderColor: "var(--rule)" }}
+              >
+                <p
+                  className="kicker mb-3 border-b pb-2 text-[var(--text-primary)]"
+                  style={{ borderColor: "var(--rule)" }}
+                >
+                  Also in this section
+                </p>
+                <BriefPanel entries={alongside} showCategory={false} />
+              </div>
+            )}
+          </div>
+        </Section>
       )}
 
-      <section>
-        <SectionHeading
-          title={month || tag || range !== "7d" ? "Archive" : "Latest"}
-          note={total > 0 ? `${total.toLocaleString("en-IN")} stories` : undefined}
-        />
-        <FeedFilterBar basePath={basePath} range={range} tag={tag} month={month} />
-
-        {rest.length === 0 ? (
-          <EmptyState filtered />
-        ) : (
-          <>
-            <DayFeed articles={rest} showCategory={false} />
-            <Pagination
-              basePath={basePath}
-              params={{ range, tag, month }}
-              page={page}
-              pageSize={PAGE_SIZE}
-              total={total}
-            />
-          </>
-        )}
-      </section>
+      <ArchiveSection
+        index={lead ? "02" : "01"}
+        basePath={basePath}
+        parsed={parsed}
+        articles={rest}
+        total={total}
+        accentVar={meta.colorVar}
+        showCategory={false}
+      />
     </div>
+  );
+}
+
+function DeskChip({
+  href,
+  active,
+  color,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  color: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "true" : undefined}
+      className="border px-2.5 py-1 text-[12px] transition-colors"
+      style={
+        active
+          ? {
+              borderColor: color,
+              backgroundColor: `color-mix(in srgb, ${color} 15%, var(--surface-1))`,
+              color,
+              fontWeight: 600,
+            }
+          : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
+      }
+    >
+      {children}
+    </Link>
   );
 }

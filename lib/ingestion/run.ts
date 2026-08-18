@@ -1,10 +1,10 @@
-import { Category, SourceType } from "@prisma/client";
+import { Category, Region, SourceType } from "@prisma/client";
 import { db } from "@/lib/db";
 import { categorize } from "@/lib/categorize";
 import { RSS_SOURCES, NEWSDATA_SOURCE } from "./sources";
 import { fetchRssArticles } from "./rss";
 import { fetchNewsDataArticles } from "./newsdata";
-import { ARCHIVE_QUERIES, fetchGoogleNews } from "./googleNews";
+import { ARCHIVE_QUERIES, ArchiveQuery, fetchGoogleNews } from "./googleNews";
 import { titleKey } from "./dedupe";
 import { RawArticle, SourceConfig } from "./types";
 
@@ -50,12 +50,13 @@ export class SourceCache {
     const source = await withRetry(`Source upsert (${config.name})`, () =>
       db.source.upsert({
         where: { name: config.name },
-        update: { url: config.url, type: config.type },
+        update: { url: config.url, type: config.type, region: config.region },
         create: {
           name: config.name,
           url: config.url,
           type: config.type,
           defaultCategory: config.defaultCategory,
+          region: config.region,
         },
       })
     );
@@ -80,6 +81,7 @@ export class SourceCache {
           url: c.url,
           type: c.type,
           defaultCategory: c.defaultCategory,
+          region: c.region,
         })),
         skipDuplicates: true,
       })
@@ -98,12 +100,17 @@ export class SourceCache {
 // Publishers surfaced by the Google News archive crawl become first-class
 // Source rows so attribution on the card is the actual newsroom, not "Google
 // News". Their `url` points at that publisher's Google News channel search.
-function publisherConfig(publisher: string, defaultCategory: Category): SourceConfig {
+function publisherConfig(
+  publisher: string,
+  defaultCategory: Category,
+  region: Region
+): SourceConfig {
   return {
     name: publisher,
-    url: `https://news.google.com/search?q=${encodeURIComponent(publisher)}&hl=en-IN&gl=IN&ceid=IN:en`,
+    url: `https://news.google.com/search?q=${encodeURIComponent(publisher)}`,
     type: SourceType.RSS,
     defaultCategory,
+    region,
   };
 }
 
@@ -181,7 +188,7 @@ export async function ingestArticles(
       tags,
       config:
         attributeToPublisher && item.publisher
-          ? publisherConfig(item.publisher, config.defaultCategory)
+          ? publisherConfig(item.publisher, config.defaultCategory, config.region)
           : config,
     });
   }
@@ -201,6 +208,7 @@ export async function ingestArticles(
         excerpt: item.excerpt.slice(0, 2000),
         url: item.url,
         category,
+        region: config.region,
         tags,
         publishedAt: item.publishedAt,
         sourceId,
@@ -241,6 +249,18 @@ export async function loadRecentTitleKeys(since: Date): Promise<Set<string>> {
 
 const GOOGLE_NEWS_RECENT_DAYS = 7;
 
+/** The synthetic feed a Google News archive query writes through. */
+export function archiveSourceConfig(query: ArchiveQuery): SourceConfig {
+  const desk = query.region === Region.INDIA ? "India" : "World";
+  return {
+    name: `Google News ${desk} - ${query.label}`,
+    url: "https://news.google.com/",
+    type: SourceType.API,
+    defaultCategory: query.category,
+    region: query.region,
+  };
+}
+
 export async function runIngestion(): Promise<IngestSummary[]> {
   const summaries: IngestSummary[] = [];
   const sources = new SourceCache();
@@ -276,14 +296,9 @@ export async function runIngestion(): Promise<IngestSummary[]> {
     before: new Date(Date.now() + 24 * 60 * 60 * 1000),
   };
   for (const query of ARCHIVE_QUERIES) {
-    const config: SourceConfig = {
-      name: `Google News - ${query.label}`,
-      url: "https://news.google.com/",
-      type: SourceType.API,
-      defaultCategory: query.category,
-    };
+    const config = archiveSourceConfig(query);
     try {
-      const items = await fetchGoogleNews(query.query, recentWindow);
+      const items = await fetchGoogleNews(query.query, query.region, recentWindow);
       const counts = await ingestArticles(sources, config, items, {
         seenTitles,
         attributeToPublisher: true,

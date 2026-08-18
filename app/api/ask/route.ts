@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db";
 import { metaForCategory } from "@/lib/categoryMeta";
+import { generateText, isGeminiConfigured, GeminiError } from "@/lib/gemini";
 
 const MAX_QUESTION_LENGTH = 300;
 
@@ -24,9 +24,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Question is too long" }, { status: 400 });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!isGeminiConfigured()) {
     return NextResponse.json(
-      { error: "AI Q&A is not configured (missing ANTHROPIC_API_KEY)." },
+      { error: "AI Q&A is not configured (missing GEMINI_API_KEY)." },
       { status: 503 }
     );
   }
@@ -41,18 +41,12 @@ export async function POST(req: NextRequest) {
   }
 
   const categoryLabel = metaForCategory(article.category).label;
-  const anthropic = new Anthropic();
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-opus-5",
-      max_tokens: 1024,
+    const answer = await generateText({
       system:
         "You answer questions about a single news/policy article using only the headline, excerpt, and metadata given to you — you do not have access to the full article text. If the excerpt doesn't contain enough detail to answer, say so plainly and suggest the user open the source link rather than guessing. Keep answers concise (2-4 sentences unless the question genuinely needs more).",
-      messages: [
-        {
-          role: "user",
-          content: `Article:
+      prompt: `Article:
 Title: ${article.title}
 Source: ${article.source.name}
 Category: ${categoryLabel}
@@ -61,23 +55,21 @@ Excerpt: ${article.excerpt || "(no excerpt available)"}
 URL: ${article.url}
 
 Question: ${question.trim()}`,
-        },
-      ],
+      maxOutputTokens: 1024,
+      temperature: 0.3,
     });
-
-    if (response.stop_reason === "refusal") {
-      return NextResponse.json(
-        { error: "The assistant declined to answer that question." },
-        { status: 422 }
-      );
-    }
-
-    const textBlock = response.content.find((block) => block.type === "text");
-    const answer = textBlock && textBlock.type === "text" ? textBlock.text : "";
 
     return NextResponse.json({ answer });
   } catch (err) {
-    console.error("Claude API error:", err);
-    return NextResponse.json({ error: "Failed to get an answer from the assistant." }, { status: 502 });
+    console.error("Gemini API error:", err);
+    const blocked = err instanceof GeminiError && err.message.includes("blocked");
+    return NextResponse.json(
+      {
+        error: blocked
+          ? "The assistant declined to answer that question."
+          : "Failed to get an answer from the assistant.",
+      },
+      { status: blocked ? 422 : 502 }
+    );
   }
 }

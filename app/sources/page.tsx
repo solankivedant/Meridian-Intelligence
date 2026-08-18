@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
+import { Region } from "@prisma/client";
 import {
   CONFIGURED_SOURCE_NAMES,
-  RSS_SOURCES,
-  NEWSDATA_SOURCE,
+  ALL_CONFIGURED_SOURCES,
 } from "@/lib/ingestion/sources";
 import { metaForCategory } from "@/lib/categoryMeta";
-import { SectionHeading } from "@/components/SectionHeading";
+import { Section } from "@/components/Section";
 
 export const revalidate = 0;
 
@@ -15,6 +15,7 @@ type SourceRow = {
   name: string;
   url: string;
   defaultCategory: Parameters<typeof metaForCategory>[0];
+  region: Region;
   _count: { articles: number };
 };
 
@@ -35,15 +36,16 @@ export default async function SourcesPage() {
   // The direct list is built from config, not from the database, so a feed
   // that has been added but not yet polled still shows up — at zero.
   const storedByName = new Map(sources.map((s) => [s.name, s]));
-  const configured: SourceRow[] = [...RSS_SOURCES, NEWSDATA_SOURCE]
-    .map((config) => ({
-      id: config.name,
-      name: config.name,
-      url: config.url,
-      defaultCategory: config.defaultCategory,
-      _count: { articles: storedByName.get(config.name)?._count.articles ?? 0 },
-    }))
-    .sort((a, b) => b._count.articles - a._count.articles);
+  const configured: SourceRow[] = ALL_CONFIGURED_SOURCES.map((config) => ({
+    id: config.name,
+    name: config.name,
+    url: config.url,
+    defaultCategory: config.defaultCategory,
+    region: config.region,
+    _count: { articles: storedByName.get(config.name)?._count.articles ?? 0 },
+  })).sort((a, b) => b._count.articles - a._count.articles);
+
+  const byDesk = (region: Region) => configured.filter((s) => s.region === region);
 
   const discovered = sources
     .filter((s) => !CONFIGURED_SOURCE_NAMES.has(s.name))
@@ -70,28 +72,33 @@ export default async function SourcesPage() {
         </p>
       </header>
 
-      <section>
-        <SectionHeading
-          title="Direct feeds"
-          note={`${configured.length} feeds, polled on every ingest run`}
-        />
-        <SourceTable rows={configured} linkOut />
-      </section>
+      <Section
+        index="01"
+        title="India desk feeds"
+        note={`${byDesk(Region.INDIA).length} feeds`}
+        description="Ministries, regulators and Indian newsrooms, polled on every ingest run."
+      >
+        <SourceTable rows={byDesk(Region.INDIA)} linkOut />
+      </Section>
+
+      <Section
+        index="02"
+        title="World desk feeds"
+        note={`${byDesk(Region.WORLD).length} feeds`}
+        description="Global business, trade, technology and geopolitics wires."
+      >
+        <SourceTable rows={byDesk(Region.WORLD)} linkOut />
+      </Section>
 
       {discovered.length > 0 && (
-        <section>
-          <SectionHeading
-            title="Publishers via the news archive"
-            note={`${discovered.length.toLocaleString("en-IN")} outlets`}
-          />
-          <p className="measure mb-5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-            The historical crawl queries a dated news archive rather than a fixed
-            feed list, so these outlets appear because they published something
-            matching one of the dashboard&apos;s topics — not because they were
-            configured here.
-          </p>
+        <Section
+          index="03"
+          title="Publishers via the news archive"
+          note={`${discovered.length.toLocaleString("en-IN")} outlets`}
+          description="The historical crawl queries a dated news archive rather than a fixed feed list, so these outlets appear because they published something matching one of the dashboard's topics — not because they were configured here."
+        >
           <SourceTable rows={discovered} />
-        </section>
+        </Section>
       )}
     </div>
   );

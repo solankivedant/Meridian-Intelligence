@@ -1,4 +1,4 @@
-import { Category, SourceType } from "@prisma/client";
+import { Category, Region, SourceType } from "@prisma/client";
 
 export type RawArticle = {
   title: string;
@@ -16,6 +16,7 @@ export type SourceConfig = {
   url: string;
   type: SourceType;
   defaultCategory: Category;
+  region: Region;
   // When true, articles that don't hit any explicit categorize() keyword rule
   // are dropped instead of falling back to defaultCategory. Use this for
   // broad, general-purpose sources (news APIs spanning many categories) so
@@ -23,3 +24,6 @@ export type SourceConfig = {
   // pollute the dashboard's scoped categories.
   strict?: boolean;
 };
+
+/** A source entry before its desk is stamped on — see sources.ts. */
+export type SourceDefinition = Omit<SourceConfig, "region">;

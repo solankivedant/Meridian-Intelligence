@@ -1,9 +1,6 @@
 export function EmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <div
-      className="border-y py-14 text-center"
-      style={{ borderColor: "var(--rule)" }}
-    >
+    <div className="py-12 text-center">
       <p className="headline text-[20px] text-[var(--text-primary)]">
         {filtered ? "Nothing filed under these filters" : "The archive is empty"}
       </p>

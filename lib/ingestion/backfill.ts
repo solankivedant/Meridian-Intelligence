@@ -1,7 +1,6 @@
-import { SourceType } from "@prisma/client";
+import { Region } from "@prisma/client";
 import { ARCHIVE_QUERIES, fetchGoogleNews } from "./googleNews";
-import { SourceCache, ingestArticles, loadRecentTitleKeys } from "./run";
-import { SourceConfig } from "./types";
+import { SourceCache, archiveSourceConfig, ingestArticles, loadRecentTitleKeys } from "./run";
 
 // Google News tolerates a steady crawl but will start returning empty feeds if
 // hammered, so windows are fetched one at a time with a short pause.
@@ -31,6 +30,7 @@ export function monthWindows(monthsBack: number): MonthWindow[] {
 
 export type BackfillResult = {
   month: string;
+  desk: string;
   query: string;
   fetched: number;
   created: number;
@@ -44,6 +44,8 @@ export type BackfillOptions = {
   monthsBack: number;
   /** Restrict to specific archive query keys; defaults to all of them. */
   queryKeys?: string[];
+  /** Restrict to one desk; defaults to crawling both. */
+  region?: Region;
   onProgress?: (result: BackfillResult) => void;
 };
 
@@ -53,10 +55,12 @@ export type BackfillOptions = {
  * dozen items, which is why the feed otherwise starts at "a few days ago".
  */
 export async function runBackfill(options: BackfillOptions): Promise<BackfillResult[]> {
-  const { monthsBack, queryKeys, onProgress } = options;
-  const queries = queryKeys?.length
-    ? ARCHIVE_QUERIES.filter((q) => queryKeys.includes(q.key))
-    : ARCHIVE_QUERIES;
+  const { monthsBack, queryKeys, region, onProgress } = options;
+  const queries = ARCHIVE_QUERIES.filter(
+    (q) =>
+      (!queryKeys?.length || queryKeys.includes(q.key)) &&
+      (!region || q.region === region)
+  );
 
   const windows = monthWindows(monthsBack);
   const sources = new SourceCache();
@@ -69,24 +73,21 @@ export async function runBackfill(options: BackfillOptions): Promise<BackfillRes
 
   for (const window of windows) {
     for (const query of queries) {
-      const config: SourceConfig = {
-        name: `Google News - ${query.label}`,
-        url: "https://news.google.com/",
-        type: SourceType.API,
-        defaultCategory: query.category,
-      };
+      const config = archiveSourceConfig(query);
+      const desk = query.region === Region.INDIA ? "IN" : "WW";
 
       let result: BackfillResult;
       try {
-        const items = await fetchGoogleNews(query.query, window);
+        const items = await fetchGoogleNews(query.query, query.region, window);
         const counts = await ingestArticles(sources, config, items, {
           seenTitles,
           attributeToPublisher: true,
         });
-        result = { month: window.key, query: query.key, fetched: items.length, ...counts };
+        result = { month: window.key, desk, query: query.key, fetched: items.length, ...counts };
       } catch (err) {
         result = {
           month: window.key,
+          desk,
           query: query.key,
           fetched: 0,
           created: 0,

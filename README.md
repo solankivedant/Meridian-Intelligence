@@ -41,11 +41,18 @@ NewsData.io API.
   and not a routine auction result or numbered circular. The feed below is
   grouped by IST day, each day opening with a feature and dropping into
   scannable rows.
-- **"Ask AI" per article** — every story has an "Ask" button that calls Claude
-  (via `/api/ask`) with just that article's headline/excerpt/metadata to answer
-  a free-text question about it, in an overlay with a few starter prompts.
-  Needs `ANTHROPIC_API_KEY`; without it the overlay shows a clear
-  "not configured" error instead of failing silently.
+- **"The wrap" — an AI-written daily summary** — the same 24-hour headlines
+  that fill the brief are sent to Gemini, which writes a short standfirst plus
+  3-5 category-tagged takeaways (`lib/summarize.ts`). Stored on the day's
+  `DailyBrief` row and rendered at the top of the home page. Needs
+  `GEMINI_API_KEY`; without it the brief still generates, just without the
+  written summary.
+- **"Ask AI" per article** — every story has an "Ask" button that calls Gemini
+  (via `/api/ask`, `lib/gemini.ts`) with just that article's headline/excerpt/
+  metadata to answer a free-text question about it, in an overlay with a few
+  starter prompts. Uses the same `GEMINI_API_KEY` as the daily summary; without
+  it the overlay shows a clear "not configured" error instead of failing
+  silently.
 - **`/api/cron/ingest`** — pulls all sources and stores new articles. Scheduled
   daily via `vercel.json` (Vercel Hobby plan allows at most once/day per cron;
   see "Going faster than daily" below).
@@ -102,21 +109,27 @@ curl http://localhost:3000/api/cron/brief
 2. Copy the API key into `.env` as `NEWSDATA_API_KEY`.
 3. Ingestion picks it up automatically on the next run — no code changes.
 
-## Getting an Anthropic API key (optional, for "Ask AI")
+## Getting a Gemini API key (optional, for "The wrap" and "Ask AI")
 
-1. Create a key at [console.anthropic.com](https://console.anthropic.com).
-2. Copy it into `.env` as `ANTHROPIC_API_KEY`.
-3. Restart the dev server — no code changes needed. This calls `claude-opus-5`
-   per question (2-4 sentence answers, capped at 1024 output tokens); there's
-   no per-user rate limiting on `/api/ask` since the app has no auth layer —
-   fine for personal/local use, worth adding a limiter before a public deploy.
+1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+2. Copy it into `.env` as `GEMINI_API_KEY`.
+3. Both features pick it up on the next request — no code changes. `lib/gemini.ts`
+   is the shared client (hand-rolled `fetch`, not the SDK — see its file
+   comment for why): `/api/cron/brief` makes one call/day to `gemini-3.5-flash`
+   (override with `GEMINI_MODEL`) over the day's ~32 headlines; `/api/ask`
+   makes one call per question, capped at 1024 output tokens. There's no
+   per-user rate limiting on `/api/ask` since the app has no auth layer — fine
+   for personal/local use, worth adding a limiter before a public deploy.
+   Summarisation failures are logged and swallowed (brief keeps its headline
+   list, previous day's wrap stays in place); `/api/ask` failures surface as a
+   clear error in the overlay instead.
 
 ## Deploying to Vercel
 
 1. Push this repo to GitHub (or another git provider Vercel supports).
 2. In Vercel: **New Project** → import the repo.
 3. Add environment variables in the Vercel project settings: `DATABASE_URL`
-   (and `NEWSDATA_API_KEY` / `ANTHROPIC_API_KEY` if you have them).
+   (and `NEWSDATA_API_KEY` / `GEMINI_API_KEY` if you have them).
 4. Generate a random string and set it as `CRON_SECRET` in Vercel's env vars —
    Vercel Cron then automatically sends it as a bearer token on scheduled
    requests, so nobody else can trigger your ingestion/brief routes.

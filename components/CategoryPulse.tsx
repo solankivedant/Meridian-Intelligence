@@ -14,10 +14,7 @@ export function CategoryPulse({ counts }: { counts: Map<Category, number> }) {
   const total = values.reduce((sum, v) => sum + v, 0);
 
   return (
-    <div
-      className="grid grid-cols-2 gap-x-6 gap-y-4 border-y py-5 sm:grid-cols-4"
-      style={{ borderColor: "var(--rule)" }}
-    >
+    <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
       {CATEGORY_META.map((meta, i) => {
         const count = values[i];
         return (

@@ -1,11 +1,18 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
-import { CategoryNav } from "./CategoryNav";
+import { Sidebar } from "./Sidebar";
 import { todayDateline } from "@/lib/formatTime";
 
 export function Header() {
   return (
-    <header>
+    <header
+      className="sticky top-0 z-30 border-b backdrop-blur-md"
+      style={{
+        borderColor: "var(--rule-strong)",
+        backgroundColor: "color-mix(in srgb, var(--paper) 90%, transparent)",
+      }}
+    >
       {/* Eight equal segments, one per category, in palette order — a colour
           legend for the dots used throughout the page rather than decoration. */}
       <div className="flex h-[3px] w-full" aria-hidden>
@@ -18,32 +25,43 @@ export function Header() {
         ))}
       </div>
 
-      <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-x-6 gap-y-3 px-5 pb-4 pt-5 sm:px-8">
-        <Link href="/" className="group block">
-          <span
-            className="kicker block"
-            style={{ color: "var(--text-muted)" }}
-          >
+      <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3 sm:px-8">
+        <Sidebar />
+
+        <Link href="/" className="min-w-0 shrink">
+          <span className="kicker block text-[9px] text-[var(--text-muted)] sm:text-[10px]">
             Daily intelligence briefing
           </span>
-          <span className="headline mt-1 block text-[26px] leading-[1.05] text-[var(--text-primary)] sm:text-[34px]">
+          <span className="headline block truncate text-[20px] leading-[1.1] text-[var(--text-primary)] sm:text-[26px]">
             India Policy &amp; Business
           </span>
         </Link>
 
-        <div className="flex items-center gap-4 pb-1">
-          <span className="meta hidden sm:inline">{todayDateline()}</span>
-          <Link
-            href="/sources"
-            className="kicker border-b pb-0.5 transition-colors"
-            style={{ borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }}
-          >
-            Sources
-          </Link>
-        </div>
-      </div>
+        {/* The dateline is the one piece of chrome that says "this is today's
+            edition", so it is set at reading size rather than as fine print. */}
+        <span
+          className="ml-auto hidden shrink-0 text-[16px] italic text-[var(--text-secondary)] lg:block"
+          style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+        >
+          {todayDateline()}
+        </span>
 
-      <CategoryNav />
+        <form
+          action="/search"
+          method="GET"
+          className="ml-auto flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 lg:ml-4"
+          style={{ borderColor: "var(--rule-strong)" }}
+        >
+          <Search className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" aria-hidden />
+          <input
+            type="search"
+            name="q"
+            placeholder="Search"
+            aria-label="Search the archive"
+            className="w-20 min-w-0 bg-transparent text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:w-40"
+          />
+        </form>
+      </div>
     </header>
   );
 }

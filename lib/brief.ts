@@ -1,5 +1,6 @@
-import { Category } from "@prisma/client";
+import { Category, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { BriefSummary, SummarizableArticle, summarizeBrief } from "@/lib/summarize";
 
 const ITEMS_PER_CATEGORY = 4;
 
@@ -12,6 +13,14 @@ export type BriefHighlightItem = {
 };
 
 export type BriefHighlights = Partial<Record<Category, BriefHighlightItem[]>>;
+
+/** Narrows the stored `summary` column back to the shape summarize.ts wrote. */
+export function briefSummaryOf(summary: Prisma.JsonValue | null): BriefSummary | null {
+  if (!summary || typeof summary !== "object" || Array.isArray(summary)) return null;
+  const candidate = summary as Partial<BriefSummary>;
+  if (typeof candidate.overview !== "string" || !Array.isArray(candidate.points)) return null;
+  return candidate as BriefSummary;
+}
 
 function startOfTodayUTC(): Date {
   const now = new Date();
@@ -29,6 +38,10 @@ export async function generateDailyBrief() {
   });
 
   const highlights: BriefHighlights = {};
+  // The same stories feed the written summary, so the wrap never refers to a
+  // development the panel beside it doesn't list.
+  const summarizable: SummarizableArticle[] = [];
+
   for (const article of recentArticles) {
     const bucket = highlights[article.category] ?? [];
     if (bucket.length >= ITEMS_PER_CATEGORY) continue;
@@ -40,14 +53,27 @@ export async function generateDailyBrief() {
       publishedAt: article.publishedAt.toISOString(),
     });
     highlights[article.category] = bucket;
+    summarizable.push({
+      title: article.title,
+      excerpt: article.excerpt,
+      category: article.category,
+      source: { name: article.source.name },
+    });
   }
 
+  const summary = await summarizeBrief(summarizable);
   const date = startOfTodayUTC();
 
   return db.dailyBrief.upsert({
     where: { date },
-    update: { highlights, generatedAt: new Date() },
-    create: { date, highlights },
+    // A failed summarisation leaves whatever the last successful run wrote
+    // rather than blanking the day's wrap.
+    update: {
+      highlights,
+      generatedAt: new Date(),
+      ...(summary ? { summary } : {}),
+    },
+    create: { date, highlights, summary: summary ?? Prisma.JsonNull },
   });
 }
 

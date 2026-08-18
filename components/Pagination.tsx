@@ -5,12 +5,15 @@ import Link from "next/link";
 export function Pagination({
   basePath,
   params,
+  extra,
   page,
   pageSize,
   total,
 }: {
   basePath: string;
-  params: { range?: string; tag?: string; month?: string };
+  params: { range?: string; tags?: string; month?: string };
+  /** Extra query values to preserve, e.g. a search term and its scope. */
+  extra?: Record<string, string | undefined>;
   page: number;
   pageSize: number;
   total: number;
@@ -21,8 +24,11 @@ export function Pagination({
   const href = (target: number) => {
     const search = new URLSearchParams();
     if (params.range) search.set("range", params.range);
-    if (params.tag) search.set("tag", params.tag);
+    if (params.tags) search.set("tags", params.tags);
     if (params.month) search.set("month", params.month);
+    for (const [key, value] of Object.entries(extra ?? {})) {
+      if (value) search.set(key, value);
+    }
     if (target > 1) search.set("page", String(target));
     const qs = search.toString();
     return qs ? `${basePath}?${qs}` : basePath;

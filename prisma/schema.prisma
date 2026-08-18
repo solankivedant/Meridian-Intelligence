@@ -12,6 +12,13 @@ enum SourceType {
   SCRAPE
 }
 
+// Whether a story is about India or the rest of the world. Both share the same
+// eight categories; only the desk they belong to differs.
+enum Region {
+  INDIA
+  WORLD
+}
+
 enum Category {
   POLICY_REGULATORY
   SUBSIDY_SCHEME
@@ -29,6 +36,7 @@ model Source {
   url             String
   type            SourceType
   defaultCategory Category
+  region          Region     @default(INDIA)
   active          Boolean    @default(true)
   createdAt       DateTime   @default(now())
   articles        Article[]
@@ -40,6 +48,7 @@ model Article {
   excerpt     String   @db.Text
   url         String   @unique
   category    Category
+  region      Region   @default(INDIA)
   tags        String[]
   publishedAt DateTime
   fetchedAt   DateTime @default(now())
@@ -49,11 +58,17 @@ model Article {
 
   @@index([category, publishedAt])
   @@index([publishedAt])
+  @@index([region, publishedAt])
+  @@index([region, category, publishedAt])
 }
 
 model DailyBrief {
   id          String   @id @default(cuid())
   date        DateTime @unique @db.Date
   highlights  Json
+  // Gemini's written wrap for the day: { overview, points[], model,
+  // generatedAt }. Null whenever summarisation was unconfigured or failed —
+  // the highlight list above stands on its own. See lib/summarize.ts.
+  summary     Json?
   generatedAt DateTime @default(now())
 }

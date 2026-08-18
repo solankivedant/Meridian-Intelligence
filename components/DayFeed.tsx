@@ -1,4 +1,5 @@
-import { ArticleRow, FeedArticle } from "./ArticleRow";
+import { ArticleGrid } from "./ArticleGrid";
+import type { FeedArticle } from "./ArticleRow";
 import { withLeadFirst } from "@/lib/leadStory";
 import { dayKey, dayLabel, shortDate } from "@/lib/formatTime";
 
@@ -28,9 +29,9 @@ function groupByDay(articles: FeedArticle[]): DayGroup[] {
 }
 
 /**
- * The feed's rhythm comes from days, not from a card grid: each day opens with
- * a dateline and a feature, then drops into scannable rows. That cadence is
- * what gives a long list somewhere to breathe.
+ * The feed's rhythm comes from days: each day opens with a dateline and a
+ * feature, then tiles the rest. Grouping by day is what gives a long archive
+ * somewhere to breathe — the grid alone would run on without a landmark.
  */
 export function DayFeed({
   articles,
@@ -50,7 +51,7 @@ export function DayFeed({
         if (!feature) return null;
         return (
           <section key={group.key}>
-            <div className="mb-4 flex items-baseline gap-3">
+            <div className="mb-3 flex items-baseline gap-3">
               <h3 className="kicker shrink-0 text-[var(--text-primary)]">{group.label}</h3>
               <span className="meta shrink-0">{shortDate(group.date)}</span>
               <span className="h-px flex-1" style={{ backgroundColor: "var(--rule)" }} aria-hidden />
@@ -59,17 +60,7 @@ export function DayFeed({
               </span>
             </div>
 
-            <ArticleRow article={feature} variant="feature" showCategory={showCategory} />
-
-            {rest.length > 0 && (
-              <div className="mt-4 border-t" style={{ borderColor: "var(--rule)" }}>
-                {rest.map((article) => (
-                  <div key={article.id} className="border-b" style={{ borderColor: "var(--rule)" }}>
-                    <ArticleRow article={article} variant="row" showCategory={showCategory} />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ArticleGrid feature={feature} articles={rest} showCategory={showCategory} />
           </section>
         );
       })}

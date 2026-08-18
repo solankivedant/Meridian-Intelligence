@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "backfill": "tsx scripts/backfill.ts"
+    "backfill": "tsx scripts/backfill.ts",
+    "ingest": "tsx scripts/ingest.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.117.1",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "dotenv": "^17.4.2",

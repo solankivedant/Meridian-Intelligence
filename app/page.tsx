@@ -1,30 +1,32 @@
-import { Category, Prisma } from "@prisma/client";
+import { Category, Region } from "@prisma/client";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
 import { CATEGORY_META } from "@/lib/categoryMeta";
-import { SectionHeading } from "@/components/SectionHeading";
+import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
 import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
+import { BriefSummaryPanel } from "@/components/BriefSummaryPanel";
 import { CategoryPulse } from "@/components/CategoryPulse";
-import { DayFeed } from "@/components/DayFeed";
-import { FeedFilterBar } from "@/components/FeedFilterBar";
-import { Pagination } from "@/components/Pagination";
-import { EmptyState } from "@/components/EmptyState";
-import { getLatestBrief, BriefHighlights } from "@/lib/brief";
+import { CoverageStrip } from "@/components/CoverageStrip";
+import { ArchiveSection } from "@/components/ArchiveSection";
+import { getLatestBrief, briefSummaryOf, BriefHighlights } from "@/lib/brief";
+import { getCoverage } from "@/lib/coverage";
 import { withLeadFirst } from "@/lib/leadStory";
-import { shortDate, timeAgo } from "@/lib/formatTime";
+import { timeAgo } from "@/lib/formatTime";
+import { hoursAgo } from "@/lib/timeRange";
 import {
-  normalizeRange,
-  rangeCutoff,
-  isValidMonthKey,
-  monthDateRange,
-  hoursAgo,
-} from "@/lib/timeRange";
+  PAGE_SIZE,
+  FeedSearchParams,
+  parseFeedParams,
+  buildFeedWhere,
+  isNarrowed,
+} from "@/lib/feedQuery";
 
 export const revalidate = 0;
 
-const PAGE_SIZE = 60;
-const BRIEF_ITEMS = 8;
+// Sized to land near the lead's own height — a much longer list leaves the
+// column beside it empty.
+const BRIEF_ITEMS = 5;
 
 /**
  * Flattens the per-category brief into one ranked list by taking a turn from
@@ -66,29 +68,17 @@ function interleaveHighlights(
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ range?: string; tag?: string; month?: string; page?: string }>;
+  searchParams: Promise<FeedSearchParams>;
 }) {
-  const params = await searchParams;
-  const range = normalizeRange(params.range);
-  const tag = params.tag ?? "";
-  const month = isValidMonthKey(params.month) ? params.month : "";
-  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  const parsed = parseFeedParams(await searchParams);
+  const where = buildFeedWhere(parsed, { region: Region.INDIA });
 
-  const since24h = hoursAgo(24);
-  const cutoff = rangeCutoff(range);
-
-  // Browsing a specific month overrides the relative range entirely.
-  const feedWhere: Prisma.ArticleWhereInput = {
-    ...(month ? { publishedAt: monthDateRange(month) } : cutoff ? { publishedAt: { gte: cutoff } } : {}),
-    ...(tag ? { tags: { has: tag } } : {}),
-  };
-
-  const [counts, articles, total, coverage, publisherCount, brief] = await Promise.all([
+  const [counts, articles, total, coverage, brief] = await Promise.all([
     safeQuery(
       () =>
         db.article.groupBy({
           by: ["category"],
-          where: { publishedAt: { gte: since24h } },
+          where: { region: Region.INDIA, publishedAt: { gte: hoursAgo(24) } },
           _count: { _all: true },
         }),
       [] as { category: Category; _count: { _all: number } }[]
@@ -96,118 +86,105 @@ export default async function Home({
     safeQuery(
       () =>
         db.article.findMany({
-          where: feedWhere,
+          where,
           orderBy: { publishedAt: "desc" },
           include: { source: true },
-          skip: (page - 1) * PAGE_SIZE,
+          skip: (parsed.page - 1) * PAGE_SIZE,
           take: PAGE_SIZE,
         }),
       []
     ),
-    safeQuery(() => db.article.count({ where: feedWhere }), 0),
-    safeQuery(
-      () =>
-        db.article.aggregate({
-          _count: { _all: true },
-          _min: { publishedAt: true },
-          _max: { fetchedAt: true },
-        }),
-      null
-    ),
-    safeQuery(() => db.source.count(), 0),
+    safeQuery(() => db.article.count({ where }), 0),
+    safeQuery(() => getCoverage(Region.INDIA), null),
     safeQuery(() => getLatestBrief(), null),
   ]);
 
   const countByCategory = new Map(counts.map((c) => [c.category, c._count._all]));
   const highlights = (brief?.highlights ?? {}) as BriefHighlights;
+  const briefSummary = briefSummaryOf(brief?.summary ?? null);
 
-  // The lead + brief block is the front page. Once a reader has filtered or
-  // paged, they're browsing the archive and want the feed, not the front page.
-  const showFrontPage = page === 1 && !tag && !month;
+  // The wrap + lead + brief block is the front page. Once a reader has filtered
+  // or paged they're browsing the archive, and want the feed instead.
+  const showFrontPage = parsed.page === 1 && !isNarrowed(parsed);
   const { lead, rest } = showFrontPage
     ? withLeadFirst(articles)
     : { lead: undefined, rest: articles };
-  const feedArticles = rest;
   const briefEntries = interleaveHighlights(highlights, BRIEF_ITEMS, lead?.id);
 
+  // Section markers are numbered at render time because the wrap and the lead
+  // both drop out on filtered views.
+  let section = 0;
+  const next = () => String(++section).padStart(2, "0");
+
   return (
-    <div className="flex flex-col gap-14 pt-8">
-      {coverage && coverage._count._all > 0 && (
-        <div
-          className="-mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 border-b pb-3"
-          style={{ borderColor: "var(--rule)" }}
+    <div className="flex flex-col gap-8 pt-6">
+      {coverage && <CoverageStrip coverage={coverage} desk="India desk" />}
+
+      {showFrontPage && briefSummary && (
+        <Section
+          id="wrap"
+          index={next()}
+          title="The wrap"
+          note={`written by ${briefSummary.model}`}
+          description="A read of the last 24 hours across every section."
         >
-          <Stat value={coverage._count._all.toLocaleString("en-IN")} label="stories tracked" />
-          <Stat value={String(publisherCount)} label="sources" />
-          {coverage._min.publishedAt && (
-            <Stat value={shortDate(coverage._min.publishedAt)} label="oldest story" />
-          )}
-          {coverage._max.fetchedAt && (
-            <Stat value={timeAgo(coverage._max.fetchedAt)} label="last update" />
-          )}
-        </div>
+          <BriefSummaryPanel summary={briefSummary} />
+        </Section>
       )}
 
       {lead && (
-        <section className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <SectionHeading title="The lead" note={timeAgo(lead.publishedAt)} />
-            <ArticleRow article={lead} variant="lead" />
-          </div>
-
-          {briefEntries.length > 0 && (
-            <div
-              className="lg:col-span-5 lg:border-l lg:pl-12"
-              style={{ borderColor: "var(--rule)" }}
-            >
-              <SectionHeading
-                title="In brief"
-                note={brief ? `generated ${timeAgo(brief.generatedAt)}` : undefined}
-              />
-              <BriefPanel entries={briefEntries} />
+        <Section
+          id="lead"
+          index={next()}
+          title="The lead"
+          note={timeAgo(lead.publishedAt)}
+          description="Today's most substantial story, and the day's brief across every section."
+        >
+          <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <ArticleRow article={lead} variant="lead" />
             </div>
-          )}
-        </section>
+
+            {briefEntries.length > 0 && (
+              <div
+                className="flex flex-col lg:col-span-5 lg:border-l lg:pl-12"
+                style={{ borderColor: "var(--rule)" }}
+              >
+                <p
+                  className="kicker mb-3 border-b pb-2 text-[var(--text-primary)]"
+                  style={{ borderColor: "var(--rule)" }}
+                >
+                  In brief
+                  {brief && (
+                    <span className="ml-2 font-normal normal-case tracking-normal text-[var(--text-muted)]">
+                      generated {timeAgo(brief.generatedAt)}
+                    </span>
+                  )}
+                </p>
+                <BriefPanel entries={briefEntries} />
+              </div>
+            )}
+          </div>
+        </Section>
       )}
 
-      <section>
-        <SectionHeading title="The pulse" note="stories published in the last 24 hours" />
+      <Section
+        id="pulse"
+        index={next()}
+        title="The pulse"
+        note="last 24 hours"
+        description="How the day's volume splits across the eight sections."
+      >
         <CategoryPulse counts={countByCategory} />
-      </section>
+      </Section>
 
-      <section>
-        <SectionHeading
-          title={month || tag || range !== "7d" ? "Archive" : "Latest"}
-          note={total > 0 ? `${total.toLocaleString("en-IN")} stories` : undefined}
-        />
-        <FeedFilterBar basePath="/" range={range} tag={tag} month={month} />
-
-        {feedArticles.length === 0 ? (
-          <EmptyState filtered={Boolean(tag || month) || range !== "7d"} />
-        ) : (
-          <>
-            <DayFeed articles={feedArticles} />
-            <Pagination
-              basePath="/"
-              params={{ range, tag, month }}
-              page={page}
-              pageSize={PAGE_SIZE}
-              total={total}
-            />
-          </>
-        )}
-      </section>
+      <ArchiveSection
+        index={next()}
+        basePath="/"
+        parsed={parsed}
+        articles={rest}
+        total={total}
+      />
     </div>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <span className="flex items-baseline gap-1.5">
-      <span className="text-[13px] font-medium tabular-nums text-[var(--text-primary)]">
-        {value}
-      </span>
-      <span className="kicker text-[10px] text-[var(--text-muted)]">{label}</span>
-    </span>
   );
 }

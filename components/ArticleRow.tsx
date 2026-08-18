@@ -18,17 +18,18 @@ export type FeedArticle = {
 };
 
 /**
- * Three registers for the same record:
+ * Four registers for the same record:
  *
  *  - `lead`    the one story a page opens on — display headline, full deck
  *  - `feature` the first story of a day — a step down, still with a deck
- *  - `row`     everything else — one hairline-separated line to scan
+ *  - `card`    a tile in the feed grid — headline, two lines of deck, byline
+ *  - `row`     a single hairline-separated line, for narrow columns
  *
- * Mixing registers is the point. A page of identical cards has no reading
- * order; a page with one lead, a feature per day, and rows between them tells
+ * Mixing registers is the point. A page of identical tiles has no reading
+ * order; a page with one lead, a feature per day, and cards between them tells
  * you where to start and where you may skim.
  */
-export type ArticleVariant = "lead" | "feature" | "row";
+export type ArticleVariant = "lead" | "feature" | "card" | "row";
 
 export function ArticleRow({
   article,
@@ -45,7 +46,10 @@ export function ArticleRow({
 
   if (variant === "lead") {
     return (
-      <article className="group relative">
+      // Column-flex with the tags pushed to the bottom: the lead sits beside a
+      // rail whose length it cannot know, and whichever of the two is shorter
+      // has to fill its column or the panel ends up half empty.
+      <article className="group relative flex h-full flex-col">
         {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} />}
         <a
           href={article.url}
@@ -64,8 +68,13 @@ export function ArticleRow({
             </p>
           )}
         </a>
-        <Byline article={article} className="mt-4" />
-        <TagList tags={article.tags} className="mt-3" />
+        {/* Byline and tags travel together as the story's footer, pushed to
+            the base of the column so the lead and the rail beside it end on
+            the same line whichever of the two runs shorter. */}
+        <div className="mt-auto pt-5">
+          <Byline article={article} />
+          <TagList tags={article.tags} className="mt-3" />
+        </div>
       </article>
     );
   }
@@ -80,7 +89,7 @@ export function ArticleRow({
           rel="noopener noreferrer"
           className="mt-1.5 block"
         >
-          <h3 className="headline-tight text-[20px] text-[var(--text-primary)] sm:text-[23px]">
+          <h3 className="headline-tight line-clamp-3 text-[20px] text-[var(--text-primary)] sm:text-[23px]">
             <span className="link-underline">{article.title}</span>
           </h3>
           {excerpt && (
@@ -90,6 +99,35 @@ export function ArticleRow({
           )}
         </a>
         <Byline article={article} className="mt-2.5" />
+      </article>
+    );
+  }
+
+  if (variant === "card") {
+    return (
+      // `flex-1` + `mt-auto` on the byline: cards in a grid row are stretched
+      // to a common height, and bylines that float mid-cell are what makes a
+      // tiled feed look ragged.
+      <article className="group relative flex flex-1 flex-col">
+        {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} size="xs" />}
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={showCategory ? "mt-1.5 block" : "block"}
+        >
+          {/* Regulators file headlines that run to nine lines; unclamped, one
+              of them sets the height of every tile in its row. */}
+          <h3 className="headline-tight line-clamp-4 text-[16px] text-[var(--text-primary)] sm:text-[17px]">
+            <span className="link-underline">{article.title}</span>
+          </h3>
+          {excerpt && (
+            <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
+              {excerpt}
+            </p>
+          )}
+        </a>
+        <Byline article={article} className="mt-auto pt-3" revealAsk />
       </article>
     );
   }

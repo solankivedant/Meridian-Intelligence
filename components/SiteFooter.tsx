@@ -6,6 +6,12 @@ export function SiteFooter() {
     <footer className="border-t" style={{ borderColor: "var(--rule)" }}>
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:px-8">
         <div className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link
+            href="/world"
+            className="text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+          >
+            World desk
+          </Link>
           {CATEGORY_META.map((meta) => (
             <Link
               key={meta.slug}

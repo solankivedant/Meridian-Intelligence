@@ -16,9 +16,16 @@ export type BriefEntry = {
  * beside it is one big serif block and the feed below is a run of rows, so the
  * brief earns its own shape: enumerated, tight, one line of provenance each.
  */
-export function BriefPanel({ entries }: { entries: BriefEntry[] }) {
+export function BriefPanel({
+  entries,
+  showCategory = true,
+}: {
+  entries: BriefEntry[];
+  /** Off on a category page, where every item carries the same label. */
+  showCategory?: boolean;
+}) {
   return (
-    <ol className="flex flex-col">
+    <ol className="flex flex-1 flex-col justify-between">
       {entries.map((entry, i) => {
         const meta = metaForCategory(entry.category);
         return (
@@ -41,12 +48,16 @@ export function BriefPanel({ entries }: { entries: BriefEntry[] }) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="min-w-0">
-                <span className="headline-tight block text-[15px] text-[var(--text-primary)]">
+                <span className="headline-tight line-clamp-2 text-[15px] text-[var(--text-primary)]">
                   <span className="link-underline">{entry.title}</span>
                 </span>
                 <span className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[var(--text-muted)]">
-                  <span style={{ color: `var(${meta.colorVar})` }}>{meta.shortLabel}</span>
-                  <span aria-hidden>·</span>
+                  {showCategory && (
+                    <>
+                      <span style={{ color: `var(${meta.colorVar})` }}>{meta.shortLabel}</span>
+                      <span aria-hidden>·</span>
+                    </>
+                  )}
                   <span>{entry.sourceName}</span>
                   <span aria-hidden>·</span>
                   <span>{timeAgo(entry.publishedAt)}</span>
