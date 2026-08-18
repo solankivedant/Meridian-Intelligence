@@ -46,22 +46,25 @@ export function Section({
         }}
       >
         <div
-          className="border-b px-4 py-3 sm:px-5"
+          className="border-b px-4 py-4 sm:px-5"
           style={{ borderColor: "var(--rule)", backgroundColor: "var(--surface-2)" }}
         >
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             {index && (
-              <span className="meta shrink-0 text-[11px]" style={{ color: accent }} aria-hidden>
+              <span className="meta shrink-0 text-[13px]" style={{ color: accent }} aria-hidden>
                 {index}
               </span>
             )}
-            <h2 className="headline text-[19px] leading-tight text-[var(--text-primary)] sm:text-[22px]">
+            {/* The section name is the page's main wayfinding device, so it is
+                set well above the body ramp — a reader scrolling fast should be
+                able to land on it without reading anything else. */}
+            <h2 className="headline text-[28px] leading-[1.12] font-semibold text-[var(--text-primary)] sm:text-[36px]">
               {title}
             </h2>
-            {note && <span className="meta ml-auto shrink-0">{note}</span>}
+            {note && <span className="meta ml-auto shrink-0 text-[12px]">{note}</span>}
           </div>
           {description && (
-            <p className="measure mt-1 text-[13px] leading-relaxed text-[var(--text-muted)]">
+            <p className="measure mt-1.5 text-[14px] leading-relaxed text-[var(--text-muted)]">
               {description}
             </p>
           )}

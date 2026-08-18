@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * The dashboard reads like a publication, not a control panel: a warm paper
+ * The dashboard reads like a publication, not a control panel: a white paper
  * plane, an ink-on-paper text ramp, hairline rules instead of boxes, and the
  * eight category hues used only as accents (kickers, dots, meters) so the page
  * has one focal point per section rather than eight competing ones.
@@ -9,16 +9,17 @@
 :root {
   color-scheme: light;
 
-  /* paper & ink */
-  --paper: #f7f5f0;
-  --surface-1: #fffefb;
-  --surface-2: #f1eee7;
-  --text-primary: #171614;
-  --text-secondary: #4b4842;
-  --text-muted: #8a857b;
-  --rule: rgba(23, 22, 20, 0.11);
-  --rule-strong: rgba(23, 22, 20, 0.26);
-  --ink-wash: rgba(23, 22, 20, 0.04);
+  /* paper & ink. The plane is plain white; panels are separated by their rules
+     and by the tinted header strip rather than by a tinted page behind them. */
+  --paper: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #f4f4f2;
+  --text-primary: #16161a;
+  --text-secondary: #46464c;
+  --text-muted: #83838c;
+  --rule: rgba(22, 22, 26, 0.11);
+  --rule-strong: rgba(22, 22, 26, 0.26);
+  --ink-wash: rgba(22, 22, 26, 0.04);
 
   /* categorical (fixed order, one per category — see lib/categoryMeta.ts) */
   --cat-policy: #2a78d6; /* blue */
@@ -42,33 +43,8 @@
   --font-serif: var(--font-newsreader);
 }
 
-/* Dark values live in one place and are applied by both the media query
-   (system preference) and the explicit [data-theme] hook. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --paper: #0e0e10;
-    --surface-1: #17171a;
-    --surface-2: #1e1e22;
-    --text-primary: #f5f3ef;
-    --text-secondary: #b6b2aa;
-    --text-muted: #807b73;
-    --rule: rgba(245, 243, 239, 0.13);
-    --rule-strong: rgba(245, 243, 239, 0.3);
-    --ink-wash: rgba(245, 243, 239, 0.045);
-
-    --cat-policy: #4d95ea;
-    --cat-subsidy: #f0824f;
-    --cat-tech: #2ec894;
-    --cat-business: #e0ac2e;
-    --cat-investment: #ef94b6;
-    --cat-economy: #35ac35;
-    --cat-trade: #9085e9;
-    --cat-geopolitics: #ef7070;
-  }
-}
-
+/* The plane is white by default: a system dark preference no longer flips it.
+   Dark values stay reachable through the explicit [data-theme="dark"] hook. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
@@ -90,6 +66,18 @@
   --cat-economy: #35ac35;
   --cat-trade: #9085e9;
   --cat-geopolitics: #ef7070;
+}
+
+/* The masthead's jump links glide to their section instead of teleporting;
+   each section carries its own scroll-margin to clear the sticky header. */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -184,4 +172,168 @@ a:focus-visible .link-underline,
 .rail::-webkit-scrollbar-thumb {
   background: var(--rule-strong);
   border-radius: 2px;
+}
+
+/* ---- reader state ------------------------------------------------------- */
+
+/*
+ * A story already opened from this browser recedes rather than disappears.
+ * Dimming is done here, on an attribute the link sets, instead of in the
+ * component: it costs no extra render, and it restores on hover so a reader
+ * re-reading something is never left squinting at grey text.
+ */
+.story-link[data-read="true"] {
+  opacity: 0.52;
+  transition: opacity 160ms ease;
+}
+
+.story-link[data-read="true"]:hover,
+.story-link[data-read="true"]:focus-visible {
+  opacity: 1;
+}
+
+/* A muted publisher's tile is pushed back, not removed — the feed's counts and
+   numbering come from the server and must keep describing what is on screen. */
+.story-cell[data-muted="true"] {
+  opacity: 0.42;
+  transition: opacity 160ms ease;
+}
+
+.story-cell[data-muted="true"]:hover,
+.story-cell[data-muted="true"]:focus-within {
+  opacity: 1;
+}
+
+/* ---- density ------------------------------------------------------------ */
+
+/*
+ * Compact is the scanning view: the same stories with their decks dropped and
+ * the grid pulled in. It is a display preference rather than a different feed,
+ * so it is expressed as CSS on one root attribute instead of a second set of
+ * components — nothing re-renders, and it survives navigation for free.
+ */
+:root[data-density="compact"] .story-deck {
+  display: none;
+}
+
+:root[data-density="compact"] .story-cell {
+  padding: 0.6rem 0.75rem 0.6rem 0.6rem;
+}
+
+:root[data-density="compact"] .story-grid {
+  gap: 0.375rem;
+}
+
+:root[data-density="compact"] .headline-tight {
+  line-height: 1.24;
+}
+
+/* ---- keyboard access ---------------------------------------------------- */
+
+/*
+ * One visible focus ring for the whole site. `:focus-visible` rather than
+ * `:focus` so it appears for keyboard and assistive-technology users without
+ * boxing every element a mouse happens to click.
+ */
+:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.story-link:focus-visible {
+  outline-color: var(--cat-policy);
+  outline-offset: 3px;
+}
+
+/* Off screen until focused, then a real control at the top of the page. */
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 70;
+  transform: translateY(-200%);
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  transition: transform 140ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ---- print -------------------------------------------------------------- */
+
+/*
+ * The page as a sheet of paper.
+ *
+ * Policy readers circulate what they read, and a printed dashboard full of
+ * navigation, filter chips and Ask buttons is unusable. Print strips the
+ * chrome, forces the light palette (a dark theme prints as a black rectangle),
+ * flows the grid into two columns, and writes each link's URL after it so the
+ * paper copy still carries its sources.
+ */
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --paper: #ffffff;
+    --surface-1: #ffffff;
+    --surface-2: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #222222;
+    --text-muted: #555555;
+    --rule: rgba(0, 0, 0, 0.25);
+    --rule-strong: rgba(0, 0, 0, 0.5);
+    --ink-wash: transparent;
+  }
+
+  header,
+  footer,
+  [data-noprint],
+  .skip-link {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .story-grid {
+    display: block;
+    columns: 2;
+    column-gap: 16pt;
+  }
+
+  .story-cell {
+    break-inside: avoid;
+    margin-bottom: 8pt;
+    box-shadow: none;
+    background: none !important;
+  }
+
+  /* A printed headline whose link is invisible is a dead end. */
+  .story-link[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 7pt;
+    font-weight: 400;
+    color: #555;
+    word-break: break-all;
+  }
+
+  section {
+    break-inside: auto;
+  }
+
+  a {
+    text-decoration: none;
+  }
 }

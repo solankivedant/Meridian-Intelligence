@@ -1,6 +1,8 @@
 import { Category } from "@/lib/enums";
 import { CategoryBadge } from "./CategoryBadge";
-import { AskArticleButton } from "./AskArticleButton";
+import { StoryActions, StoryRef } from "./StoryActions";
+import { StoryLink } from "./StoryLink";
+import { NewBadge } from "./NewBadge";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { tagLabel } from "@/lib/categorize";
 import { clockTime, timeAgo } from "@/lib/formatTime";
@@ -35,14 +37,24 @@ export function ArticleRow({
   article,
   variant = "row",
   showCategory = true,
+  index,
+  note,
 }: {
   article: FeedArticle;
   variant?: ArticleVariant;
   showCategory?: boolean;
+  /** Position in the list this story is being shown in, 1-based. */
+  index?: number;
+  /** Editorial line on why this story is here — the topic desk sets it. */
+  note?: string;
 }) {
   const meta = metaForCategory(article.category);
+  const accent = `var(${meta.colorVar})`;
   // Null whenever the feed's description just echoes the headline.
   const excerpt = deck(article.title, article.excerpt);
+  // Everything the client-side controls need, flattened: they run in the
+  // browser, where a Date is just a string that has to be parsed again.
+  const story = storyRef(article);
 
   if (variant === "lead") {
     return (
@@ -50,24 +62,22 @@ export function ArticleRow({
       // rail whose length it cannot know, and whichever of the two is shorter
       // has to fill its column or the panel ends up half empty.
       <article className="group relative flex h-full flex-col">
-        {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} />}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2.5 block"
-        >
+        <div className="flex items-center gap-2">
+          {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} />}
+          <NewBadge id={story.id} publishedAt={story.publishedAt} />
+        </div>
+        <StoryLink {...story} className="mt-2.5 block">
           <h3 className="headline text-[28px] leading-[1.12] text-[var(--text-primary)] sm:text-[38px]">
             <span className="link-underline">{article.title}</span>
           </h3>
           {/* Clamped even at display size: some feeds ship an entire
               statistical table as the description. */}
           {excerpt && (
-            <p className="measure mt-3 line-clamp-4 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
+            <p className="story-deck measure mt-3 line-clamp-4 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
               {excerpt}
             </p>
           )}
-        </a>
+        </StoryLink>
         {/* Byline and tags travel together as the story's footer, pushed to
             the base of the column so the lead and the rail beside it end on
             the same line whichever of the two runs shorter. */}
@@ -82,22 +92,20 @@ export function ArticleRow({
   if (variant === "feature") {
     return (
       <article className="group relative">
-        {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} size="xs" />}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-1.5 block"
-        >
+        <Slugline index={index} accent={accent} story={story}>
+          {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} size="xs" />}
+        </Slugline>
+        <StoryLink {...story} className="mt-2 block">
           <h3 className="headline-tight line-clamp-3 text-[20px] text-[var(--text-primary)] sm:text-[23px]">
             <span className="link-underline">{article.title}</span>
           </h3>
           {excerpt && (
-            <p className="measure mt-2 line-clamp-2 text-[14px] leading-[1.6] text-[var(--text-secondary)]">
+            <p className="story-deck measure mt-2 line-clamp-2 text-[14px] leading-[1.6] text-[var(--text-secondary)]">
               {excerpt}
             </p>
           )}
-        </a>
+        </StoryLink>
+        <EditorNote note={note} accent={accent} />
         <Byline article={article} className="mt-2.5" />
       </article>
     );
@@ -109,12 +117,12 @@ export function ArticleRow({
       // to a common height, and bylines that float mid-cell are what makes a
       // tiled feed look ragged.
       <article className="group relative flex flex-1 flex-col">
-        {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} size="xs" />}
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={showCategory ? "mt-1.5 block" : "block"}
+        <Slugline index={index} accent={accent} story={story}>
+          {showCategory && <CategoryBadge meta={meta} href={`/category/${meta.slug}`} size="xs" />}
+        </Slugline>
+        <StoryLink
+          {...story}
+          className={showCategory || index !== undefined ? "mt-2 block" : "block"}
         >
           {/* Regulators file headlines that run to nine lines; unclamped, one
               of them sets the height of every tile in its row. */}
@@ -122,11 +130,12 @@ export function ArticleRow({
             <span className="link-underline">{article.title}</span>
           </h3>
           {excerpt && (
-            <p className="mt-1.5 line-clamp-2 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
+            <p className="story-deck mt-1.5 line-clamp-2 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
               {excerpt}
             </p>
           )}
-        </a>
+        </StoryLink>
+        <EditorNote note={note} accent={accent} />
         <Byline article={article} className="mt-auto pt-3" revealAsk />
       </article>
     );
@@ -142,11 +151,11 @@ export function ArticleRow({
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <a href={article.url} target="_blank" rel="noopener noreferrer">
+          <StoryLink {...story}>
             <h3 className="headline-tight text-[16px] text-[var(--text-primary)] sm:text-[17px]">
               <span className="link-underline">{article.title}</span>
             </h3>
-          </a>
+          </StoryLink>
           <Byline
             article={article}
             className="mt-1.5"
@@ -166,6 +175,61 @@ export function ArticleRow({
         </time>
       </div>
     </article>
+  );
+}
+
+/**
+ * The line above a headline: its number in the list, then the category.
+ *
+ * The numeral is the point. A grid of tiles has no inherent reading order, and
+ * "the third one" is not something a reader can say about a mosaic — a printed
+ * rank gives every story a handle, and on the topic desk it *is* the ranking.
+ * It carries the category colour so one glance reads as both.
+ */
+function Slugline({
+  index,
+  accent,
+  story,
+  children,
+}: {
+  index?: number;
+  accent: string;
+  story: StoryRef;
+  children?: React.ReactNode;
+}) {
+  if (index === undefined && !children) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      {index !== undefined && (
+        <span
+          className="meta inline-flex h-[18px] min-w-[22px] items-center justify-center px-1 text-[11px] font-semibold leading-none"
+          style={{
+            color: accent,
+            backgroundColor: `color-mix(in srgb, ${accent} 13%, transparent)`,
+          }}
+          aria-hidden
+        >
+          {String(index).padStart(2, "0")}
+        </span>
+      )}
+      {children}
+      <NewBadge id={story.id} publishedAt={story.publishedAt} />
+    </div>
+  );
+}
+
+/** The desk editor's one-line reason, set apart from the source's own deck. */
+function EditorNote({ note, accent }: { note?: string; accent: string }) {
+  if (!note) return null;
+
+  return (
+    <p
+      className="mt-2.5 border-l-2 pl-2.5 text-[12.5px] leading-[1.5] text-[var(--text-secondary)]"
+      style={{ borderColor: accent }}
+    >
+      {note}
+    </p>
   );
 }
 
@@ -205,17 +269,25 @@ function Byline({
       >
         {timeAgo(article.publishedAt)}
       </time>
-      <span
-        className={
-          revealAsk
-            ? "ml-auto transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
-            : "ml-auto"
-        }
-      >
-        <AskArticleButton articleId={article.id} title={article.title} />
+      <span className="ml-auto">
+        {/* Whether the cluster hides until hover is decided inside it: a story
+            already on the reading list has to keep showing that it is. */}
+        <StoryActions story={storyRef(article)} reveal={revealAsk} />
       </span>
     </div>
   );
+}
+
+/** The story as the client-side controls see it — plain, serialisable fields. */
+function storyRef(article: FeedArticle): StoryRef {
+  return {
+    id: article.id,
+    title: article.title,
+    url: article.url,
+    sourceName: article.source.name,
+    category: article.category,
+    publishedAt: article.publishedAt.toISOString(),
+  };
 }
 
 function Dot({ className = "" }: { className?: string }) {

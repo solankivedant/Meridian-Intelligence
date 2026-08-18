@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe2, MapPin, Radio, Search } from "lucide-react";
+import { Menu, X, Globe2, MapPin, Radio, Search, Sparkles, Bookmark } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 
 /**
@@ -100,6 +100,30 @@ export function Sidebar() {
                 <Item href="/world" label="World" icon={Globe2} active={pathname === "/world"} onNavigate={close} />
               </Group>
 
+              <Group label="Personalised">
+                <Item
+                  href="/my-desk"
+                  label="Your desk"
+                  icon={Sparkles}
+                  color="var(--cat-tech)"
+                  hint="Name a topic — Gemini ranks the archive on it"
+                  active={pathname === "/my-desk"}
+                  onNavigate={close}
+                />
+              </Group>
+
+              <Group label="Yours">
+                <Item
+                  href="/saved"
+                  label="Saved stories"
+                  icon={Bookmark}
+                  color="var(--cat-subsidy)"
+                  hint="Kept in this browser — no account, works offline"
+                  active={pathname === "/saved"}
+                  onNavigate={close}
+                />
+              </Group>
+
               <Group label="Sections">
                 {CATEGORY_META.map((meta) => {
                   const href = `/category/${meta.slug}`;
@@ -141,13 +165,20 @@ function Item({
   label,
   color,
   icon: Icon,
+  hint,
   active,
   onNavigate,
 }: {
   href: string;
   label: string;
   color?: string;
-  icon?: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  icon?: React.ComponentType<{
+    className?: string;
+    style?: React.CSSProperties;
+    "aria-hidden"?: boolean;
+  }>;
+  /** One line under the label, for a destination that needs explaining. */
+  hint?: string;
   active: boolean;
   onNavigate: () => void;
 }) {
@@ -159,7 +190,9 @@ function Item({
       // re-render on every navigation.
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
-      className="flex items-center gap-2.5 px-5 py-1.5 text-[14px] transition-colors"
+      className={`flex gap-2.5 px-5 text-[14px] transition-colors ${
+        hint ? "items-start py-2" : "items-center py-1.5"
+      }`}
       style={{
         color: active ? "var(--text-primary)" : "var(--text-secondary)",
         fontWeight: active ? 600 : 400,
@@ -168,7 +201,11 @@ function Item({
       }}
     >
       {Icon ? (
-        <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <Icon
+          className={`h-3.5 w-3.5 shrink-0 ${hint ? "mt-[3px]" : ""}`}
+          style={color ? { color } : undefined}
+          aria-hidden
+        />
       ) : (
         <span
           className="h-2 w-2 shrink-0 rounded-full"
@@ -176,7 +213,14 @@ function Item({
           aria-hidden
         />
       )}
-      {label}
+      <span className="min-w-0">
+        {label}
+        {hint && (
+          <span className="mt-0.5 block text-[11px] font-normal leading-snug text-[var(--text-muted)]">
+            {hint}
+          </span>
+        )}
+      </span>
     </Link>
   );
 }

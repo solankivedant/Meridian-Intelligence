@@ -3,6 +3,7 @@ import { DayFeed } from "./DayFeed";
 import { FilterPanel } from "./FilterPanel";
 import { Pagination } from "./Pagination";
 import { EmptyState } from "./EmptyState";
+import { NewSinceBanner } from "./NewSinceBanner";
 import type { FeedArticle } from "./ArticleRow";
 import { PAGE_SIZE, ParsedFeedParams, feedLinkParams, isNarrowed } from "@/lib/feedQuery";
 
@@ -46,11 +47,26 @@ export function ArchiveSection({
     >
       <FilterPanel basePath={basePath} filters={parsed} resultCount={total} />
 
+      {/* Only the ids and timestamps cross to the browser — the banner counts,
+          it does not render stories. */}
+      <NewSinceBanner
+        stories={articles.map((article) => ({
+          id: article.id,
+          publishedAt: article.publishedAt.toISOString(),
+        }))}
+      />
+
       {articles.length === 0 ? (
         <EmptyState filtered={narrowed} />
       ) : (
         <>
-          <DayFeed articles={articles} showCategory={showCategory} />
+          <DayFeed
+            articles={articles}
+            showCategory={showCategory}
+            // Page 2 starts at 41, not at 1 — the number is the story's
+            // position in the whole filtered list, not on the screen.
+            startIndex={(parsed.page - 1) * PAGE_SIZE + 1}
+          />
           <Pagination
             basePath={basePath}
             params={feedLinkParams(parsed)}

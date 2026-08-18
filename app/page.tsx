@@ -15,10 +15,10 @@ import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import { hoursAgo } from "@/lib/timeRange";
 import {
-  PAGE_SIZE,
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
 
@@ -89,8 +89,7 @@ export default async function Home({
           where,
           orderBy: { publishedAt: "desc" },
           include: { source: true },
-          skip: (parsed.page - 1) * PAGE_SIZE,
-          take: PAGE_SIZE,
+          ...feedSlice(parsed),
         }),
       []
     ),
@@ -103,22 +102,36 @@ export default async function Home({
   const highlights = (brief?.highlights ?? {}) as BriefHighlights;
   const briefSummary = briefSummaryOf(brief?.summary ?? null);
 
-  // The wrap + lead + brief block is the front page. Once a reader has filtered
-  // or paged they're browsing the archive, and want the feed instead.
+  // The wrap + lead + pulse panels are the front page's editorial layer, shown
+  // under the feed. Once a reader has filtered or paged they're browsing the
+  // archive, so those panels drop away and the feed stands alone.
   const showFrontPage = parsed.page === 1 && !isNarrowed(parsed);
   const { lead, rest } = showFrontPage
     ? withLeadFirst(articles)
     : { lead: undefined, rest: articles };
   const briefEntries = interleaveHighlights(highlights, BRIEF_ITEMS, lead?.id);
 
-  // Section markers are numbered at render time because the wrap and the lead
-  // both drop out on filtered views.
+  // Section markers are numbered at render time, in render order, because the
+  // wrap and the lead both drop out on filtered views.
   let section = 0;
   const next = () => String(++section).padStart(2, "0");
 
   return (
     <div className="flex flex-col gap-8 pt-6">
       {coverage && <CoverageStrip coverage={coverage} desk="India desk" />}
+
+      {/* The feed opens the page. A reader arriving mid-morning wants to know
+          what has landed since they last looked, and making them scroll past
+          three editorial panels to reach it put the day's record last. The
+          wrap, the lead and the pulse follow, and the masthead's jump links
+          reach them in one click. */}
+      <ArchiveSection
+        index={next()}
+        basePath="/"
+        parsed={parsed}
+        articles={rest}
+        total={total}
+      />
 
       {showFrontPage && briefSummary && (
         <Section
@@ -177,14 +190,6 @@ export default async function Home({
       >
         <CategoryPulse counts={countByCategory} />
       </Section>
-
-      <ArchiveSection
-        index={next()}
-        basePath="/"
-        parsed={parsed}
-        articles={rest}
-        total={total}
-      />
     </div>
   );
 }

@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { Sidebar } from "./Sidebar";
+import { PrimaryNav } from "./PrimaryNav";
+import { SectionJump } from "./SectionJump";
+import { SearchBox } from "./SearchBox";
+import { PrefsMenu } from "./PrefsMenu";
+import { ReadingProgress } from "./ReadingProgress";
 import { todayDateline } from "@/lib/formatTime";
 
 export function Header() {
@@ -37,31 +41,49 @@ export function Header() {
           </span>
         </Link>
 
-        {/* The dateline is the one piece of chrome that says "this is today's
-            edition", so it is set at reading size rather than as fine print. */}
-        <span
-          className="ml-auto hidden shrink-0 text-[16px] italic text-[var(--text-secondary)] lg:block"
-          style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
-        >
-          {todayDateline()}
-        </span>
+        {/* Search takes the centre of the masthead at full width. Cornered into
+            a 40px stub it read as an afterthought; here it is the second thing
+            the eye lands on, which matches how often readers arrive wanting one
+            specific story rather than the day's feed. */}
+        <div className="hidden min-w-0 flex-1 justify-center lg:flex">
+          <div className="w-full max-w-xl">
+            <SearchBox />
+          </div>
+        </div>
 
-        <form
-          action="/search"
-          method="GET"
-          className="ml-auto flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 lg:ml-4"
-          style={{ borderColor: "var(--rule-strong)" }}
-        >
-          <Search className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" aria-hidden />
-          <input
-            type="search"
-            name="q"
-            placeholder="Search"
-            aria-label="Search the archive"
-            className="w-20 min-w-0 bg-transparent text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:w-40"
-          />
-        </form>
+        {/* The dateline is the one piece of chrome that says "this is today's
+            edition", so it is set at reading size — upright, not italic, which
+            at this size stays legible instead of turning into ornament. */}
+        <div className="ml-auto flex shrink-0 items-center gap-3">
+          <span
+            className="hidden text-[17px] leading-tight font-medium text-[var(--text-secondary)] lg:block xl:text-[20px]"
+            style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+          >
+            {todayDateline()}
+          </span>
+          <PrefsMenu />
+        </div>
       </div>
+
+      {/* Between the masthead's breakpoint and a phone the field gets its own
+          full-width row. On a phone it would cost a third of a sticky header,
+          so there it stays where it already was — inside the drawer. */}
+      <div className="mx-auto hidden max-w-6xl px-5 pb-3 sm:block sm:px-8 lg:hidden">
+        <SearchBox />
+      </div>
+
+      <div className="border-t" style={{ borderColor: "var(--rule)" }}>
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-3 sm:px-6">
+          <PrimaryNav />
+          <div className="ml-auto hidden shrink-0 py-1.5 md:block">
+            <SectionJump />
+          </div>
+        </div>
+      </div>
+
+      {/* Sits on the masthead's own bottom edge, so progress finishes a rule
+          that is already there instead of floating over the page. */}
+      <ReadingProgress />
     </header>
   );
 }

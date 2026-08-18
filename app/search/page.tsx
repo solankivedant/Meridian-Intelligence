@@ -135,7 +135,7 @@ export default async function SearchPage({
               : "Try fewer words, or widen the desk and section filters above."
           }
         >
-          <ArticleGrid articles={articles} />
+          <ArticleGrid articles={articles} startIndex={(page - 1) * PAGE_SIZE + 1} />
           <Pagination
             basePath="/search"
             params={{}}

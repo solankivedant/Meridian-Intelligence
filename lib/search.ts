@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Category, Region } from "@/lib/enums";
 import { db } from "@/lib/db";
+import { MAX_QUERY_LENGTH } from "@/lib/searchLimits";
 import type { FeedArticle } from "@/components/ArticleRow";
 
 /**
@@ -14,17 +15,22 @@ import type { FeedArticle } from "@/components/ArticleRow";
  */
 const MATCH_EXPRESSION = Prisma.sql`to_tsvector('english', a."title" || ' ' || a."excerpt")`;
 
-export const MAX_QUERY_LENGTH = 120;
+export { MAX_QUERY_LENGTH };
+
+/** `all` AND-s the terms (search-box semantics); `any` OR-s them. */
+export type MatchMode = "all" | "any";
 
 /**
  * Turns free text into a tsquery.
  *
  * Every term gets a `:*` prefix wildcard so partial words match while typing —
- * "semicon" should find "semiconductor". Terms are AND-ed, which is what
- * people expect from a search box. Input is reduced to alphanumerics first:
- * `to_tsquery` throws on stray operators, and a thrown query is a 500.
+ * "semicon" should find "semiconductor". Terms are AND-ed by default, which is
+ * what people expect from a search box; `any` exists for the topic desk, where
+ * a phrase like "EV battery subsidies" should still retrieve candidates when
+ * no single story contains all three words. Input is reduced to alphanumerics
+ * first: `to_tsquery` throws on stray operators, and a thrown query is a 500.
  */
-export function toTsQuery(input: string): string | null {
+export function toTsQuery(input: string, mode: MatchMode = "all"): string | null {
   const terms = input
     .slice(0, MAX_QUERY_LENGTH)
     .toLowerCase()
@@ -34,13 +40,15 @@ export function toTsQuery(input: string): string | null {
     .slice(0, 8);
 
   if (terms.length === 0) return null;
-  return terms.map((term) => `${term}:*`).join(" & ");
+  return terms.map((term) => `${term}:*`).join(mode === "any" ? " | " : " & ");
 }
 
 export type SearchFilters = {
   region?: Region;
   category?: Category;
   tags?: string[];
+  /** Only stories published on or after this instant. */
+  since?: Date;
 };
 
 export type SearchResults = {
@@ -70,15 +78,18 @@ function filterConditions(filters: SearchFilters): Prisma.Sql[] {
   if (filters.tags?.length) {
     conditions.push(Prisma.sql`a."tags" && ${filters.tags}::text[]`);
   }
+  if (filters.since) {
+    conditions.push(Prisma.sql`a."publishedAt" >= ${filters.since}`);
+  }
   return conditions;
 }
 
 export async function searchArticles(
   rawQuery: string,
   filters: SearchFilters,
-  { skip = 0, take = 30 }: { skip?: number; take?: number } = {}
+  { skip = 0, take = 30, mode = "all" }: { skip?: number; take?: number; mode?: MatchMode } = {}
 ): Promise<SearchResults> {
-  const tsQuery = toTsQuery(rawQuery);
+  const tsQuery = toTsQuery(rawQuery, mode);
   if (!tsQuery) return { articles: [], total: 0 };
 
   const where = Prisma.join(

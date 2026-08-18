@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PreferencesScript } from "@/components/PreferencesScript";
+import { AppRuntime } from "@/components/AppRuntime";
+import { KeyboardLayer } from "@/components/KeyboardLayer";
+import { BackToTop } from "@/components/BackToTop";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,12 +40,37 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      // The pre-paint script rewrites data-theme/data-density on this element
+      // before React sees it, which is a mismatch by construction, not a bug.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
+      // Overwritten before paint by PreferencesScript; the attribute is
+      // declared here so the very first frame of a fresh document already has
+      // a theme rather than inheriting one mid-render.
+      data-theme="light"
+      data-density="comfortable"
     >
       <body className="flex min-h-full flex-col">
+        <PreferencesScript />
+
+        {/* First tab stop on every page. Eight sections, two rows of nav and a
+            search field stand between the top of the document and the day's
+            stories — that is a lot of tabbing for a keyboard reader who came
+            to read. */}
+        <a href="#main" className="skip-link">
+          Skip to the stories
+        </a>
+
         <Header />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-16 sm:px-8">{children}</main>
+        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 pb-16 sm:px-8">
+          {children}
+        </main>
         <SiteFooter />
+
+        <AppRuntime />
+        <KeyboardLayer />
+        <BackToTop />
+        <OfflineBanner />
       </body>
     </html>
   );

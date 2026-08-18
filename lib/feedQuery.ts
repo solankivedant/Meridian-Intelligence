@@ -65,6 +65,23 @@ export function buildFeedWhere(
   };
 }
 
+/**
+ * The slice of the feed a page should fetch.
+ *
+ * The unfiltered first page lifts one story out of the feed and gives it the
+ * lead treatment, so fetching a flat `PAGE_SIZE` left the grid one story short
+ * — 39 tiles where the pager promised 40. It takes one extra row instead, and
+ * every later page skips that row so the lifted story is not served twice.
+ */
+export function feedSlice(parsed: ParsedFeedParams): { skip: number; take: number } {
+  // A narrowed view has no lead panel, so nothing is lifted out of it.
+  const liftsLead = !isNarrowed(parsed);
+  return {
+    skip: (parsed.page - 1) * PAGE_SIZE + (liftsLead && parsed.page > 1 ? 1 : 0),
+    take: liftsLead && parsed.page === 1 ? PAGE_SIZE + 1 : PAGE_SIZE,
+  };
+}
+
 /** Query-string values to carry across pagination links. */
 export function feedLinkParams(parsed: ParsedFeedParams) {
   return {

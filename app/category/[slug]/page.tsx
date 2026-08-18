@@ -11,10 +11,10 @@ import { ArchiveSection } from "@/components/ArchiveSection";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import {
-  PAGE_SIZE,
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
 
@@ -54,8 +54,7 @@ export default async function CategoryPage({
           where,
           orderBy: { publishedAt: "desc" },
           include: { source: true },
-          skip: (parsed.page - 1) * PAGE_SIZE,
-          take: PAGE_SIZE,
+          ...feedSlice(parsed),
         }),
       []
     ),
@@ -120,6 +119,7 @@ export default async function CategoryPage({
 
       {lead && (
         <Section
+          id="lead"
           index="01"
           title="Leading this section"
           note={timeAgo(lead.publishedAt)}

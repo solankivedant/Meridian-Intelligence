@@ -12,10 +12,10 @@ import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import { hoursAgo } from "@/lib/timeRange";
 import {
-  PAGE_SIZE,
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
 
@@ -53,8 +53,7 @@ export default async function WorldPage({
           where,
           orderBy: { publishedAt: "desc" },
           include: { source: true },
-          skip: (parsed.page - 1) * PAGE_SIZE,
-          take: PAGE_SIZE,
+          ...feedSlice(parsed),
         }),
       []
     ),
@@ -84,9 +83,20 @@ export default async function WorldPage({
     <div className="flex flex-col gap-8 pt-6">
       {coverage && <CoverageStrip coverage={coverage} desk="World desk" />}
 
+      {/* The feed leads here for the same reason it does on the India desk:
+          what has landed is the reason a reader opened the page. */}
+      <ArchiveSection
+        index="01"
+        basePath="/world"
+        parsed={parsed}
+        articles={rest}
+        total={total}
+      />
+
       {lead && (
         <Section
-          index="01"
+          id="lead"
+          index="02"
           title="The lead"
           note={timeAgo(lead.publishedAt)}
           description="The strongest story on the world desk, with what else is moving beside it."
@@ -114,7 +124,8 @@ export default async function WorldPage({
       )}
 
       <Section
-        index="02"
+        id="pulse"
+        index="03"
         title="The pulse"
         note="last 24 hours"
         description="How the world desk's volume splits across the eight sections."
@@ -122,13 +133,6 @@ export default async function WorldPage({
         <CategoryPulse counts={countByCategory} />
       </Section>
 
-      <ArchiveSection
-        index="03"
-        basePath="/world"
-        parsed={parsed}
-        articles={rest}
-        total={total}
-      />
     </div>
   );
 }
