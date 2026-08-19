@@ -1,4 +1,4 @@
-# India Policy & Business Dashboard
+# Meridian — policy, business & markets
 
 A dashboard that pulls together, on a schedule, what's happening in India across:
 policy & regulation, subsidies & schemes, business & startups, tech & innovation
@@ -47,12 +47,15 @@ NewsData.io API.
   `DailyBrief` row and rendered at the top of the home page. Needs
   `GEMINI_API_KEY`; without it the brief still generates, just without the
   written summary.
-- **"Ask AI" per article** — every story has an "Ask" button that calls Gemini
-  (via `/api/ask`, `lib/gemini.ts`) with just that article's headline/excerpt/
-  metadata to answer a free-text question about it, in an overlay with a few
-  starter prompts. Uses the same `GEMINI_API_KEY` as the daily summary; without
-  it the overlay shows a clear "not configured" error instead of failing
-  silently.
+- **"Ask AI" per article (off by default)** — an "Ask" button on every story
+  that calls Gemini (via `/api/ask`, `lib/gemini.ts`) with just that article's
+  headline/excerpt/metadata to answer a free-text question about it, in an
+  overlay with a few starter prompts. **Disabled unless `NEXT_PUBLIC_ENABLE_ASK`
+  is exactly `"true"`** — it is the one Gemini feature whose cost scales with
+  traffic instead of with content, so a public deployment leaving it on is an
+  open tap on your API key. The flag gates the button *and* the route: with it
+  unset, `/api/ask` returns 404 no matter who posts to it. See
+  `lib/features.ts`.
 - **`/api/cron/ingest`** — pulls all sources and stores new articles. Scheduled
   daily via `vercel.json` (Vercel Hobby plan allows at most once/day per cron;
   see "Going faster than daily" below).
@@ -60,10 +63,7 @@ NewsData.io API.
   articles, a handful of highlights per category, which the front page
   interleaves so one busy category can't fill the whole list. Scheduled daily,
   after ingestion.
-- **`/api/cron/backfill`** — a serverless-sized slice of the archive crawl (at
-  most two months per call, to stay inside the function timeout). For real
-  history, run `npm run backfill` locally instead.
-- All three cron routes are protected by `CRON_SECRET` (see below).
+- Both cron routes are protected by `CRON_SECRET` (see below).
 
 We deliberately store only a **headline, short excerpt, and link back to the
 source** — never full article text — both to stay on solid fair-use footing for
@@ -117,7 +117,8 @@ curl http://localhost:3000/api/cron/brief
    is the shared client (hand-rolled `fetch`, not the SDK — see its file
    comment for why): `/api/cron/brief` makes one call/day to `gemini-3.5-flash`
    (override with `GEMINI_MODEL`) over the day's ~32 headlines; `/api/ask`
-   makes one call per question, capped at 1024 output tokens. There's no
+   makes one call per question, capped at 1024 output tokens (and is disabled
+   unless `NEXT_PUBLIC_ENABLE_ASK="true"`). There's no
    per-user rate limiting on `/api/ask` since the app has no auth layer — fine
    for personal/local use, worth adding a limiter before a public deploy.
    Summarisation failures are logged and swallowed (brief keeps its headline
@@ -147,10 +148,6 @@ edit `vercel.json` to run `/api/cron/ingest` more often, e.g. every 2 hours:
 ```json
 { "path": "/api/cron/ingest", "schedule": "0 */2 * * *" }
 ```
-
-`/api/cron/backfill?months=1` is worth a weekly slot too — the archive keeps
-indexing stories after they're published, so a re-crawl of the last month or
-two picks up items the live feeds missed.
 
 Keep `/api/cron/brief` at once/day (it summarizes the last 24h, more frequent
 runs don't add value) but schedule it *after* whatever your last ingest run of

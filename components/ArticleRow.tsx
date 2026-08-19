@@ -136,7 +136,7 @@ export function ArticleRow({
           )}
         </StoryLink>
         <EditorNote note={note} accent={accent} />
-        <Byline article={article} className="mt-auto pt-3" revealAsk />
+        <Byline article={article} className="mt-auto pt-3" revealActions />
       </article>
     );
   }
@@ -164,7 +164,7 @@ export function ArticleRow({
             // needs a clock — shown in the right margin where the eye can
             // read the column, and folded into the byline on narrow screens.
             timeDisplay="narrow-only"
-            revealAsk
+            revealActions
           />
         </div>
         <time
@@ -238,14 +238,14 @@ function Byline({
   className = "",
   showCategory = false,
   timeDisplay = "always",
-  revealAsk = false,
+  revealActions = false,
 }: {
   article: FeedArticle;
   className?: string;
   showCategory?: boolean;
   timeDisplay?: "always" | "narrow-only";
-  /** Keep the Ask affordance out of the way until the row is hovered. */
-  revealAsk?: boolean;
+  /** Keep the action cluster out of the way until the row is hovered. */
+  revealActions?: boolean;
 }) {
   const meta = metaForCategory(article.category);
 
@@ -272,7 +272,7 @@ function Byline({
       <span className="ml-auto">
         {/* Whether the cluster hides until hover is decided inside it: a story
             already on the reading list has to keep showing that it is. */}
-        <StoryActions story={storyRef(article)} reveal={revealAsk} />
+        <StoryActions story={storyRef(article)} reveal={revealActions} />
       </span>
     </div>
   );

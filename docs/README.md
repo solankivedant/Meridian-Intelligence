@@ -19,9 +19,9 @@ it is built that way.
 
 Indian policy news is scattered across ministry press-release pages, regulator
 notification feeds and a dozen business dailies, and none of it is organised the
-way someone tracking a sector needs it. This dashboard ingests ~78 RSS feeds and
-a dated news-archive crawl on a schedule, sorts every story into one of eight
-categories and 25 cross-cutting sector tags, and renders it as a publication —
+way someone tracking a sector needs it. This dashboard ingests ~78 RSS feeds on
+a schedule, uses a manual dated news-archive crawl, sorts every story into one
+of eight categories and 25 cross-cutting sector tags, and renders it as a publication —
 a feed grouped by day, a scored lead story, an AI-written daily wrap, and a
 searchable archive that currently holds ~28,000 stories going back to 2019.
 
@@ -34,7 +34,7 @@ searchable archive that currently holds ~28,000 stories going back to 2019.
 | Configured feeds | 59 India + 19 World, plus an optional NewsData.io key |
 | Distinct publishers seen | ~3,500 (feeds plus archive-discovered) |
 | Categories / sector tags | 8 / 25 |
-| Deployment | Vercel + Neon Postgres, three daily/weekly crons |
+| Deployment | Vercel + Neon Postgres, two daily crons |
 
 ## Conventions used across these docs
 

@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { generateText, isGeminiConfigured, GeminiError } from "@/lib/gemini";
+import { ASK_ENABLED } from "@/lib/features";
 
 const MAX_QUESTION_LENGTH = 300;
 
 export async function POST(req: NextRequest) {
+  // Checked before anything else, and answered as 404 rather than 403: a
+  // disabled feature should look like a route that was never built, not like
+  // one guarding something worth probing for. Hiding the button alone would
+  // leave this endpoint open to anyone who read the bundle.
+  if (!ASK_ENABLED) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   let body: { articleId?: unknown; question?: unknown };
   try {
     body = await req.json();

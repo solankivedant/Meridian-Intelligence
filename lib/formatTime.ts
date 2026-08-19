@@ -65,6 +65,29 @@ export function clockTime(date: Date): string {
   });
 }
 
+/**
+ * `14:32` in the *reader's own* timezone, not IST.
+ *
+ * Everything else on the dashboard is deliberately pinned to IST because the
+ * coverage is Indian. The masthead clock is the one exception: it answers
+ * "what time is it where I am", so it reads the system clock as-is.
+ */
+export function localClock(date: Date): string {
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+/** Short zone label for the reader's system timezone — `IST`, `GMT+2`, `PST`. */
+export function localZone(date: Date): string {
+  const parts = new Intl.DateTimeFormat([], {
+    timeZoneName: "short",
+  }).formatToParts(date);
+  return parts.find((part) => part.type === "timeZoneName")?.value ?? "";
+}
+
 /** Full masthead dateline for the current moment. */
 export function todayDateline(): string {
   return new Date().toLocaleDateString("en-IN", {

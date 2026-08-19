@@ -31,7 +31,13 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "India Policy & Business Dashboard",
+  // A template, so the name lives in exactly one place: every page below sets
+  // only its own title and gets " · Meridian" appended. Repeating the masthead
+  // in five files is how a rename leaves half a site on the old name.
+  title: {
+    default: "Meridian — Policy, business & markets",
+    template: "%s · Meridian",
+  },
   description:
     "New Indian government policy, regulation, subsidies, business opportunities, tech & innovation pushes, economy, investment, trade, and geopolitics — pulled from official and news sources.",
 };

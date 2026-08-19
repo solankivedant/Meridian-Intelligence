@@ -3,7 +3,7 @@ import { Section } from "@/components/Section";
 import { SavedShelf } from "@/components/SavedShelf";
 
 export const metadata: Metadata = {
-  title: "Saved stories · India Policy & Business",
+  title: "Saved stories",
   description: "The stories you have kept, stored in this browser.",
 };
 

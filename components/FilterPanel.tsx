@@ -1,24 +1,26 @@
 import Link from "next/link";
-import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow } from "lucide-react";
 import { TIME_RANGES, TimeRangeKey, monthOptions } from "@/lib/timeRange";
 import { TAG_META } from "@/lib/categorize";
+import { Category } from "@/lib/enums";
+import { CATEGORY_META } from "@/lib/categoryMeta";
+import { SORTS, SortKey, categorySlugs, feedHref } from "@/lib/feedQuery";
 
 export type FeedFilters = {
   range: TimeRangeKey;
   tags: string[];
+  cats: Category[];
+  sort: SortKey;
   month: string;
 };
 
-function buildHref(
-  basePath: string,
-  { range, tags, month }: { range?: string; tags?: string[]; month?: string }
-) {
-  const search = new URLSearchParams();
-  if (range) search.set("range", range);
-  if (tags?.length) search.set("tags", tags.join(","));
-  if (month) search.set("month", month);
-  const qs = search.toString();
-  return qs ? `${basePath}?${qs}` : basePath;
+/** What the closed section control says it is currently doing. */
+function sectionSummary(cats: Category[]): string {
+  if (cats.length === 0) return "All sections";
+  if (cats.length === 1) {
+    return CATEGORY_META.find((meta) => meta.category === cats[0])?.shortLabel ?? "1 section";
+  }
+  return `${cats.length} sections`;
 }
 
 /** What the closed sector control says it is currently doing. */
@@ -48,14 +50,21 @@ export function FilterPanel({
   basePath,
   filters,
   resultCount,
+  counts,
+  showSections = true,
 }: {
   basePath: string;
   filters: FeedFilters;
   resultCount?: number;
+  /** Stories per section in the current window - drawn beside each chip. */
+  counts?: Map<Category, number>;
+  /** False on a section page, where there is nothing left to narrow. */
+  showSections?: boolean;
 }) {
-  const { range, tags, month } = filters;
-  const hasFilters = tags.length > 0 || month !== "";
+  const { range, tags, cats, sort, month } = filters;
+  const hasFilters = tags.length > 0 || cats.length > 0 || sort !== "new" || month !== "";
   const months = monthOptions();
+  const carry = { range, tags, cats, sort, month };
 
   return (
     // Positioned, because the sector drawer opens across the panel's full
@@ -80,7 +89,7 @@ export function FilterPanel({
         )}
         {hasFilters && (
           <Link
-            href={buildHref(basePath, { range })}
+            href={feedHref(basePath, { range })}
             className="kicker ml-auto text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
           >
             Reset
@@ -97,7 +106,7 @@ export function FilterPanel({
                 key={r.key}
                 // Picking a relative range drops any active month selection —
                 // the two are alternative browsing modes, not combined.
-                href={buildHref(basePath, { range: r.key, tags })}
+                href={feedHref(basePath, { ...carry, range: r.key, month: "" })}
                 aria-current={active ? "true" : undefined}
                 className="border px-2.5 py-1 text-[12px] transition-colors"
                 style={
@@ -122,6 +131,8 @@ export function FilterPanel({
         <Group label="Month">
           <form action={basePath} method="GET" className="flex items-center gap-1.5">
             <input type="hidden" name="tags" value={tags.join(",")} />
+            <input type="hidden" name="cats" value={categorySlugs(cats).join(",")} />
+            <input type="hidden" name="sort" value={sort} />
             <select
               name="month"
               defaultValue={month}
@@ -148,6 +159,81 @@ export function FilterPanel({
             </button>
           </form>
         </Group>
+
+        {showSections && (
+          <>
+            <Divider />
+
+            {/* The same eight sections the pulse meters, as a filter. Reading
+                the day's skew and then acting on it - policy is busy today,
+                show me only that - was previously a trip to a section page
+                that dropped every other filter on the way. */}
+            <Group label="Section">
+              <details className="group/section">
+                <summary
+                  className="flex cursor-pointer list-none items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors [&::-webkit-details-marker]:hidden"
+                  style={
+                    cats.length > 0
+                      ? {
+                          borderColor: "var(--text-primary)",
+                          backgroundColor: "var(--ink-wash)",
+                          color: "var(--text-primary)",
+                          fontWeight: 600,
+                        }
+                      : {
+                          borderColor: "var(--rule-strong)",
+                          backgroundColor: "var(--surface-1)",
+                          color: "var(--text-secondary)",
+                        }
+                  }
+                >
+                  {sectionSummary(cats)}
+                  <ChevronDown
+                    className="h-3.5 w-3.5 shrink-0 transition-transform group-open/section:rotate-180"
+                    aria-hidden
+                  />
+                </summary>
+
+                <div
+                  className="absolute inset-x-0 top-full z-20 grid gap-1.5 border-t p-3 shadow-lg sm:grid-cols-2 lg:grid-cols-4"
+                  style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
+                >
+                  {CATEGORY_META.map((meta) => {
+                    const active = cats.includes(meta.category);
+                    const next = active
+                      ? cats.filter((c) => c !== meta.category)
+                      : [...cats, meta.category];
+                    const count = counts?.get(meta.category);
+                    return (
+                      <Link
+                        key={meta.slug}
+                        href={feedHref(basePath, { ...carry, cats: next })}
+                        aria-pressed={active}
+                        className="flex items-center gap-2 border px-2 py-1 text-[12px] transition-colors"
+                        style={{
+                          borderColor: active ? `var(${meta.colorVar})` : "var(--rule)",
+                          backgroundColor: active
+                            ? `color-mix(in srgb, var(${meta.colorVar}) 13%, var(--surface-1))`
+                            : "var(--surface-1)",
+                          color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                          fontWeight: active ? 600 : 400,
+                        }}
+                      >
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: `var(${meta.colorVar})` }}
+                          aria-hidden
+                        />
+                        <span className="min-w-0 flex-1 truncate">{meta.label}</span>
+                        {count !== undefined && <span className="meta shrink-0">{count}</span>}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </details>
+            </Group>
+          </>
+        )}
 
         <Divider />
 
@@ -187,7 +273,7 @@ export function FilterPanel({
                 return (
                   <Link
                     key={t.key}
-                    href={buildHref(basePath, { range, month, tags: next })}
+                    href={feedHref(basePath, { ...carry, tags: next })}
                     aria-pressed={active}
                     className="border px-2 py-0.5 text-[11px] transition-colors"
                     style={
@@ -212,6 +298,36 @@ export function FilterPanel({
               })}
             </div>
           </details>
+        </Group>
+
+        <Divider />
+
+        <Group label="Sort">
+          {SORTS.map((option) => {
+            const active = option.key === sort;
+            return (
+              <Link
+                key={option.key}
+                href={feedHref(basePath, { ...carry, sort: option.key })}
+                aria-current={active ? "true" : undefined}
+                title={option.hint}
+                className="flex items-center gap-1 border px-2.5 py-1 text-[12px] transition-colors"
+                style={
+                  active
+                    ? {
+                        borderColor: "var(--text-primary)",
+                        backgroundColor: "var(--text-primary)",
+                        color: "var(--surface-1)",
+                        fontWeight: 600,
+                      }
+                    : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
+                }
+              >
+                {active && <ArrowDownWideNarrow className="h-3 w-3 shrink-0" aria-hidden />}
+                {option.label}
+              </Link>
+            );
+          })}
         </Group>
       </div>
     </div>

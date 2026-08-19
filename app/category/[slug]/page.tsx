@@ -14,6 +14,7 @@ import {
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedOrderBy,
   feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
@@ -52,7 +53,7 @@ export default async function CategoryPage({
       () =>
         db.article.findMany({
           where,
-          orderBy: { publishedAt: "desc" },
+          orderBy: feedOrderBy(parsed),
           include: { source: true },
           ...feedSlice(parsed),
         }),
@@ -155,6 +156,9 @@ export default async function CategoryPage({
         total={total}
         accentVar={meta.colorVar}
         showCategory={false}
+        // The page is one section already; offering the section filter here
+        // would only ever narrow it to itself or to nothing.
+        showSections={false}
       />
     </div>
   );

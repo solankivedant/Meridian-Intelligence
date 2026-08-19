@@ -8,7 +8,7 @@ Running the thing. Setup instructions live in the root
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `DATABASE_URL` | **Yes** | Neon **pooled** string (hostname contains `-pooler`) in serverless. `lib/db.ts` pins `sslmode` to `verify-full`; leaving `require` in the URL also works but relies on a `pg` alias that changes in pg 9. |
-| `CRON_SECRET` | In production | Checked by all three cron routes (`lib/cron-auth.ts`). Empty locally is fine; empty in production leaves the routes open. |
+| `CRON_SECRET` | In production | Checked by the scheduled cron routes (`lib/cron-auth.ts`). Empty locally is fine; empty in production leaves the routes open. |
 | `GEMINI_API_KEY` | Optional | The wrap, Ask AI and the topic desk. Absent → those panels are absent or say "not configured". |
 | `GEMINI_MODEL` | Optional | Defaults to `gemini-3.5-flash`. |
 | `NEWSDATA_API_KEY` | Optional | Adds the NewsData.io source to ingestion. |
@@ -21,7 +21,6 @@ Defined in [`vercel.json`](../vercel.json):
 | --- | --- | --- | --- |
 | `/api/cron/ingest` | `0 0 * * *` daily | seconds–minutes | The feed stops advancing; everything else still renders |
 | `/api/cron/brief` | `30 1 * * *` daily | ~1 Gemini call | No "In brief" panel and no wrap for that day |
-| `/api/cron/backfill?months=1` | `0 3 * * 1` weekly | ≤2 months of crawl | History stops deepening; nothing user-visible breaks |
 
 Ordering matters: brief runs 90 minutes after ingest so it summarises a fresh
 day. Vercel Hobby permits one run per day per path — that ceiling is the reason
@@ -76,9 +75,9 @@ over ~28k rows. The two expressions must match byte for byte.
 safety block (422, "the assistant declined") from a failure (502). The wrap
 simply stores `summary: null` and the highlight list stands on its own.
 
-**A serverless timeout on backfill.** The route caps itself at two months per
-call. For real history run the local script; a route was never the right place
-for a multi-minute crawl.
+**A long backfill run times out.** Backfill is a local script because the full
+archive crawl is a multi-minute batch job. Re-run it with fewer months or fewer
+queries if your machine or network drops mid-run.
 
 ## Cost profile
 
@@ -87,7 +86,7 @@ Everything sits on free tiers, and the design assumes it:
 | Service | Tier | Usage | Headroom |
 | --- | --- | --- | --- |
 | Neon Postgres | Free | ~28k rows, growing ~500/day | Comfortable; storage is the eventual limit |
-| Vercel | Hobby | 3 cron paths, all pages dynamic | Cron frequency is the binding constraint |
+| Vercel | Hobby | 2 cron paths, all pages dynamic | Cron frequency is the binding constraint |
 | Gemini | Free | ~1 call/day + user-triggered Ask | Ask is unmetered per user — the first thing to watch if traffic grows |
 | NewsData.io | Free | 200 credits/day | Optional; unused unless keyed |
 

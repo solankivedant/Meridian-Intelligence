@@ -36,6 +36,9 @@ export function StoryCell({
   const isNew = useIsNew(publishedAt);
   const read = useIsRead(id);
   const flagNew = isNew && !read;
+  // A story that arrived since the last visit gets a firmer box, tinted
+  // towards its own section colour.
+  const edge = flagNew ? `color-mix(in srgb, ${accent} 45%, var(--rule))` : "var(--rule)";
 
   return (
     <div
@@ -43,7 +46,13 @@ export function StoryCell({
       className={`story-cell flex border p-4 pl-[13px] transition-colors hover:border-[var(--rule-strong)] ${className}`}
       title={muted ? `${sourceName} is muted — unmute it on the sources page` : undefined}
       style={{
-        borderColor: flagNew ? `color-mix(in srgb, ${accent} 45%, var(--rule))` : "var(--rule)",
+        // Four longhands rather than `borderColor` plus an override: React
+        // warns when a shorthand and a longhand for the same property are both
+        // set on an element that re-renders, and this one re-renders whenever
+        // the reader's state changes.
+        borderTopColor: edge,
+        borderRightColor: edge,
+        borderBottomColor: edge,
         // The section colour rides the cell's own left edge: on a white plane
         // a hairline box alone gives the eye nothing to sort tiles by.
         borderLeftWidth: "3px",

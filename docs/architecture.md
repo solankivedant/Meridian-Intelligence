@@ -70,11 +70,10 @@ Both are load-bearing and documented in `run.ts` itself:
 | `npm run backfill -- --months=23` | Manual | Deep history; minutes, not seconds |
 | `/api/cron/ingest` | Daily 00:00 UTC | Everything |
 | `/api/cron/brief` | Daily 01:30 UTC | Builds the day's `DailyBrief` + wrap |
-| `/api/cron/backfill?months=1` | Weekly Mon 03:00 UTC | A serverless-sized slice (≤2 months) |
 
-Cron routes are protected by `CRON_SECRET` (`lib/cron-auth.ts`). The backfill
-route is capped at two months per call because anything longer exceeds the
-function timeout — real history belongs in the local script.
+The two scheduled routes are protected by `CRON_SECRET` (`lib/cron-auth.ts`).
+Backfill is manual because real history belongs in the local script rather than
+a serverless function.
 
 ## Reading
 

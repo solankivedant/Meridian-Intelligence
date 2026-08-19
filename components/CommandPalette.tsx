@@ -21,6 +21,7 @@ import {
   Search,
   Sparkles,
   Sun,
+  TrendingUp,
   VolumeX,
   type LucideIcon,
 } from "lucide-react";
@@ -101,6 +102,16 @@ export function CommandPalette({
     const items: Command[] = [
       { id: "go-india", label: "India desk", group: "Go to", icon: MapPin, keywords: "home front page", run: go("/") },
       { id: "go-world", label: "World desk", group: "Go to", icon: Globe2, keywords: "global international", run: go("/world") },
+      {
+        id: "go-opportunities",
+        label: "Sector opportunities",
+        hint: "Momentum across 25 sectors",
+        group: "Go to",
+        icon: TrendingUp,
+        color: "var(--cat-investment)",
+        keywords: "invest sectors money cagr market growth opportunity",
+        run: go("/opportunities"),
+      },
       {
         id: "go-desk",
         label: "Your desk",

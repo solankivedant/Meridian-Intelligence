@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe2, MapPin, Radio, Search, Sparkles, Bookmark } from "lucide-react";
+import { Menu, X, Globe2, MapPin, Radio, Search, Sparkles, Bookmark, TrendingUp } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 
 /**
@@ -98,6 +98,18 @@ export function Sidebar() {
               <Group label="Desks">
                 <Item href="/" label="India" icon={MapPin} active={pathname === "/"} onNavigate={close} />
                 <Item href="/world" label="World" icon={Globe2} active={pathname === "/world"} onNavigate={close} />
+              </Group>
+
+              <Group label="Analysis">
+                <Item
+                  href="/opportunities"
+                  label="Sector opportunities"
+                  icon={TrendingUp}
+                  color="var(--cat-investment)"
+                  hint="Momentum, state support and capital across 25 sectors"
+                  active={pathname.startsWith("/opportunities")}
+                  onNavigate={close}
+                />
               </Group>
 
               <Group label="Personalised">

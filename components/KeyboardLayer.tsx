@@ -123,6 +123,7 @@ export function KeyboardLayer() {
           w: "/world",
           d: "/my-desk",
           b: "/saved",
+          o: "/opportunities",
           s: "/sources",
         };
         const href = destination[key.toLowerCase()];
@@ -235,6 +236,7 @@ const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
   { keys: ["g", "w"], label: "World desk", group: "Finding" },
   { keys: ["g", "d"], label: "Your desk", group: "Finding" },
   { keys: ["g", "b"], label: "Saved stories", group: "Finding" },
+  { keys: ["g", "o"], label: "Sector opportunities", group: "Finding" },
   { keys: ["g", "s"], label: "Sources", group: "Finding" },
   { keys: ["t"], label: "Cycle theme — system, light, dark", group: "Display" },
   { keys: ["c"], label: "Toggle compact density", group: "Display" },

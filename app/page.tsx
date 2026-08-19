@@ -9,15 +9,18 @@ import { BriefSummaryPanel } from "@/components/BriefSummaryPanel";
 import { CategoryPulse } from "@/components/CategoryPulse";
 import { CoverageStrip } from "@/components/CoverageStrip";
 import { ArchiveSection } from "@/components/ArchiveSection";
+import { OpportunityStrip } from "@/components/OpportunityStrip";
 import { getLatestBrief, briefSummaryOf, BriefHighlights } from "@/lib/brief";
 import { getCoverage } from "@/lib/coverage";
+import { getSectorSignals } from "@/lib/opportunity";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
-import { hoursAgo } from "@/lib/timeRange";
+import { windowLabel } from "@/lib/timeRange";
 import {
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedOrderBy,
   feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
@@ -72,13 +75,17 @@ export default async function Home({
 }) {
   const parsed = parseFeedParams(await searchParams);
   const where = buildFeedWhere(parsed, { region: Region.INDIA });
+  // The pulse counts every section over the window the reader is browsing,
+  // deliberately ignoring their section picks: a meter that vanished the
+  // moment you filtered by it could never be used to switch to another.
+  const pulseWhere = buildFeedWhere({ ...parsed, cats: [] }, { region: Region.INDIA });
 
-  const [counts, articles, total, coverage, brief] = await Promise.all([
+  const [counts, articles, total, coverage, brief, sectors] = await Promise.all([
     safeQuery(
       () =>
         db.article.groupBy({
           by: ["category"],
-          where: { region: Region.INDIA, publishedAt: { gte: hoursAgo(24) } },
+          where: pulseWhere,
           _count: { _all: true },
         }),
       [] as { category: Category; _count: { _all: number } }[]
@@ -87,7 +94,7 @@ export default async function Home({
       () =>
         db.article.findMany({
           where,
-          orderBy: { publishedAt: "desc" },
+          orderBy: feedOrderBy(parsed),
           include: { source: true },
           ...feedSlice(parsed),
         }),
@@ -96,6 +103,7 @@ export default async function Home({
     safeQuery(() => db.article.count({ where }), 0),
     safeQuery(() => getCoverage(Region.INDIA), null),
     safeQuery(() => getLatestBrief(), null),
+    safeQuery(() => getSectorSignals(Region.INDIA), []),
   ]);
 
   const countByCategory = new Map(counts.map((c) => [c.category, c._count._all]));
@@ -110,6 +118,13 @@ export default async function Home({
     ? withLeadFirst(articles)
     : { lead: undefined, rest: articles };
   const briefEntries = interleaveHighlights(highlights, BRIEF_ITEMS, lead?.id);
+
+  // The three sectors accelerating hardest, with enough coverage behind them
+  // that the percentage means something.
+  const movers = sectors
+    .filter((signal) => signal.total >= 40 && signal.momentum !== null)
+    .sort((a, b) => (b.momentum ?? 0) - (a.momentum ?? 0))
+    .slice(0, 3);
 
   // Section markers are numbered at render time, in render order, because the
   // wrap and the lead both drop out on filtered views.
@@ -131,6 +146,7 @@ export default async function Home({
         parsed={parsed}
         articles={rest}
         total={total}
+        counts={countByCategory}
       />
 
       {showFrontPage && briefSummary && (
@@ -181,14 +197,27 @@ export default async function Home({
         </Section>
       )}
 
+      {movers.length > 0 && (
+        <Section
+          id="sectors"
+          index={next()}
+          title="Where the money is going"
+          note="last 90 days"
+          accentVar="--cat-investment"
+          description="The sectors this archive is getting loudest about, measured against the previous quarter."
+        >
+          <OpportunityStrip movers={movers} />
+        </Section>
+      )}
+
       <Section
         id="pulse"
         index={next()}
         title="The pulse"
-        note="last 24 hours"
-        description="How the day's volume splits across the eight sections."
+        note={windowLabel(parsed.range, parsed.month)}
+        description="How the window's volume splits across the eight sections — and the fastest way to narrow the feed to one of them."
       >
-        <CategoryPulse counts={countByCategory} />
+        <CategoryPulse counts={countByCategory} basePath="/" filters={parsed} />
       </Section>
     </div>
   );

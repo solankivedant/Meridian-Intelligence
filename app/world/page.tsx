@@ -10,11 +10,12 @@ import { ArchiveSection } from "@/components/ArchiveSection";
 import { getCoverage } from "@/lib/coverage";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
-import { hoursAgo } from "@/lib/timeRange";
+import { windowLabel } from "@/lib/timeRange";
 import {
   FeedSearchParams,
   parseFeedParams,
   buildFeedWhere,
+  feedOrderBy,
   feedSlice,
   isNarrowed,
 } from "@/lib/feedQuery";
@@ -24,7 +25,7 @@ export const revalidate = 0;
 const ALONGSIDE_ITEMS = 5;
 
 export const metadata = {
-  title: "World Desk — India Policy & Business Dashboard",
+  title: "World desk",
   description:
     "Global policy, trade, technology, investment and macro stories tracked alongside the India desk.",
 };
@@ -36,13 +37,14 @@ export default async function WorldPage({
 }) {
   const parsed = parseFeedParams(await searchParams);
   const where = buildFeedWhere(parsed, { region: Region.WORLD });
+  const pulseWhere = buildFeedWhere({ ...parsed, cats: [] }, { region: Region.WORLD });
 
   const [counts, articles, total, coverage] = await Promise.all([
     safeQuery(
       () =>
         db.article.groupBy({
           by: ["category"],
-          where: { region: Region.WORLD, publishedAt: { gte: hoursAgo(24) } },
+          where: pulseWhere,
           _count: { _all: true },
         }),
       [] as { category: Category; _count: { _all: number } }[]
@@ -51,7 +53,7 @@ export default async function WorldPage({
       () =>
         db.article.findMany({
           where,
-          orderBy: { publishedAt: "desc" },
+          orderBy: feedOrderBy(parsed),
           include: { source: true },
           ...feedSlice(parsed),
         }),
@@ -91,6 +93,7 @@ export default async function WorldPage({
         parsed={parsed}
         articles={rest}
         total={total}
+        counts={countByCategory}
       />
 
       {lead && (
@@ -127,10 +130,10 @@ export default async function WorldPage({
         id="pulse"
         index="03"
         title="The pulse"
-        note="last 24 hours"
-        description="How the world desk's volume splits across the eight sections."
+        note={windowLabel(parsed.range, parsed.month)}
+        description="How the world desk's volume splits across the eight sections — and the fastest way to narrow the feed to one of them."
       >
-        <CategoryPulse counts={countByCategory} />
+        <CategoryPulse counts={countByCategory} basePath="/world" filters={parsed} />
       </Section>
 
     </div>

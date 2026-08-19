@@ -105,7 +105,7 @@ stay shareable, bookmarkable and work with JavaScript off.
 | Build | `prisma generate && next build` (also `postinstall`, so Vercel's cache never serves a stale client) |
 
 Vercel Hobby allows one cron run per day per path, which is why ingestion is
-daily and the backfill route is weekly and capped at two months.
+daily and backfill remains a manual local script.
 
 ## Tooling
 

@@ -11,6 +11,33 @@ export const TIME_RANGES: { key: TimeRangeKey; label: string; days: number | nul
 
 const DEFAULT_RANGE: TimeRangeKey = "7d";
 
+/**
+ * The active window, in words.
+ *
+ * The pulse and the coverage strip both have to say what period they describe,
+ * and "last 24 hours" hard-coded into a panel that now follows the feed's own
+ * filters is exactly the kind of caption that quietly starts lying.
+ */
+export function windowLabel(range: TimeRangeKey, month?: string): string {
+  if (month) {
+    return MONTH_OPTION_LABELS.get(month) ?? month;
+  }
+  switch (range) {
+    case "24h":
+      return "last 24 hours";
+    case "7d":
+      return "last 7 days";
+    case "1m":
+      return "last month";
+    case "3m":
+      return "last 3 months";
+    case "1y":
+      return "last year";
+    default:
+      return "the whole archive";
+  }
+}
+
 export function isTimeRangeKey(value: string | undefined): value is TimeRangeKey {
   return !!value && TIME_RANGES.some((r) => r.key === value);
 }
@@ -87,3 +114,6 @@ export function monthDateRange(monthKey: string): { gte: Date; lt: Date } {
   const lt = new Date(Date.UTC(month === 12 ? year + 1 : year, month % 12, 1));
   return { gte, lt };
 }
+
+/** Month keys to their display labels, for `windowLabel`. */
+const MONTH_OPTION_LABELS = new Map(monthOptions().map((option) => [option.key, option.label]));

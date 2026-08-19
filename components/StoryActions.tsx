@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bookmark, BookmarkCheck, Check, Link2, Share2 } from "lucide-react";
 import { Category } from "@/lib/enums";
 import { toggleSaved, useIsSaved } from "@/lib/saved";
+import { ASK_ENABLED } from "@/lib/features";
 import { AskArticleButton } from "./AskArticleButton";
 
 export type StoryRef = {
@@ -48,7 +49,9 @@ export function StoryActions({
     >
       <SaveButton story={story} />
       <ShareButton title={story.title} url={story.url} />
-      <AskArticleButton articleId={story.id} title={story.title} />
+      {/* Off on public deployments — see lib/features.ts. Save and share cost
+          nothing per reader; this one calls a paid API on every click. */}
+      {ASK_ENABLED && <AskArticleButton articleId={story.id} title={story.title} />}
     </span>
   );
 }

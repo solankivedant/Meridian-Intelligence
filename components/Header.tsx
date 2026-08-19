@@ -6,6 +6,7 @@ import { SectionJump } from "./SectionJump";
 import { SearchBox } from "./SearchBox";
 import { PrefsMenu } from "./PrefsMenu";
 import { ReadingProgress } from "./ReadingProgress";
+import { LocalClock } from "./LocalClock";
 import { todayDateline } from "@/lib/formatTime";
 
 export function Header() {
@@ -36,8 +37,8 @@ export function Header() {
           <span className="kicker block text-[9px] text-[var(--text-muted)] sm:text-[10px]">
             Daily intelligence briefing
           </span>
-          <span className="headline block truncate text-[20px] leading-[1.1] text-[var(--text-primary)] sm:text-[26px]">
-            India Policy &amp; Business
+          <span className="headline block truncate text-[22px] leading-[1.1] text-[var(--text-primary)] sm:text-[28px]">
+            Meridian
           </span>
         </Link>
 
@@ -61,6 +62,7 @@ export function Header() {
           >
             {todayDateline()}
           </span>
+          <LocalClock />
           <PrefsMenu />
         </div>
       </div>

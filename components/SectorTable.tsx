@@ -1,0 +1,203 @@
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import type { SectorSignal } from "@/lib/opportunity";
+import { opportunityScore } from "@/lib/opportunity";
+import { Sparkline } from "./charts/Sparkline";
+import { FALLING_HUE, RISING_HUE, count, percent, percentChange } from "./charts/chartUtils";
+
+export type SectorSort = "score" | "momentum" | "volume" | "policy" | "capital" | "name";
+
+export const SECTOR_SORTS: { key: SectorSort; label: string; hint: string }[] = [
+  { key: "score", label: "Opportunity", hint: "Share momentum, weighted by state support and visible capital" },
+  { key: "momentum", label: "Momentum", hint: "Change in share of coverage, last 90 days vs the 90 before" },
+  { key: "volume", label: "Coverage", hint: "Stories filed in the window" },
+  { key: "policy", label: "State support", hint: "Share of coverage that is policy or subsidy news" },
+  { key: "capital", label: "Capital", hint: "Share of coverage that is investment or FDI news" },
+  { key: "name", label: "A–Z", hint: "Alphabetical" },
+];
+
+export function isSectorSort(value: string | undefined): value is SectorSort {
+  return SECTOR_SORTS.some((sort) => sort.key === value);
+}
+
+export function sortSectors(signals: SectorSignal[], sort: SectorSort): SectorSignal[] {
+  const sorted = signals.slice();
+  switch (sort) {
+    case "momentum":
+      // Unrated sectors sink rather than sorting as zero — "not enough
+      // coverage to say" is not the same as "flat".
+      return sorted.sort((a, b) => (b.momentum ?? -Infinity) - (a.momentum ?? -Infinity));
+    case "volume":
+      return sorted.sort((a, b) => b.total - a.total);
+    case "policy":
+      return sorted.sort((a, b) => b.policyShare - a.policyShare);
+    case "capital":
+      return sorted.sort((a, b) => b.capitalShare - a.capitalShare);
+    case "name":
+      return sorted.sort((a, b) => a.label.localeCompare(b.label));
+    default:
+      return sorted.sort((a, b) => opportunityScore(b) - opportunityScore(a));
+  }
+}
+
+/**
+ * Twenty-five sectors, one row each.
+ *
+ * A table, not a chart. Twenty-five classes all carrying meaning is well past
+ * the point where colour can tell them apart, and the reader's question here is
+ * lookup — "where does my sector sit" — which a chart answers badly and a
+ * sorted table answers exactly. The only marks are one sparkline per row, for
+ * shape, and one bar per row, for direction; both are single-hue, because the
+ * rows are not eight series, they are twenty-five instances of the same series.
+ */
+export function SectorTable({
+  signals,
+  sort,
+  hrefFor,
+}: {
+  signals: SectorSignal[];
+  sort: SectorSort;
+  /** Link builder for the sort headers. */
+  hrefFor: (sort: SectorSort) => string;
+}) {
+  const rows = sortSectors(signals, sort);
+  // Clamped: one sector at +400% would otherwise squash every other bar in the
+  // column to a stub, and the bar is there to show direction and rough size.
+  const scale = Math.min(
+    Math.max(...rows.map((row) => Math.abs(row.momentum ?? 0)), 0.5),
+    1.5
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="rail flex flex-wrap items-center gap-1.5">
+        <span className="kicker mr-1 shrink-0 text-[10px] text-[var(--text-muted)]">Rank by</span>
+        {SECTOR_SORTS.map((option) => {
+          const active = option.key === sort;
+          return (
+            <Link
+              key={option.key}
+              href={hrefFor(option.key)}
+              aria-current={active ? "true" : undefined}
+              title={option.hint}
+              className="shrink-0 border px-2.5 py-1 text-[12px] transition-colors"
+              style={
+                active
+                  ? {
+                      borderColor: "var(--text-primary)",
+                      backgroundColor: "var(--text-primary)",
+                      color: "var(--surface-1)",
+                      fontWeight: 600,
+                    }
+                  : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
+              }
+            >
+              {option.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[46rem] border-collapse text-left">
+          <thead>
+            <tr className="border-b" style={{ borderColor: "var(--rule-strong)" }}>
+              <Th className="w-8">#</Th>
+              <Th>Sector</Th>
+              <Th className="text-right">Stories</Th>
+              <Th className="pl-4">Shape</Th>
+              <Th className="text-right">Momentum</Th>
+              <Th className="text-right">State</Th>
+              <Th className="text-right">Capital</Th>
+              <Th className="w-8" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((signal, i) => {
+              const momentum = signal.momentum;
+              const rising = (momentum ?? 0) >= 0;
+              const barWidth =
+                momentum === null ? 0 : Math.min(Math.abs(momentum) / scale, 1) * 46;
+
+              return (
+                <tr
+                  key={signal.key}
+                  className="group border-b transition-colors hover:bg-[var(--ink-wash)]"
+                  style={{ borderColor: "var(--rule)" }}
+                >
+                  <Td className="meta text-[var(--text-muted)]">
+                    {String(i + 1).padStart(2, "0")}
+                  </Td>
+                  <Td>
+                    <Link
+                      href={`/opportunities/${signal.key}`}
+                      className="text-[14px] font-medium text-[var(--text-primary)] underline-offset-4 group-hover:underline"
+                    >
+                      {signal.label}
+                    </Link>
+                  </Td>
+                  <Td className="meta text-right text-[12px] text-[var(--text-primary)]">
+                    {count(signal.total)}
+                  </Td>
+                  <Td className="pl-4">
+                    <Sparkline points={signal.monthly} width={84} height={22} />
+                  </Td>
+                  <Td className="text-right">
+                    <span className="flex items-center justify-end gap-2">
+                      {/* Direction as a mark, magnitude as the number beside it —
+                          a signed percentage alone reads as a wall of text when
+                          there are twenty-five of them down a column. */}
+                      <span
+                        className="hidden h-[6px] rounded-full sm:block"
+                        style={{
+                          width: `${barWidth}px`,
+                          backgroundColor: rising ? RISING_HUE : FALLING_HUE,
+                          opacity: momentum === null ? 0 : 1,
+                        }}
+                        aria-hidden
+                      />
+                      <span
+                        className="meta w-[3.2rem] shrink-0 text-right text-[12px]"
+                        style={{
+                          color:
+                            momentum === null
+                              ? "var(--text-muted)"
+                              : "var(--text-primary)",
+                        }}
+                      >
+                        {percentChange(momentum)}
+                      </span>
+                    </span>
+                  </Td>
+                  <Td className="meta text-right text-[12px]">{percent(signal.policyShare)}</Td>
+                  <Td className="meta text-right text-[12px]">{percent(signal.capitalShare)}</Td>
+                  <Td>
+                    <Link
+                      href={`/opportunities/${signal.key}`}
+                      aria-label={`Open the ${signal.label} dashboard`}
+                      className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                    >
+                      <ArrowUpRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  </Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Th({ children, className = "" }: { children?: React.ReactNode; className?: string }) {
+  return (
+    <th className={`kicker py-2 pr-3 text-[9px] font-semibold text-[var(--text-muted)] ${className}`}>
+      {children}
+    </th>
+  );
+}
+
+function Td({ children, className = "" }: { children?: React.ReactNode; className?: string }) {
+  return <td className={`py-2.5 pr-3 align-middle ${className}`}>{children}</td>;
+}
