@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: "%s · Meridian",
   },
   description:
-    "New Indian government policy, regulation, subsidies, business opportunities, tech & innovation pushes, economy, investment, trade, and geopolitics - pulled from official and news sources.",
+    "Daily Intelligence Brief covering policy, regulation, subsidies, business opportunities, technology, economy, investment, trade, and geopolitics.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
