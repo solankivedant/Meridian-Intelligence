@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type { SectorSignal } from "@/lib/opportunity";
 import { metaForSector } from "@/lib/sectorMeta";
 import { Sparkline } from "./charts/Sparkline";
 import { FALLING_HUE, RISING_HUE, count, percent, percentChange } from "./charts/chartUtils";
+import { SectorDashboardButton } from "./SectorLink";
 
 /**
  * The sector board on a narrow screen.
@@ -130,18 +130,11 @@ export function SectorAccordion({ signals }: { signals: SectorSignal[] }) {
                   />
                 </dl>
 
-                <Link
+                <SectorDashboardButton
                   href={`/opportunities/${signal.key}`}
-                  className="kicker flex items-center justify-center gap-1.5 border px-3 py-2 text-[10px] transition-colors"
-                  style={{
-                    borderColor: accent,
-                    color: accent,
-                    backgroundColor: `color-mix(in srgb, ${accent} 8%, var(--surface-1))`,
-                  }}
-                >
-                  View the detailed dashboard
-                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                </Link>
+                  label={signal.label}
+                  accent={accent}
+                />
               </div>
             )}
           </li>

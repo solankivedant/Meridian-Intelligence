@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import type { SectorSignal } from "@/lib/opportunity";
 import { opportunityScore } from "@/lib/opportunity";
 import { Sparkline } from "./charts/Sparkline";
 import { SectorAccordion } from "./SectorAccordion";
+import { SectorLink } from "./SectorLink";
 import { metaForSector } from "@/lib/sectorMeta";
 import { FALLING_HUE, RISING_HUE, count, percent, percentChange } from "./charts/chartUtils";
 
@@ -124,7 +124,7 @@ export function SectorTable({
               <Th className="text-right">Momentum</Th>
               <Th className="text-right">State</Th>
               <Th className="text-right">Capital</Th>
-              <Th className="w-8" />
+              <Th className="w-24 text-right">Dashboard</Th>
             </tr>
           </thead>
           <tbody>
@@ -144,15 +144,16 @@ export function SectorTable({
                     {String(i + 1).padStart(2, "0")}
                   </Td>
                   <Td>
-                    <Link
+                    <SectorLink
                       href={`/opportunities/${signal.key}`}
+                      label={signal.label}
                       className="flex items-center gap-2 text-[14px] font-medium text-[var(--text-primary)]"
                     >
                       <SectorGlyph sectorKey={signal.key} />
                       <span className="underline-offset-4 group-hover:underline">
                         {signal.label}
                       </span>
-                    </Link>
+                    </SectorLink>
                   </Td>
                   <Td className="meta text-right text-[12px] text-[var(--text-primary)]">
                     {count(signal.total)}
@@ -189,14 +190,18 @@ export function SectorTable({
                   </Td>
                   <Td className="meta text-right text-[12px]">{percent(signal.policyShare)}</Td>
                   <Td className="meta text-right text-[12px]">{percent(signal.capitalShare)}</Td>
-                  <Td>
-                    <Link
+                  <Td className="text-right">
+                    {/* Named, not just an arrow: the row is a line of figures,
+                        and an unlabelled glyph at the end of one does not read
+                        as "this opens somewhere else". */}
+                    <SectorLink
                       href={`/opportunities/${signal.key}`}
-                      aria-label={`Open the ${signal.label} dashboard`}
-                      className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                      label={signal.label}
+                      hint="swap"
+                      className="kicker inline-flex items-center gap-1 text-[9px] text-[var(--text-muted)] transition-colors group-hover:text-[var(--text-primary)]"
                     >
-                      <ArrowUpRight className="h-4 w-4" aria-hidden />
-                    </Link>
+                      Open
+                    </SectorLink>
                   </Td>
                 </tr>
               );

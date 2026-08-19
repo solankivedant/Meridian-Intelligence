@@ -98,10 +98,41 @@
   --sec-slate: #97a3b1;
 }
 
-/* The masthead's jump links glide to their section instead of teleporting;
-   each section carries its own scroll-margin to clear the sticky header. */
+/*
+ * How far down the page "the top" actually is.
+ *
+ * The masthead is sticky, so the first ~110px of the viewport is never the
+ * reader's - anything scrolled to y=0 sits behind it. `scroll-padding-top` is
+ * the property that tells every scroll in the document about that: fragment
+ * links, `scrollIntoView`, and the App Router's own scroll-on-navigation all
+ * honour it, so one declaration replaces a scroll-margin repeated on each
+ * anchor - and unlike a fixed margin it can follow the header, which is three
+ * different heights.
+ *
+ * Without it, arriving on a route from a scrolled page landed with the new
+ * page's own header hidden underneath the masthead: the router measured the
+ * page as "already in view" at an offset that was in fact behind the chrome.
+ *
+ * The values are the measured header, rounded up for breathing room: one row
+ * plus the nav on a phone, a second row for the search field between `sm` and
+ * `lg`, and the search folded back into the masthead above that.
+ */
 html {
   scroll-behavior: smooth;
+  --header-h: 7rem;
+  scroll-padding-top: var(--header-h);
+}
+
+@media (min-width: 40rem) {
+  html {
+    --header-h: 11rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  html {
+    --header-h: 8rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

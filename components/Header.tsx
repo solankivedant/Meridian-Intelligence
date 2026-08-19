@@ -7,7 +7,7 @@ import { SearchBox } from "./SearchBox";
 import { HeaderControls } from "./HeaderControls";
 import { ReadingProgress } from "./ReadingProgress";
 import { LocalClock } from "./LocalClock";
-import { todayDateline, todayShort } from "@/lib/formatTime";
+import { todayCompact, todayDateline, todayShort } from "@/lib/formatTime";
 
 export function Header() {
   return (
@@ -30,11 +30,18 @@ export function Header() {
         ))}
       </div>
 
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-3 sm:px-8">
+      <div className="mx-auto flex max-w-6xl items-center gap-2.5 px-4 py-3 sm:gap-4 sm:px-8">
         <Sidebar />
 
         <Link href="/" className="min-w-0 shrink">
-          <span className="kicker block text-[9px] text-[var(--text-muted)] sm:text-[10px]">
+          {/* The strapline is the first thing to go on a phone. Left in, it
+              wrapped to three lines inside a brand block squeezed to about
+              eighty pixels, and that stack ran straight into the edition stamp
+              beside it - the title itself was truncated to "M…" while a line of
+              9px capitals took up the room. Below `sm` the paper's name alone
+              is what a masthead needs; the strapline returns the moment there
+              is a row wide enough to hold it on one line. */}
+          <span className="kicker hidden truncate text-[9px] text-[var(--text-muted)] sm:block sm:text-[10px]">
             Daily intelligence briefing
           </span>
           <span className="headline block truncate text-[22px] leading-[1.1] text-[var(--text-primary)] sm:text-[28px]">
@@ -55,7 +62,7 @@ export function Header() {
         {/* The dateline is the one piece of chrome that says "this is today's
             edition", so it is set at reading size - upright, not italic, which
             at this size stays legible instead of turning into ornament. */}
-        <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-5">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-5">
           {/* The dateline is boxed rather than set loose in the row. At reading
               size and unframed it read as a headline competing with the
               masthead; ruled and stepped down it reads as what it is - the
@@ -81,11 +88,16 @@ export function Header() {
               underneath until now, where it was eating the width the desk links
               scroll through. */}
           <span
-            className="flex items-baseline gap-1.5 self-end border px-2 py-1 whitespace-nowrap lg:hidden"
+            className="flex items-baseline gap-1 border px-1.5 py-1 whitespace-nowrap sm:gap-1.5 sm:self-end sm:px-2 lg:hidden"
             style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-2)" }}
             aria-label="Today's date and the current time"
           >
-            <span className="text-[10.5px] leading-none font-medium text-[var(--text-secondary)]">
+            {/* Two stamps, one element: the weekday is worth its width once the
+                strapline is back and the row has slack, and not before. */}
+            <span className="text-[10.5px] leading-none font-medium text-[var(--text-secondary)] sm:hidden">
+              {todayCompact()}
+            </span>
+            <span className="hidden text-[10.5px] leading-none font-medium text-[var(--text-secondary)] sm:inline">
               {todayShort()}
             </span>
             <span className="text-[var(--rule-strong)]" aria-hidden>

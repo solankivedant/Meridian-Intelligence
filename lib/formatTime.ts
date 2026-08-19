@@ -128,6 +128,22 @@ export function todayShort(): string {
   });
 }
 
+/**
+ * Day and month, nothing else - the phone masthead.
+ *
+ * `todayShort` leads with the weekday, and on a narrow header those five
+ * characters are bought straight out of the space the paper's own name needs.
+ * A reader looking at a phone knows what day it is; what the stamp is there to
+ * say is which edition this is.
+ */
+export function todayCompact(): string {
+  return new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    timeZone: IST,
+  });
+}
+
 /** Full masthead dateline for the current moment. */
 export function todayDateline(): string {
   return new Date().toLocaleDateString("en-IN", {

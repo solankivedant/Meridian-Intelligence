@@ -32,8 +32,11 @@ export function Section({
 }) {
   const accent = accentVar ? `var(${accentVar})` : "var(--text-primary)";
 
+  // No scroll-margin on the section: `scroll-padding-top` on the document
+  // handles clearing the sticky masthead, and it knows the header's three
+  // heights where a fixed margin only ever matched one of them.
   return (
-    <section id={id} className="scroll-mt-24">
+    <section id={id}>
       <div
         className="border"
         style={{

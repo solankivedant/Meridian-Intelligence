@@ -18,8 +18,8 @@ const LINKS: { href: string; label: string; icon: LucideIcon; accent?: string }[
   { href: "/", label: "India", icon: MapPin },
   { href: "/world", label: "World", icon: Globe2 },
   { href: "/opportunities", label: "Sectors", icon: TrendingUp, accent: "var(--cat-investment)" },
-  { href: "/saved", label: "Saved", icon: Bookmark, accent: "var(--cat-subsidy)" },
   { href: "/about", label: "About", icon: Info },
+  { href: "/saved", label: "Saved", icon: Bookmark, accent: "var(--cat-subsidy)" },
   { href: "/sources", label: "Sources", icon: Radio },
 ];
 
