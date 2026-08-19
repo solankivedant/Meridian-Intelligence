@@ -1,3 +1,6 @@
+"use client";
+
+import { useId, useState } from "react";
 import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow } from "lucide-react";
 import { TIME_RANGES, TimeRangeKey, monthOptions } from "@/lib/timeRange";
@@ -65,6 +68,8 @@ export function FilterPanel({
   const hasFilters = tags.length > 0 || cats.length > 0 || sort !== "new" || month !== "";
   const months = monthOptions();
   const carry = { range, tags, cats, sort, month };
+  const [open, setOpen] = useState(hasFilters);
+  const contentId = useId();
 
   return (
     // Positioned, because the sector drawer opens across the panel's full
@@ -87,17 +92,36 @@ export function FilterPanel({
             {resultCount.toLocaleString("en-IN")} matching stories
           </span>
         )}
-        {hasFilters && (
-          <Link
-            href={feedHref(basePath, { range })}
-            className="kicker ml-auto text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+        <span className="ml-auto flex items-center gap-2">
+          {hasFilters && (
+            <Link
+              href={feedHref(basePath, { range })}
+              className="kicker text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              Reset
+            </Link>
+          )}
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={contentId}
+            onClick={() => setOpen((value) => !value)}
+            className="kicker inline-flex items-center gap-1 border px-2 py-1 text-[10px] text-[var(--text-secondary)] md:hidden"
+            style={{ borderColor: "var(--rule-strong)" }}
           >
-            Reset
-          </Link>
-        )}
+            {open ? "Hide" : "Show"}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+              aria-hidden
+            />
+          </button>
+        </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3">
+      <div
+        id={contentId}
+        className={`${open ? "flex" : "hidden"} flex-wrap items-start gap-x-4 gap-y-3 px-4 py-3 md:flex md:items-center`}
+      >
         <Group label="Period">
           {TIME_RANGES.map((r) => {
             const active = !month && r.key === range;
@@ -169,7 +193,7 @@ export function FilterPanel({
                 show me only that - was previously a trip to a section page
                 that dropped every other filter on the way. */}
             <Group label="Section">
-              <details className="group/section">
+              <details className="group/section w-full sm:w-auto">
                 <summary
                   className="flex cursor-pointer list-none items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors [&::-webkit-details-marker]:hidden"
                   style={
@@ -195,7 +219,7 @@ export function FilterPanel({
                 </summary>
 
                 <div
-                  className="absolute inset-x-0 top-full z-20 grid gap-1.5 border-t p-3 shadow-lg sm:grid-cols-2 lg:grid-cols-4"
+                  className="static z-20 mt-2 grid w-full gap-1.5 border-t p-3 shadow-lg md:absolute md:inset-x-0 md:top-full md:mt-0 md:grid-cols-2 lg:grid-cols-4"
                   style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
                 >
                   {CATEGORY_META.map((meta) => {
@@ -238,7 +262,7 @@ export function FilterPanel({
         <Divider />
 
         <Group label="Sector">
-          <details className="group/sector">
+          <details className="group/sector w-full sm:w-auto">
             <summary
               className="flex cursor-pointer list-none items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors [&::-webkit-details-marker]:hidden"
               style={
@@ -264,7 +288,7 @@ export function FilterPanel({
             </summary>
 
             <div
-              className="absolute inset-x-0 top-full z-20 flex flex-wrap gap-1.5 border-t p-3 shadow-lg"
+              className="static z-20 mt-2 flex w-full flex-wrap gap-1.5 border-t p-3 shadow-lg md:absolute md:inset-x-0 md:top-full md:mt-0"
               style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
             >
               {TAG_META.map((t) => {
@@ -336,9 +360,9 @@ export function FilterPanel({
 
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-0 items-center gap-2">
+    <div className="flex w-full min-w-0 flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
       <span className="kicker shrink-0 text-[10px] text-[var(--text-muted)]">{label}</span>
-      <div className="flex flex-wrap items-center gap-1">{children}</div>
+      <div className="flex min-w-0 flex-wrap items-center gap-1">{children}</div>
     </div>
   );
 }

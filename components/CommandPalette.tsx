@@ -19,7 +19,6 @@ import {
   Radio,
   Rows3,
   Search,
-  Sparkles,
   Sun,
   TrendingUp,
   VolumeX,
@@ -75,13 +74,13 @@ export function CommandPalette({
   // A palette that reopens holding the last search is a palette you have to
   // clear before you can use it.
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => {
       setQuery("");
       setActive(0);
-      // The input mounts with the portal, so focusing it has to wait a frame.
-      const frame = requestAnimationFrame(() => inputRef.current?.focus());
-      return () => cancelAnimationFrame(frame);
-    }
+      inputRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
   }, [open]);
 
   useEffect(() => {
@@ -111,16 +110,6 @@ export function CommandPalette({
         color: "var(--cat-investment)",
         keywords: "invest sectors money cagr market growth opportunity",
         run: go("/opportunities"),
-      },
-      {
-        id: "go-desk",
-        label: "Your desk",
-        hint: "Rank the archive on a topic",
-        group: "Go to",
-        icon: Sparkles,
-        color: "var(--cat-tech)",
-        keywords: "topic personalised gemini",
-        run: go("/my-desk"),
       },
       {
         id: "go-saved",
@@ -338,8 +327,6 @@ export function CommandPalette({
 
   if (!open || typeof document === "undefined") return null;
 
-  let lastGroup = "";
-
   return createPortal(
     <div
       className="fixed inset-0 z-[60] flex items-start justify-center px-4 pt-[12vh]"
@@ -386,8 +373,7 @@ export function CommandPalette({
 
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto">
           {matches.map((command, row) => {
-            const header = command.group !== lastGroup ? command.group : null;
-            lastGroup = command.group;
+            const header = command.group !== matches[row - 1]?.group ? command.group : null;
             const Icon = command.icon;
             const isActive = row === index;
 

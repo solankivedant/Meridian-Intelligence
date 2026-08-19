@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { Region } from "@/lib/enums";
 import { safeQuery } from "@/lib/safeQuery";
@@ -47,6 +48,8 @@ export default async function MyDeskPage({
 }: {
   searchParams: Promise<DeskParams>;
 }) {
+  if (!process.env.GEMINI_API_KEY) notFound();
+
   const params = await searchParams;
   const topic = (params.topic ?? "").slice(0, MAX_TOPIC_LENGTH).trim();
   const range = isTimeRangeKey(params.range) ? params.range : DEFAULT_RANGE;

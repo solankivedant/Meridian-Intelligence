@@ -42,7 +42,7 @@ export function StoryActions({
 
   return (
     <span
-      className={`flex items-center gap-2.5 transition-opacity ${
+      className={`flex items-center gap-1.5 transition-opacity ${
         hide ? "sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100" : ""
       }`}
       data-noprint
@@ -66,10 +66,10 @@ function SaveButton({ story }: { story: StoryRef }) {
       onClick={() => toggleSaved(story)}
       aria-pressed={saved}
       title={saved ? "Remove from your reading list" : "Save to your reading list"}
-      className="kicker inline-flex items-center gap-1 text-[10px] transition-colors"
+      className="kicker inline-flex h-8 min-w-8 items-center justify-center gap-1.5 border border-transparent px-1.5 text-[11px] transition-colors hover:border-[var(--rule-strong)] hover:bg-[var(--ink-wash)]"
       style={{ color: saved ? "var(--cat-subsidy)" : "var(--text-muted)" }}
     >
-      <Icon className="h-3 w-3" aria-hidden />
+      <Icon className="h-4 w-4" aria-hidden />
       <span className="hidden sm:inline">{saved ? "Saved" : "Save"}</span>
       <span className="sr-only sm:hidden">
         {saved ? "Remove from reading list" : "Save to reading list"}
@@ -93,7 +93,10 @@ function ShareButton({ title, url }: { title: string; url: string }) {
   // Feature detection in an effect, not in render: the server has no
   // `navigator`, and a button that changed shape during hydration would flicker.
   useEffect(() => {
-    setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
+    const frame = requestAnimationFrame(() => {
+      setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -128,10 +131,10 @@ function ShareButton({ title, url }: { title: string; url: string }) {
       type="button"
       onClick={pass}
       title={canShare ? "Share this story" : "Copy headline and link"}
-      className="kicker inline-flex items-center gap-1 text-[10px] transition-colors"
+      className="kicker inline-flex h-8 min-w-8 items-center justify-center gap-1.5 border border-transparent px-1.5 text-[11px] transition-colors hover:border-[var(--rule-strong)] hover:bg-[var(--ink-wash)]"
       style={{ color: copied ? "var(--cat-economy)" : "var(--text-muted)" }}
     >
-      <Icon className="h-3 w-3" aria-hidden />
+      <Icon className="h-4 w-4" aria-hidden />
       <span className="hidden sm:inline">{copied ? "Copied" : canShare ? "Share" : "Copy"}</span>
       <span className="sr-only sm:hidden">Copy headline and link</span>
     </button>

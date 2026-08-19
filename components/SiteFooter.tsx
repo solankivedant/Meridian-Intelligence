@@ -35,12 +35,6 @@ export function SiteFooter() {
           >
             Sector opportunities
           </Link>
-          <Link
-            href="/my-desk"
-            className="text-[13px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
-          >
-            Your desk
-          </Link>
           {CATEGORY_META.map((meta) => (
             <Link
               key={meta.slug}

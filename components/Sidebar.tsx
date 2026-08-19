@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe2, MapPin, Radio, Search, Sparkles, Bookmark, TrendingUp } from "lucide-react";
+import { Menu, X, Globe2, MapPin, Radio, Search, Bookmark, TrendingUp } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 
 /**
@@ -108,18 +108,6 @@ export function Sidebar() {
                   color="var(--cat-investment)"
                   hint="Momentum, state support and capital across 25 sectors"
                   active={pathname.startsWith("/opportunities")}
-                  onNavigate={close}
-                />
-              </Group>
-
-              <Group label="Personalised">
-                <Item
-                  href="/my-desk"
-                  label="Your desk"
-                  icon={Sparkles}
-                  color="var(--cat-tech)"
-                  hint="Name a topic - Gemini ranks the archive on it"
-                  active={pathname === "/my-desk"}
                   onNavigate={close}
                 />
               </Group>

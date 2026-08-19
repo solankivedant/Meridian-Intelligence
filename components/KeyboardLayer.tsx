@@ -121,7 +121,6 @@ export function KeyboardLayer() {
           h: "/",
           i: "/",
           w: "/world",
-          d: "/my-desk",
           b: "/saved",
           o: "/opportunities",
           s: "/sources",
@@ -234,7 +233,6 @@ const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
   { keys: ["/"], label: "Jump to search", group: "Finding" },
   { keys: ["g", "h"], label: "India desk", group: "Finding" },
   { keys: ["g", "w"], label: "World desk", group: "Finding" },
-  { keys: ["g", "d"], label: "Your desk", group: "Finding" },
   { keys: ["g", "b"], label: "Saved stories", group: "Finding" },
   { keys: ["g", "o"], label: "Sector opportunities", group: "Finding" },
   { keys: ["g", "s"], label: "Sources", group: "Finding" },
@@ -254,8 +252,6 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
   }, [open]);
 
   if (!open || typeof document === "undefined") return null;
-
-  let lastGroup = "";
 
   return createPortal(
     <div
@@ -292,9 +288,8 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
         </div>
 
         <dl className="px-5 py-2">
-          {SHORTCUTS.map((shortcut) => {
-            const header = shortcut.group !== lastGroup ? shortcut.group : null;
-            lastGroup = shortcut.group;
+          {SHORTCUTS.map((shortcut, row) => {
+            const header = shortcut.group !== SHORTCUTS[row - 1]?.group ? shortcut.group : null;
             return (
               <div key={shortcut.label}>
                 {header && (
