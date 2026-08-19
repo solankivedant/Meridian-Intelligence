@@ -7,7 +7,8 @@ import {
 } from "@/lib/ingestion/sources";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { Section } from "@/components/Section";
-import { SourceList, SourceEntry } from "@/components/SourceList";
+import { SourceDirectory } from "@/components/SourceDirectory";
+import type { SourceEntry } from "@/components/SourceList";
 
 export const revalidate = 0;
 
@@ -68,8 +69,10 @@ export default async function SourcesPage() {
   const india = byDesk(Region.INDIA);
   const world = byDesk(Region.WORLD);
 
-  let section = 0;
-  const next = () => String(++section).padStart(2, "0");
+  // The three source lists share one search field, so they are numbered here
+  // and drawn together; the walkthrough below carries on from wherever they
+  // stopped.
+  const lists = [india, world, discovered].filter((rows) => rows.length > 0).length;
 
   return (
     <div className="flex flex-col gap-8 pt-6">
@@ -96,37 +99,10 @@ export default async function SourcesPage() {
         </div>
       </header>
 
-      <Section
-        index={next()}
-        title="India desk feeds"
-        note={`${india.length} feeds`}
-        description="Ministries, regulators and Indian newsrooms, polled on every ingest run. The dot is the feed's default section; the figure is how many of its stories are held."
-      >
-        <SourceList rows={india} initial={18} step={30} linkOut />
-      </Section>
+      <SourceDirectory india={india} world={world} discovered={discovered} startIndex={1} />
 
       <Section
-        index={next()}
-        title="World desk feeds"
-        note={`${world.length} feeds`}
-        description="Global business, trade, technology and geopolitics wires."
-      >
-        <SourceList rows={world} initial={18} step={30} linkOut />
-      </Section>
-
-      {discovered.length > 0 && (
-        <Section
-          index={next()}
-          title="Publishers via the news archive"
-          note={`${discovered.length.toLocaleString("en-IN")} outlets`}
-          description="The historical crawl queries a dated news archive rather than a fixed feed list, so these outlets appear because they published something matching one of the dashboard's topics - not because they were configured here. Ordered by how much they contributed."
-        >
-          <SourceList rows={discovered} initial={24} step={100} searchable />
-        </Section>
-      )}
-
-      <Section
-        index={next()}
+        index={String(lists + 1).padStart(2, "0")}
         title="How a story gets here"
         description="The same four steps run on every ingest, whether an item came from a configured feed or the archive crawl."
       >

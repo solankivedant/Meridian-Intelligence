@@ -1,10 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, VolumeX } from "lucide-react";
 import { Category } from "@/lib/enums";
 import { metaForCategory } from "@/lib/categoryMeta";
-import { unmuteAll, useMutedSources } from "@/lib/prefs";
 import { MuteToggle } from "./MuteToggle";
 
 export type SourceEntry = {
@@ -16,48 +14,64 @@ export type SourceEntry = {
   count: number;
 };
 
+/** The one rule for what the source filter considers a hit, shared with the caller. */
+export function matchesQuery(name: string, query: string): boolean {
+  if (!query) return true;
+  return name.toLowerCase().includes(query.toLowerCase());
+}
+
 /**
  * A list of sources that does not run off the bottom of the page.
  *
  * The archive crawl has surfaced well over a thousand publishers, and printing
  * them all made provenance - the point of this page - something you had to
- * scroll past rather than read. The list opens at a readable height, reveals in
- * chunks, and (where it is long enough to need it) can be searched by name, so
- * "is my outlet in here?" is a question you answer by typing rather than by
- * scrolling.
+ * scroll past rather than read. The list opens at a readable height and reveals
+ * in chunks.
+ *
+ * Filtering is not its own: the query comes from the page's single search field
+ * (`SourceDirectory`), so "is my outlet in here?" is answered across every list
+ * at once rather than one section at a time.
  */
 export function SourceList({
   rows,
+  query = "",
   initial = 18,
   step = 60,
   linkOut = false,
-  searchable = false,
+  muted = [],
 }: {
   rows: SourceEntry[];
+  /** Name filter, already trimmed. Empty means show everything. */
+  query?: string;
   /** How many rows are shown before the reader asks for more. */
   initial?: number;
   /** How many each "show more" adds. */
   step?: number;
   linkOut?: boolean;
-  searchable?: boolean;
+  /** Names of muted publishers, read once by the page and passed down. */
+  muted?: string[];
 }) {
   // A list barely longer than the cap is worth showing whole: "View 1 more"
   // asks the reader to click for less than it costs to read the button.
   const opening = rows.length <= initial + 4 ? rows.length : initial;
   const [limit, setLimit] = useState(opening);
-  const [query, setQuery] = useState("");
-  const muted = useMutedSources();
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter((row) => row.name.toLowerCase().includes(needle));
-  }, [rows, query]);
+  // A new query is a new list, so whatever the reader had unfolded for the old
+  // one should not carry over.
+  const [lastQuery, setLastQuery] = useState(query);
+  if (lastQuery !== query) {
+    setLastQuery(query);
+    setLimit(opening);
+  }
+
+  const filtered = useMemo(
+    () => (query ? rows.filter((row) => matchesQuery(row.name, query)) : rows),
+    [rows, query]
+  );
 
   // A search that matches four outlets should show all four, not the first
   // page of them - the cap exists for the unfiltered list.
-  const searching = query.trim().length > 0;
-  const cap = searching ? Math.max(limit, 60) : limit;
+  const cap = query ? Math.max(limit, 60) : limit;
   const visible = filtered.slice(0, cap);
   const remaining = filtered.length - visible.length;
 
@@ -71,61 +85,9 @@ export function SourceList({
 
   return (
     <div>
-      {/* The mute list is invisible everywhere else - a story from a muted
-          publisher is dimmed, not labelled - so this page, which is where
-          muting happens, is where it has to be accountable. */}
-      {muted.length > 0 && (
-        <div
-          className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-l-2 py-1.5 pl-3"
-          style={{ borderColor: "var(--cat-geopolitics)" }}
-        >
-          <VolumeX
-            className="h-3.5 w-3.5 shrink-0"
-            style={{ color: "var(--cat-geopolitics)" }}
-            aria-hidden
-          />
-          <span className="text-[13px] text-[var(--text-secondary)]">
-            {muted.length} {muted.length === 1 ? "publisher is" : "publishers are"} muted -
-            their stories are dimmed in the feed, never removed.
-          </span>
-          <button
-            type="button"
-            onClick={unmuteAll}
-            className="kicker ml-auto text-[9px] text-[var(--text-secondary)] underline underline-offset-2 transition-colors hover:text-[var(--text-primary)]"
-          >
-            Unmute all
-          </button>
-        </div>
-      )}
-
-      {searchable && (
-        <div
-          className="mb-4 flex items-center gap-2 border-b pb-1.5"
-          style={{ borderColor: "var(--rule-strong)" }}
-        >
-          <Search className="h-4 w-4 shrink-0 text-[var(--text-muted)]" aria-hidden />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setLimit(opening);
-            }}
-            placeholder={`Find a publisher among ${rows.length.toLocaleString("en-IN")}`}
-            aria-label="Filter sources by name"
-            className="min-w-0 flex-1 bg-transparent py-1 text-[14px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
-          />
-          {searching && (
-            <span className="meta shrink-0">
-              {filtered.length.toLocaleString("en-IN")} matching
-            </span>
-          )}
-        </div>
-      )}
-
       {filtered.length === 0 ? (
-        <p className="py-4 text-[14px] text-[var(--text-muted)]">
-          No publisher here matches <strong>{query.trim()}</strong>.
+        <p className="py-1 text-[14px] text-[var(--text-muted)]">
+          No source in this list matches <strong>{query}</strong>.
         </p>
       ) : (
         <ul
@@ -136,6 +98,7 @@ export function SourceList({
             <SourceRow
               key={source.id}
               source={source}
+              query={query}
               linkOut={linkOut}
               muted={muted.includes(source.name)}
             />
@@ -185,14 +148,17 @@ export function SourceList({
 
 function SourceRow({
   source,
+  query,
   linkOut,
   muted,
 }: {
   source: SourceEntry;
+  query: string;
   linkOut: boolean;
   muted: boolean;
 }) {
   const meta = metaForCategory(source.category);
+  const label = <Highlighted text={source.name} query={query} />;
 
   return (
     <li
@@ -214,10 +180,10 @@ function SourceRow({
             className="underline-offset-2 hover:underline"
             title={source.url}
           >
-            {source.name}
+            {label}
           </a>
         ) : (
-          source.name
+          label
         )}
       </span>
       <MuteToggle sourceName={source.name} />
@@ -225,5 +191,31 @@ function SourceRow({
         {source.count.toLocaleString("en-IN")}
       </span>
     </li>
+  );
+}
+
+/**
+ * Marks the matched run inside a name.
+ *
+ * Filtered lists are read fast, and a row's reason for surviving the filter is
+ * often mid-word ("hindu" in "Business Standard - Hindu Business Line"). The
+ * mark is a tint, not a highlighter block, so a filtered list still reads as
+ * the same list.
+ */
+function Highlighted({ text, query }: { text: string; query: string }) {
+  const at = query ? text.toLowerCase().indexOf(query.toLowerCase()) : -1;
+  if (at === -1) return <>{text}</>;
+
+  return (
+    <>
+      {text.slice(0, at)}
+      <mark
+        className="rounded-[2px] px-[1px] font-medium text-[var(--text-primary)]"
+        style={{ backgroundColor: "var(--ink-wash)" }}
+      >
+        {text.slice(at, at + query.length)}
+      </mark>
+      {text.slice(at + query.length)}
+    </>
   );
 }
