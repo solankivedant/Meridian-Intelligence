@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
+import { FooterSlot } from "@/components/FooterSlot";
 import { PreferencesScript } from "@/components/PreferencesScript";
 import { AppRuntime } from "@/components/AppRuntime";
 import { KeyboardLayer } from "@/components/KeyboardLayer";
@@ -71,7 +72,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 pb-16 sm:px-8">
           {children}
         </main>
-        <SiteFooter />
+        <FooterSlot>
+          <SiteFooter />
+        </FooterSlot>
 
         <AppRuntime />
         <KeyboardLayer />

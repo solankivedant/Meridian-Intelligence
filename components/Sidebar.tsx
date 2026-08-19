@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Globe2, MapPin, Radio, Search, Bookmark, TrendingUp, Users } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { PERSONAS } from "@/lib/personas";
+import { AUTHOR } from "@/lib/author";
+import { GithubMark, LinkedinMark } from "./BrandMarks";
 
 /**
  * Primary navigation. This replaced a horizontal category rail: with two desks,
@@ -174,6 +176,8 @@ export function Sidebar() {
 
               <Group label="About">
                 <Item href="/sources" label="Sources" icon={Radio} active={pathname === "/sources"} onNavigate={close} />
+                <External href={AUTHOR.repo} label="Source on GitHub" icon={GithubMark} />
+                <External href={AUTHOR.linkedin} label={AUTHOR.name} icon={LinkedinMark} />
               </Group>
             </nav>
           </div>,
@@ -189,6 +193,33 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
       <p className="kicker px-5 pb-1.5 text-[10px] text-[var(--text-muted)]">{label}</p>
       {children}
     </div>
+  );
+}
+
+/**
+ * A link out of the site. Deliberately not an `Item`: those are `next/link`
+ * routes that close the drawer on the way, and neither is right for a target
+ * that opens in another tab.
+ */
+function External({
+  href,
+  label,
+  icon: Icon,
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer me"
+      className="flex items-center gap-2.5 px-5 py-1.5 text-[14px] text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </a>
   );
 }
 

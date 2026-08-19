@@ -4,7 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { PrimaryNav } from "./PrimaryNav";
 import { SectionJump } from "./SectionJump";
 import { SearchBox } from "./SearchBox";
-import { PrefsMenu } from "./PrefsMenu";
+import { HeaderControls } from "./HeaderControls";
 import { ReadingProgress } from "./ReadingProgress";
 import { LocalClock } from "./LocalClock";
 import { todayDateline, todayShort } from "@/lib/formatTime";
@@ -55,14 +55,24 @@ export function Header() {
         {/* The dateline is the one piece of chrome that says "this is today's
             edition", so it is set at reading size - upright, not italic, which
             at this size stays legible instead of turning into ornament. */}
-        <div className="ml-auto flex shrink-0 items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-4 sm:gap-5">
+          {/* The dateline is boxed rather than set loose in the row. At reading
+              size and unframed it read as a headline competing with the
+              masthead; ruled and stepped down it reads as what it is - the
+              edition stamp - and the box is what puts visible air between it,
+              the search field to its left and the two controls to its right. */}
           <span
-            className="hidden text-[17px] leading-tight font-medium text-[var(--text-secondary)] lg:block xl:text-[20px]"
-            style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+            className="hidden items-baseline gap-2 border px-2.5 py-1.5 whitespace-nowrap lg:flex"
+            style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-2)" }}
           >
-            {todayDateline()}
+            <span
+              className="text-[13px] leading-none font-medium text-[var(--text-secondary)]"
+              style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+            >
+              {todayDateline()}
+            </span>
+            <LocalClock />
           </span>
-          <LocalClock />
 
           {/* Below the masthead's breakpoint the dateline shortens and drops to
               the foot of this row, so it sits on the same line as "Meridian" -
@@ -71,10 +81,11 @@ export function Header() {
               underneath until now, where it was eating the width the desk links
               scroll through. */}
           <span
-            className="flex items-baseline gap-1.5 self-end whitespace-nowrap pb-0.5 lg:hidden"
+            className="flex items-baseline gap-1.5 self-end border px-2 py-1 whitespace-nowrap lg:hidden"
+            style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-2)" }}
             aria-label="Today's date and the current time"
           >
-            <span className="text-[11px] leading-none font-medium text-[var(--text-secondary)]">
+            <span className="text-[10.5px] leading-none font-medium text-[var(--text-secondary)]">
               {todayShort()}
             </span>
             <span className="text-[var(--rule-strong)]" aria-hidden>
@@ -83,7 +94,7 @@ export function Header() {
             <LocalClock variant="compact" />
           </span>
 
-          <PrefsMenu />
+          <HeaderControls />
         </div>
       </div>
 

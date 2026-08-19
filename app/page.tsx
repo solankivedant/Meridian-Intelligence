@@ -170,7 +170,6 @@ export default async function Home({
           id="wrap"
           index={next()}
           title="The wrap"
-          note={`written by ${briefSummary.model}`}
           description="A read of the last 24 hours across every section."
         >
           <BriefSummaryPanel summary={briefSummary} />

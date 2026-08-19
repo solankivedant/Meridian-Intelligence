@@ -10,6 +10,7 @@
     "backfill": "tsx scripts/backfill.ts",
     "ingest": "tsx scripts/ingest.ts",
     "brief": "tsx scripts/brief.ts",
+    "retag": "tsx scripts/retag.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

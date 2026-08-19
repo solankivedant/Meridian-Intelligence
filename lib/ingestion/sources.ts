@@ -42,6 +42,18 @@ export const INDIA_RSS_SOURCES: SourceConfig[] = desk(Region.INDIA, [
   feed("Mint - Economy", "https://www.livemint.com/rss/economy", C.ECONOMY_MARKETS),
   feed("Mint - Politics", "https://www.livemint.com/rss/politics", C.POLICY_REGULATORY),
   feed("Moneycontrol - Economy", "https://www.moneycontrol.com/rss/economy.xml", C.ECONOMY_MARKETS),
+  // Moneycontrol's wider desks. All five fetch-tested; `personal-finance.xml`
+  // is deliberately absent - it answers 503. The two general feeds carry
+  // `strict` because they are whole-front-page feeds and would otherwise drag
+  // in sport and entertainment on their default category.
+  feed("Moneycontrol - Top news", "https://www.moneycontrol.com/rss/MCtopnews.xml", C.BUSINESS_STARTUP, { strict: true }),
+  feed("Moneycontrol - Latest", "https://www.moneycontrol.com/rss/latestnews.xml", C.BUSINESS_STARTUP, { strict: true }),
+  feed("Moneycontrol - Market reports", "https://www.moneycontrol.com/rss/marketreports.xml", C.ECONOMY_MARKETS),
+  feed("Moneycontrol - IPO", "https://www.moneycontrol.com/rss/iponews.xml", C.BUSINESS_STARTUP),
+  feed("Moneycontrol - Technology", "https://www.moneycontrol.com/rss/technology.xml", C.TECH_INNOVATION),
+  feed("Moneycontrol - Buzzing stocks", "https://www.moneycontrol.com/rss/buzzingstocks.xml", C.ECONOMY_MARKETS),
+  feed("Moneycontrol - Market edge", "https://www.moneycontrol.com/rss/marketedge.xml", C.ECONOMY_MARKETS),
+  feed("Moneycontrol - Current affairs", "https://www.moneycontrol.com/rss/currentaffairs.xml", C.POLICY_REGULATORY, { strict: true }),
   feed("CNBC-TV18 - Economy", "https://www.cnbctv18.com/commonfeeds/v1/cne/rss/economy.xml", C.ECONOMY_MARKETS),
 
   // ---- Markets & finance ----

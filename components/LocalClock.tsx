@@ -65,13 +65,12 @@ export function LocalClock({ variant = "masthead" }: { variant?: "masthead" | "c
         ·
       </span>
       <time
-        className="text-[17px] leading-tight font-medium tabular-nums xl:text-[20px]"
-        style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+        className="text-[13px] leading-none font-medium tabular-nums text-[var(--text-primary)]"
         dateTime={now?.toISOString()}
       >
         {now ? localClock(now) : "--:--"}
       </time>
-      <span className="kicker text-[9px] sm:text-[10px]">{now ? localZone(now) : ""}</span>
+      <span className="kicker text-[9px]">{now ? localZone(now) : ""}</span>
     </span>
   );
 }

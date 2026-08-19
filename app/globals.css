@@ -207,31 +207,26 @@ a:focus-visible .link-underline,
 /* ---- reader state ------------------------------------------------------- */
 
 /*
- * A story already opened from this browser recedes rather than disappears, and
- * a muted publisher's tile is pushed back rather than removed - the feed's
- * counts and numbering come from the server and must keep describing what is
- * on screen. Dimming is done here, on attributes the components set, instead of
- * in the components: it costs no extra render.
+ * A story already opened from this browser is NOT dimmed, on any device.
  *
- * Both treatments are gated on the device actually having a pointer that can
- * hover, because both depend on hover to undo them. A phone has no such
- * pointer: `:hover` there either never fires or latches after a tap, and
- * `:focus-within` is no use either since the only tappable thing in a story
- * tile is the link that navigates away from it. Ungated, a headline you had
- * read once was grey permanently, with no gesture on the device that would
- * bring it back - which is the opposite of "recedes rather than disappears".
+ * It used to drop to 52% opacity and come back on hover, which reads well in a
+ * mockup and badly in use: a feed is mostly stories you have opened, so the
+ * page filled up with grey headlines, and the reader had to hover each one to
+ * read it properly. Undoing a treatment one item at a time is not a treatment,
+ * it is a chore - and on touch there was no undo at all. Read state is still
+ * tracked and still does real work (it is half of what decides whether a story
+ * counts as new, and the link says "You have opened this story" on hover); it
+ * simply no longer costs the headline its contrast.
+ *
+ * A muted publisher's tile does still recede - that one the reader asked for
+ * explicitly, by muting, and would otherwise see no result from having done it.
+ * The tile is pushed back rather than removed because the feed's counts and
+ * numbering come from the server and must keep describing what is on screen.
+ * It restores on hover where a pointer exists; where one does not it recedes
+ * only as far as still-readable, because undoing it means a trip to the sources
+ * page and it cannot be allowed to leave text anyone has to squint at.
  */
 @media (hover: hover) and (pointer: fine) {
-  .story-link[data-read="true"] {
-    opacity: 0.52;
-    transition: opacity 160ms ease;
-  }
-
-  .story-link[data-read="true"]:hover,
-  .story-link[data-read="true"]:focus-visible {
-    opacity: 1;
-  }
-
   .story-cell[data-muted="true"] {
     opacity: 0.42;
     transition: opacity 160ms ease;
@@ -243,18 +238,6 @@ a:focus-visible .link-underline,
   }
 }
 
-/*
- * Touch gets the signal without the cost.
- *
- * A read story is not dimmed at all - it has a `NewBadge` when it is new and
- * nothing when it is not, which is signal enough for a feed you are scrolling
- * with a thumb, and full-strength ink is worth more than a state marker.
- *
- * A muted publisher still recedes, because the reader asked for that
- * explicitly and would otherwise see no result from having muted anything. But
- * it recedes only as far as still-readable: undoing it is a trip to the sources
- * page, so it cannot be allowed to leave text a reader has to squint at.
- */
 @media (hover: none), (pointer: coarse) {
   .story-cell[data-muted="true"] {
     opacity: 0.72;

@@ -60,15 +60,16 @@ export default async function MyDeskPage({
       <header className="border-b pb-6" style={{ borderColor: "var(--rule-strong)" }}>
         <span className="kicker flex items-center gap-1.5 text-[var(--cat-tech)]">
           <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Personalised · Gemini
+          Personalised
         </span>
         <h1 className="headline mt-2 text-[32px] leading-[1.06] text-[var(--text-primary)] sm:text-[46px]">
           Your desk
         </h1>
         <p className="measure mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)]">
           Name a topic you follow. Every story the archive holds on it is pulled,
-          read by Gemini, stripped of routine filings and duplicates, and returned
-          ranked by what actually matters - each with a line on why it is there.
+          read by a language model, stripped of routine filings and duplicates,
+          and returned ranked by what actually matters - each with a line on why
+          it is there.
         </p>
 
         <TopicForm topic={topic} range={range} desk={desk.key} />
@@ -226,8 +227,8 @@ function DegradedNotice({ reason }: { reason: "unconfigured" | "failed" }) {
       style={{ borderColor: "var(--cat-geopolitics)" }}
     >
       {reason === "unconfigured"
-        ? "Gemini is not configured on this deployment (GEMINI_API_KEY is unset), so these stories are ranked by keyword relevance alone."
-        : "Gemini could not be reached, so these stories are ranked by keyword relevance alone. Re-running the topic usually clears it."}
+        ? "The summariser is not configured on this deployment, so these stories are ranked by keyword relevance alone."
+        : "The summariser could not be reached, so these stories are ranked by keyword relevance alone. Re-running the topic usually clears it."}
     </p>
   );
 }

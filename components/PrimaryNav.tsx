@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Globe2, Radio, Bookmark, TrendingUp, type LucideIcon } from "lucide-react";
+import { MapPin, Globe2, Radio, Bookmark, TrendingUp, Info, type LucideIcon } from "lucide-react";
 import { SavedCount } from "./SavedCount";
 
 /**
@@ -19,6 +19,7 @@ const LINKS: { href: string; label: string; icon: LucideIcon; accent?: string }[
   { href: "/world", label: "World", icon: Globe2 },
   { href: "/opportunities", label: "Sectors", icon: TrendingUp, accent: "var(--cat-investment)" },
   { href: "/saved", label: "Saved", icon: Bookmark, accent: "var(--cat-subsidy)" },
+  { href: "/about", label: "About", icon: Info },
   { href: "/sources", label: "Sources", icon: Radio },
 ];
 

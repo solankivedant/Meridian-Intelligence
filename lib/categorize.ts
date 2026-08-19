@@ -175,6 +175,10 @@ const TAG_RULES: TagRule[] = [
   { key: "pharma-healthcare", label: "Pharma & Healthcare", keywords: ["pharma", "healthcare", "hospital", "drug approval", "clinical trial", "vaccine"] },
   { key: "fintech", label: "Fintech & Digital Payments", keywords: ["fintech", "digital payment", "upi ", "unified payments interface", "digital lending"] },
   { key: "banking", label: "Banking & NBFC", keywords: [" bank ", "banking sector", "nbfc", "public sector bank", "cooperative bank"] },
+  // Kept distinct from `banking`: one is the institutions, this is the market
+  // they trade in. Deliberately narrow phrases - a bare "share" or "fund"
+  // matches half the archive.
+  { key: "finance-stocks", label: "Finance & Stocks", keywords: ["stock market", "share price", "sensex", "nifty", "stock exchange", " bse ", " nse ", "mutual fund", "equity market", "brokerage", "shareholder", "bourses", "dividend", "portfolio manager", "asset management", "bond yield", "derivatives", "market capitalisation", "market capitalization", "listed shares", "block deal", "buyback"] },
   { key: "real-estate", label: "Real Estate", keywords: ["real estate", "housing sector", "realty", "property market"] },
   { key: "telecom", label: "Telecom", keywords: ["telecom", "5g rollout", "6g", "spectrum auction", "broadband"] },
   { key: "ports-shipping", label: "Ports & Shipping", keywords: ["port ", "seaport", "shipping industry", "maritime", "container traffic", "container terminal"] },

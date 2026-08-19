@@ -1,5 +1,20 @@
 # Meridian - policy, business & markets
 
+**A daily intelligence brief for India.** Meridian ingests ~95 government,
+regulator and newsroom feeds three times a day, sorts every story into eight
+sections and twenty-five sectors, and presents the result as something you read
+rather than something you monitor - a scored lead, a machine-written wrap of the
+last 24 hours, per-sector coverage momentum, and six "reader desks" that re-rank
+the same archive for whoever is looking at it.
+
+Built by **[Vedant Solanki](https://www.linkedin.com/in/solanki-vedant/)** ·
+[Source](https://github.com/solankivedant/Meridian-Intelligence)
+
+Next.js 16 (App Router) · TypeScript · Tailwind v4 · Prisma 7 + Postgres (Neon) ·
+GitHub Actions for scheduling
+
+---
+
 A dashboard that pulls together, on a schedule, what's happening in India across:
 policy & regulation, subsidies & schemes, business & startups, tech & innovation
 pushes, the economy & markets, investment/FDI, trade (import/export), and
@@ -32,10 +47,30 @@ NewsData.io API.
   headline (`lib/ingestion/dedupe.ts`) against everything already stored in the
   window being processed, so five outlets carrying the same PTI story produce
   one entry.
-- **Filters** - the feed and every category page support a time-range filter
-  (24h/7d/1m/3m/1y/all, `?range=`), a browse-by-month picker covering a rolling
-  24 months (`?month=`), a sector filter (`?tag=`), and pagination (`?page=`) -
-  all combinable and shareable as URLs.
+- **Filters** - every feed supports a time-range filter (24h/7d/1m/3m/1y/all,
+  `?range=`), a browse-by-month picker covering a rolling 24 months (`?month=`),
+  multi-select section (`?cats=`) and sector (`?tags=`) pickers, a sort
+  (`?sort=new|old|section`) and pagination (`?page=`) - all combinable,
+  all shareable as URLs, and all preserved across paging.
+- **Page size follows the device** - forty stories is a page on a laptop and
+  roughly twenty screens of thumb on a phone, so `lib/viewport.ts` reads the
+  User-Agent for the `Mobi` token and phones get ten. Tablets deliberately do
+  not match it: Android tablets drop the token and iPadOS reports as a Mac.
+- **"By section" is a board, not a sort** - `?sort=section` drops the flat feed
+  for one box per section, each showing two rows and paging in place, so the
+  busiest two sections cannot eat the page (`lib/sectionBoard.ts`).
+- **The sector desk (`/opportunities`)** - 25 sectors ranked by coverage
+  momentum, state support and visible capital, computed in cached raw-SQL passes
+  over `unnest(tags)` (`lib/opportunity.ts`), with hand-rolled inline-SVG charts
+  and no chart library. Momentum is each sector's *share* of all coverage rather
+  than its story count - the archive's own volume grows as it backfills, and
+  measured absolutely every sector looks like it is accelerating.
+- **Reader desks (`/for`)** - the same archive re-ranked for six jobs: citizen,
+  student, founder, business owner, investor and public sector. A desk is a
+  weighted set of sections and sectors (`lib/personas.ts`), not a stored tag, so
+  one lives or dies in a single file and every figure on it is the same measured
+  figure as everywhere else. Each carries a ranked front page, its tracked
+  sectors with their signals and latest stories, and the archive scoped to it.
 - **Reading order** - the page opens on a scored lead rather than whatever is
   newest (`lib/leadStory.ts`): a story with a real deck, from a curated feed,
   and not a routine auction result or numbered circular. The feed below is
@@ -147,7 +182,7 @@ It is not a Vercel cron, and `vercel.json` no longer exists. A full sweep is
 ~95 feeds and takes minutes; a Vercel function is capped at 60 seconds, so the
 cron that used to live there was killed part-way through every run and the
 archive quietly stopped growing. Vercel's Hobby plan also caps crons at
-once/day, which cannot express "twice". A runner has neither limit, needs no
+once/day, which cannot express "three times". A runner has neither limit, needs no
 deployment to exist, and is what `scripts/ingest.ts` was written for in the
 first place.
 
@@ -164,6 +199,13 @@ days, which any commit or manual run re-arms.
 To change the times, edit the `cron:` line in the workflow. It is in **UTC**,
 so subtract 5:30 from the IST time you want - `30 3,9,15 * * *` is 09:00,
 15:00 and 21:00 IST.
+
+## Author
+
+**Vedant Solanki**
+
+- LinkedIn - <https://www.linkedin.com/in/solanki-vedant/>
+- Project - <https://github.com/solankivedant/Meridian-Intelligence>
 
 ## What's next (Phase 2)
 

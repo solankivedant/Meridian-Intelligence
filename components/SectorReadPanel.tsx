@@ -25,7 +25,7 @@ export function SectorReadPanel({ read }: { read: SectorRead }) {
       >
         <Sparkles className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--cat-tech)" }} aria-hidden />
         <p className="text-[12.5px] leading-relaxed text-[var(--text-secondary)]">
-          Written by <strong className="text-[var(--text-primary)]">{read.model}</strong>,{" "}
+          <strong className="text-[var(--text-primary)]">Machine-written</strong>{" "}
           {timeAgo(new Date(read.generatedAt))}. Every figure below is an{" "}
           <strong className="text-[var(--text-primary)]">approximation</strong> of the
           commonly published range - not a filing, a price, or a verified statistic,
@@ -156,7 +156,7 @@ export function SectorReadUnavailable({ configured }: { configured: boolean }) {
     >
       {configured
         ? "The market primer could not be written just now. The measured signals above stand on their own - they are counted from this archive and do not depend on the model."
-        : "Gemini is not configured on this deployment (GEMINI_API_KEY is unset), so the market primer - size, growth rate, sector ratios and routes in - is unavailable. Everything above is measured from the archive and is unaffected."}
+        : "The summariser is not configured on this deployment, so the market primer - size, growth rate, sector ratios and routes in - is unavailable. Everything above is measured from the archive and is unaffected."}
     </p>
   );
 }

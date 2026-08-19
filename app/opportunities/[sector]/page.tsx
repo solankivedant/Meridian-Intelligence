@@ -239,7 +239,7 @@ export default async function SectorPage({
             index="02"
             title="The market"
             accentVar="--cat-tech"
-            note="written by Gemini"
+            note="machine-written"
             description="Size, growth, the ratios that matter for this industry, and the routes into it - estimates, not measurements."
           >
             <Suspense fallback={<MarketPending />}>
