@@ -39,18 +39,20 @@ export function LocalClock({ variant = "masthead" }: { variant?: "masthead" | "c
   }, []);
 
   if (variant === "compact") {
+    // No zone label here. It renders as `GMT+5:30` for most Indian browsers -
+    // eight characters that say nothing a reader of an India desk did not
+    // already assume, sitting in the one row a phone has for the desk nav. The
+    // nav scrolls, so every character spent here is a destination pushed off
+    // the end of it. The full clock upstairs still carries the zone.
     return (
-      <span className="inline-flex items-baseline gap-1" suppressHydrationWarning>
-        <time
-          className="text-[12px] leading-none font-medium tabular-nums text-[var(--text-secondary)]"
-          dateTime={now?.toISOString()}
-        >
-          {now ? localClock(now) : "--:--"}
-        </time>
-        <span className="kicker text-[9px] text-[var(--text-muted)]">
-          {now ? localZone(now) : ""}
-        </span>
-      </span>
+      <time
+        className="text-[12px] leading-none font-medium tabular-nums text-[var(--text-secondary)]"
+        dateTime={now?.toISOString()}
+        title={now ? localZone(now) : undefined}
+        suppressHydrationWarning
+      >
+        {now ? localClock(now) : "--:--"}
+      </time>
     );
   }
 

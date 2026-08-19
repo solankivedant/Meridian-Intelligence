@@ -8,6 +8,7 @@ import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
 import { BriefSummaryPanel } from "@/components/BriefSummaryPanel";
 import { CategoryPulse } from "@/components/CategoryPulse";
 import { CoverageStrip } from "@/components/CoverageStrip";
+import { LastUpdated } from "@/components/LastUpdated";
 import { ArchiveSection } from "@/components/ArchiveSection";
 import { OpportunityStrip } from "@/components/OpportunityStrip";
 import { getLatestBrief, briefSummaryOf, BriefHighlights } from "@/lib/brief";
@@ -136,7 +137,12 @@ export default async function Home({
 
   return (
     <div className="flex flex-col gap-8 pt-6">
-      {coverage && <CoverageStrip coverage={coverage} desk="India desk" />}
+      {/* Above everything, including the coverage strip: whether the page is
+          current governs how the reader should read the rest of it. */}
+      <div className="flex flex-col gap-3">
+        <LastUpdated at={coverage?.updatedAt ?? null} />
+        {coverage && <CoverageStrip coverage={coverage} desk="India desk" />}
+      </div>
 
       {/* The feed opens the page. A reader arriving mid-morning wants to know
           what has landed since they last looked, and making them scroll past

@@ -6,6 +6,7 @@ import { ArticleRow } from "@/components/ArticleRow";
 import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
 import { CategoryPulse } from "@/components/CategoryPulse";
 import { CoverageStrip } from "@/components/CoverageStrip";
+import { LastUpdated } from "@/components/LastUpdated";
 import { ArchiveSection } from "@/components/ArchiveSection";
 import { getCoverage } from "@/lib/coverage";
 import { getSectionBoard } from "@/lib/sectionBoard";
@@ -85,7 +86,10 @@ export default async function WorldPage({
 
   return (
     <div className="flex flex-col gap-8 pt-6">
-      {coverage && <CoverageStrip coverage={coverage} desk="World desk" />}
+      <div className="flex flex-col gap-3">
+        <LastUpdated at={coverage?.updatedAt ?? null} />
+        {coverage && <CoverageStrip coverage={coverage} desk="World desk" />}
+      </div>
 
       {/* The feed leads here for the same reason it does on the India desk:
           what has landed is the reason a reader opened the page. */}

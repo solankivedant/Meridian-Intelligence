@@ -23,6 +23,17 @@ export function timeAgo(date: Date): string {
   });
 }
 
+/**
+ * True when `date` is further in the past than `hours`.
+ *
+ * Lives here beside `timeAgo` for the same reason it does: reading the clock is
+ * the one thing this module is for, and a component doing it inline is a
+ * component whose output changes without its props doing so.
+ */
+export function isOlderThan(date: Date, hours: number): boolean {
+  return Date.now() - date.getTime() > hours * 60 * 60 * 1000;
+}
+
 /** Stable `YYYY-MM-DD` bucket in IST, used to group the feed into days. */
 export function dayKey(date: Date): string {
   return date.toLocaleDateString("en-CA", { timeZone: IST });
@@ -54,6 +65,18 @@ export function shortDate(date: Date): string {
     year: "numeric",
     timeZone: IST,
   });
+}
+
+/**
+ * `18 Aug 2026, 09:36 IST` - a precise moment, spelled out.
+ *
+ * Everywhere else the dashboard prefers a relative age, which is right for a
+ * story ("3h ago" is what you want to know about a headline). It is wrong for
+ * the archive's own freshness: answering "is this current?" from a relative age
+ * means doing arithmetic against a clock you have to look up first.
+ */
+export function timestamp(date: Date): string {
+  return `${shortDate(date)}, ${clockTime(date)} IST`;
 }
 
 export function clockTime(date: Date): string {
