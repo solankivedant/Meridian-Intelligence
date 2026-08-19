@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe2, MapPin, Radio, Search, Bookmark, TrendingUp } from "lucide-react";
+import { Menu, X, Globe2, MapPin, Radio, Search, Bookmark, TrendingUp, Users } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
+import { PERSONAS } from "@/lib/personas";
 
 /**
  * Primary navigation. This replaced a horizontal category rail: with two desks,
@@ -108,6 +109,36 @@ export function Sidebar() {
                   color="var(--cat-investment)"
                   hint="Momentum, state support and capital across 25 sectors"
                   active={pathname.startsWith("/opportunities")}
+                  onNavigate={close}
+                />
+              </Group>
+
+              {/* Below Analysis: these are readings of the archive, so they
+                  read better once the reader has seen what the archive itself
+                  is. No hints under the labels - six two-line entries turned
+                  the drawer into a page of prose, and the desk names already
+                  say who they are for. The hints still run on /for, where
+                  there is room to explain. */}
+              <Group label="Read it as your job">
+                {PERSONAS.map((persona) => {
+                  const href = `/for/${persona.key}`;
+                  return (
+                    <Item
+                      key={persona.key}
+                      href={href}
+                      label={persona.label}
+                      icon={persona.icon}
+                      color={`var(${persona.colorVar})`}
+                      active={pathname === href}
+                      onNavigate={close}
+                    />
+                  );
+                })}
+                <Item
+                  href="/for"
+                  label="All reader desks"
+                  icon={Users}
+                  active={pathname === "/for"}
                   onNavigate={close}
                 />
               </Group>

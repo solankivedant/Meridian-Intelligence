@@ -166,9 +166,16 @@ export function feedOrderBy(parsed: ParsedFeedParams): Prisma.ArticleOrderByWith
  * tiles where the pager promised 40. It takes one extra row instead, and every
  * later page skips that row so the lifted story is not served twice.
  */
-export function feedSlice(parsed: ParsedFeedParams): { skip: number; take: number } {
-  // A narrowed view has no lead panel, so nothing is lifted out of it.
-  const liftsLead = !isNarrowed(parsed);
+export function feedSlice(
+  parsed: ParsedFeedParams,
+  options: { liftsLead?: boolean } = {}
+): { skip: number; take: number } {
+  // A narrowed view has no lead panel, so nothing is lifted out of it - but
+  // that inference only holds for pages built the way the two desks are. A page
+  // whose opening panel is drawn from its own query rather than lifted out of
+  // the feed has to say so, or it takes the extra row and shows 41 tiles under
+  // a pager promising 40.
+  const liftsLead = options.liftsLead ?? !isNarrowed(parsed);
   const size = parsed.pageSize;
   return {
     skip: (parsed.page - 1) * size + (liftsLead && parsed.page > 1 ? 1 : 0),
