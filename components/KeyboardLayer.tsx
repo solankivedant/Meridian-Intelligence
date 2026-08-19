@@ -16,9 +16,9 @@ import { CommandPalette } from "./CommandPalette";
  * A feed is a list, and a list wants to be walked without a pointer. Every
  * headline is already an anchor carrying its story in `data-story-*`, so this
  * layer needs no registry and no context: it queries the document for the
- * stories currently rendered, moves real DOM focus between them — which keeps
+ * stories currently rendered, moves real DOM focus between them - which keeps
  * the browser's own focus ring, Enter-to-open and screen-reader announcements
- * working — and reads the dataset of whichever one is focused when a key asks
+ * working - and reads the dataset of whichever one is focused when a key asks
  * it to save or open.
  *
  * It never fires while the reader is typing: the search field, the ask box and
@@ -57,7 +57,7 @@ export function KeyboardLayer() {
 
       const target = list[next];
       // Focus first without scrolling, then place the story in the middle of
-      // the viewport — the browser's own focus scroll would jam it under the
+      // the viewport - the browser's own focus scroll would jam it under the
       // sticky masthead.
       target.focus({ preventScroll: true });
       target.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -238,7 +238,7 @@ const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
   { keys: ["g", "b"], label: "Saved stories", group: "Finding" },
   { keys: ["g", "o"], label: "Sector opportunities", group: "Finding" },
   { keys: ["g", "s"], label: "Sources", group: "Finding" },
-  { keys: ["t"], label: "Cycle theme — system, light, dark", group: "Display" },
+  { keys: ["t"], label: "Cycle theme - system, light, dark", group: "Display" },
   { keys: ["c"], label: "Toggle compact density", group: "Display" },
   { keys: ["?"], label: "This list", group: "Display" },
 ];
@@ -329,7 +329,7 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
           style={{ borderColor: "var(--rule)" }}
         >
           Nothing fires while you are typing in a field. Everything the keyboard
-          reaches is also reachable by pointer — the shortcuts are a faster route,
+          reaches is also reachable by pointer - the shortcuts are a faster route,
           never the only one.
         </p>
       </div>

@@ -5,14 +5,14 @@ import { markManyRead, useReadLog, useVisitBoundary } from "@/lib/reading";
 import { clockTime, timeAgo } from "@/lib/formatTime";
 
 /**
- * "What's landed since I last looked" — the question a returning reader
+ * "What's landed since I last looked" - the question a returning reader
  * actually arrives with.
  *
  * The count is computed in the browser from the timestamps already on the
  * page, so it costs no query and stays correct on a filtered or paged view: it
  * always describes the list being looked at rather than the archive as a
  * whole. It renders nothing before hydration, on a first-ever visit, and once
- * the reader has caught up — a banner that is always there says nothing.
+ * the reader has caught up - a banner that is always there says nothing.
  */
 export function NewSinceBanner({
   stories,
@@ -51,7 +51,7 @@ export function NewSinceBanner({
           {fresh.length} {fresh.length === 1 ? "story" : "stories"}
         </strong>{" "}
         <span className="text-[var(--text-secondary)]">
-          on this page since your last visit — {timeAgo(since)}, {clockTime(since)} IST
+          on this page since your last visit - {timeAgo(since)}, {clockTime(since)} IST
         </span>
       </p>
       <button

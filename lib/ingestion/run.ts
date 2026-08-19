@@ -128,7 +128,7 @@ export type IngestCounts = { created: number; skipped: number; duplicate: number
  * statement.
  *
  * The obvious shape here is an upsert per article, and that is what this did
- * first — but a historical crawl moves ~800 items per month of archive, and a
+ * first - but a historical crawl moves ~800 items per month of archive, and a
  * round trip each turned a five-minute job into a multi-hour one. Everything
  * that can be decided locally (categorization, in-batch URL collisions,
  * headline dedupe) is decided before touching the database, and the survivors
@@ -273,7 +273,7 @@ export async function runIngestion(): Promise<IngestSummary[]> {
   for (const config of RSS_SOURCES) {
     try {
       // Resolved explicitly so a feed whose url or type changed in sources.ts
-      // gets updated — the batch path only ever creates rows.
+      // gets updated - the batch path only ever creates rows.
       await sources.idForFeed(config);
       const items = await fetchRssArticles(config);
       const counts = await ingestArticles(sources, config, items, { seenTitles });
@@ -288,7 +288,7 @@ export async function runIngestion(): Promise<IngestSummary[]> {
     }
   }
 
-  // Same archive queries as the backfill, but windowless — this keeps the
+  // Same archive queries as the backfill, but windowless - this keeps the
   // long tail of publishers flowing in on every scheduled run, not just
   // during a one-off historical crawl.
   const recentWindow = {

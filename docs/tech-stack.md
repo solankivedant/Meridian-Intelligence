@@ -8,7 +8,7 @@ Every dependency, what it does here, and the trade-off behind it.
 | --- | --- | --- |
 | Framework | **Next.js 16.3 (App Router, Turbopack)** | Server Components mean the feed is queried and rendered on the server with no client data-fetching layer, no loading spinners and no API surface to maintain for the pages themselves. |
 | UI | **React 19.2** | Comes with the framework. Used almost entirely as server components; four components are client-side (see below). |
-| Language | **TypeScript 5** (strict) | Category and region are enums that flow from the schema through queries into the UI — the compiler is what stops a desk or a category being mistyped in one of eight places. |
+| Language | **TypeScript 5** (strict) | Category and region are enums that flow from the schema through queries into the UI - the compiler is what stops a desk or a category being mistyped in one of eight places. |
 | Node | **24.x** | Whatever Vercel runs. |
 
 > ⚠️ This project runs a Next.js version with breaking changes from what most
@@ -17,7 +17,7 @@ Every dependency, what it does here, and the trade-off behind it.
 
 ### Notable framework specifics in use
 - `searchParams` and `params` are **Promises** and must be awaited.
-- `export const revalidate = 0` on every data page — this is a dashboard;
+- `export const revalidate = 0` on every data page - this is a dashboard;
   caching a feed is never right.
 - `export const maxDuration = 60` on `/my-desk`, because the Gemini call is
   allowed two 30s attempts and the platform default of 10s would kill it.
@@ -27,9 +27,9 @@ Every dependency, what it does here, and the trade-off behind it.
 
 | | Choice | Why |
 | --- | --- | --- |
-| Database | **Postgres (Neon, free tier)** | Full-text search, array columns for tags and JSON for the brief — all three in one engine, none of which SQLite or a document store gives at once. |
+| Database | **Postgres (Neon, free tier)** | Full-text search, array columns for tags and JSON for the brief - all three in one engine, none of which SQLite or a document store gives at once. |
 | ORM | **Prisma 7.9** with `@prisma/adapter-pg` | Type-safe queries generated from the schema. The driver adapter is what lets the same client work in serverless and in `tsx` scripts. |
-| Driver | **pg 8.23** | Under the adapter. Its `sslmode` handling is pinned in `lib/db.ts` — see below. |
+| Driver | **pg 8.23** | Under the adapter. Its `sslmode` handling is pinned in `lib/db.ts` - see below. |
 
 Two deliberate escapes from the ORM:
 - **Full-text search** (`lib/search.ts`) is raw SQL, because Prisma cannot reach
@@ -65,12 +65,12 @@ See [design.md](design.md) for the rules these tokens serve.
 | Archive crawl | Hand-rolled `fetch` over dated news-archive queries | No dependency does this; the `after:`/`before:` operator pattern is the whole trick. |
 | NewsData.io | Hand-rolled `fetch` | One endpoint; a client library would be more code than the call. |
 | Scripts | **tsx 4.23** | Runs the TypeScript ingestion scripts directly, sharing `lib/` with the app instead of duplicating it. |
-| Env | **dotenv 17** | Only for the scripts — Next loads `.env` itself. |
+| Env | **dotenv 17** | Only for the scripts - Next loads `.env` itself. |
 
 ## AI
 
 **Google Gemini** (`gemini-3.5-flash`, override with `GEMINI_MODEL`), called
-through a hand-rolled `fetch` client in `lib/gemini.ts` rather than the SDK —
+through a hand-rolled `fetch` client in `lib/gemini.ts` rather than the SDK -
 the file comment explains why. Three consumers, all of which fail soft when the
 key is absent: the daily wrap, per-article Ask, and the topic desk.
 
@@ -100,8 +100,8 @@ stay shareable, bookmarkable and work with JavaScript off.
 
 | | Choice |
 | --- | --- |
-| App | **Vercel** — the crons in `vercel.json` are the scheduler |
-| Database | **Neon** — pooled connection string |
+| App | **Vercel** - the crons in `vercel.json` are the scheduler |
+| Database | **Neon** - pooled connection string |
 | Build | `prisma generate && next build` (also `postinstall`, so Vercel's cache never serves a stale client) |
 
 Vercel Hobby allows one cron run per day per path, which is why ingestion is
@@ -115,5 +115,5 @@ daily and backfill remains a manual local script.
   suggestions from stored state and `SectionJump` reads the DOM in a
   `requestAnimationFrame`.
 - **`npx tsc --noEmit`** for typechecking.
-- No test framework yet — the honest gap in this stack. See
+- No test framework yet - the honest gap in this stack. See
   [futurescope.md](../futurescope.md).

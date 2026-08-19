@@ -51,7 +51,7 @@ export type BackfillOptions = {
 
 /**
  * Crawls the Google News dated archive month by month. This is what gives the
- * dashboard real history — RSS feeds only ever expose a publisher's latest few
+ * dashboard real history - RSS feeds only ever expose a publisher's latest few
  * dozen items, which is why the feed otherwise starts at "a few days ago".
  */
 export async function runBackfill(options: BackfillOptions): Promise<BackfillResult[]> {

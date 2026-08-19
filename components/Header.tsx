@@ -18,7 +18,7 @@ export function Header() {
         backgroundColor: "color-mix(in srgb, var(--paper) 90%, transparent)",
       }}
     >
-      {/* Eight equal segments, one per category, in palette order — a colour
+      {/* Eight equal segments, one per category, in palette order - a colour
           legend for the dots used throughout the page rather than decoration. */}
       <div className="flex h-[3px] w-full" aria-hidden>
         {CATEGORY_META.map((meta) => (
@@ -53,7 +53,7 @@ export function Header() {
         </div>
 
         {/* The dateline is the one piece of chrome that says "this is today's
-            edition", so it is set at reading size — upright, not italic, which
+            edition", so it is set at reading size - upright, not italic, which
             at this size stays legible instead of turning into ornament. */}
         <div className="ml-auto flex shrink-0 items-center gap-3">
           <span
@@ -69,7 +69,7 @@ export function Header() {
 
       {/* Between the masthead's breakpoint and a phone the field gets its own
           full-width row. On a phone it would cost a third of a sticky header,
-          so there it stays where it already was — inside the drawer. */}
+          so there it stays where it already was - inside the drawer. */}
       <div className="mx-auto hidden max-w-6xl px-5 pb-3 sm:block sm:px-8 lg:hidden">
         <SearchBox />
       </div>

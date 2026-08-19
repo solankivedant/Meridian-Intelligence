@@ -8,7 +8,7 @@ import { feedHref, type ParsedFeedParams } from "@/lib/feedQuery";
  * Eight readings in one band, each a count plus a share-of-total meter, and
  * each one a filter.
  *
- * The panel used to be a set of links out to eight separate section pages —
+ * The panel used to be a set of links out to eight separate section pages -
  * which meant that acting on what it showed you ("policy is the story today")
  * cost you every filter you had set, and landed you somewhere the pulse itself
  * wasn't. Now a meter toggles its own section into the feed above it: the
@@ -16,7 +16,7 @@ import { feedHref, type ParsedFeedParams } from "@/lib/feedQuery";
  * result stays a shareable URL.
  *
  * Bars are measured against the busiest section rather than the total, because
- * the question the panel answers is comparative — a shared maximum is what
+ * the question the panel answers is comparative - a shared maximum is what
  * makes a skew visible at a glance.
  */
 export function CategoryPulse({
@@ -106,10 +106,10 @@ export function CategoryPulse({
                   aria-hidden
                 />
               </div>
-              {/* Share of the window's volume — repeating the time window under
+              {/* Share of the window's volume - repeating the time window under
                   every bar would only restate the section heading. */}
               <span className="meta">
-                {total > 0 ? `${Math.round((count / total) * 100)}% of window` : "—"}
+                {total > 0 ? `${Math.round((count / total) * 100)}% of window` : "-"}
               </span>
             </Link>
           );

@@ -12,7 +12,7 @@ export const revalidate = 0;
  *
  * It runs the same prefix-wildcard tsquery the results page uses, so what the
  * dropdown shows while you type is a genuine preview of what pressing Enter
- * will return — a separate matching rule here would make the two disagree.
+ * will return - a separate matching rule here would make the two disagree.
  */
 export async function GET(req: NextRequest) {
   const query = (req.nextUrl.searchParams.get("q") ?? "").slice(0, MAX_QUERY_LENGTH).trim();

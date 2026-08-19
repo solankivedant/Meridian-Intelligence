@@ -28,7 +28,7 @@ export function dayKey(date: Date): string {
   return date.toLocaleDateString("en-CA", { timeZone: IST });
 }
 
-/** `Monday, 17 August 2026` — the dateline above each day's stories. */
+/** `Monday, 17 August 2026` - the dateline above each day's stories. */
 export function dayLabel(date: Date): string {
   const key = dayKey(date);
   const today = dayKey(new Date());
@@ -46,7 +46,7 @@ export function dayLabel(date: Date): string {
   });
 }
 
-/** `17 Aug 2026` — compact secondary date shown beside relative labels. */
+/** `17 Aug 2026` - compact secondary date shown beside relative labels. */
 export function shortDate(date: Date): string {
   return date.toLocaleDateString("en-IN", {
     day: "numeric",
@@ -80,7 +80,7 @@ export function localClock(date: Date): string {
   });
 }
 
-/** Short zone label for the reader's system timezone — `IST`, `GMT+2`, `PST`. */
+/** Short zone label for the reader's system timezone - `IST`, `GMT+2`, `PST`. */
 export function localZone(date: Date): string {
   const parts = new Intl.DateTimeFormat([], {
     timeZoneName: "short",

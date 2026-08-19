@@ -23,13 +23,13 @@ Defined in [`vercel.json`](../vercel.json):
 | `/api/cron/brief` | `30 1 * * *` daily | ~1 Gemini call | No "In brief" panel and no wrap for that day |
 
 Ordering matters: brief runs 90 minutes after ingest so it summarises a fresh
-day. Vercel Hobby permits one run per day per path — that ceiling is the reason
+day. Vercel Hobby permits one run per day per path - that ceiling is the reason
 the cadence is daily rather than hourly.
 
 ## Manual operations
 
 ```bash
-# Deep history — minutes, not seconds. Safe to re-run; upserts on url.
+# Deep history - minutes, not seconds. Safe to re-run; upserts on url.
 npm run backfill -- --months=23
 npm run backfill -- --months=6 --queries=policy,subsidy,tech
 
@@ -41,7 +41,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/ingest
 curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/brief
 ```
 
-Ingestion is **idempotent** — every article upserts on its unique `url`, so a
+Ingestion is **idempotent** - every article upserts on its unique `url`, so a
 re-run costs time and nothing else. A missed cron needs no repair.
 
 ## Health checks
@@ -58,7 +58,7 @@ re-run costs time and nothing else. A missed cron needs no repair.
 
 **A feed starts 404ing or emitting malformed XML.** The run logs it and
 continues. Indian government feeds do this regularly. `lib/ingestion/sources.ts`
-documents endpoints that were removed for exactly this reason — re-test before
+documents endpoints that were removed for exactly this reason - re-test before
 adding any of them back rather than assuming they were dropped by mistake.
 
 **Connection pool exhaustion during a long crawl.** Solved twice over:
@@ -68,7 +68,7 @@ those two are where to look, not the query layer.
 
 **Search suddenly slow.** The tsvector expression in `lib/search.ts` has drifted
 from the GIN index in `20260818020834_region_and_search`. Results stay correct,
-which is what makes this easy to miss — every query is now a sequential scan
+which is what makes this easy to miss - every query is now a sequential scan
 over ~28k rows. The two expressions must match byte for byte.
 
 **Gemini quota exhausted or a response blocked.** `/api/ask` distinguishes a
@@ -87,7 +87,7 @@ Everything sits on free tiers, and the design assumes it:
 | --- | --- | --- | --- |
 | Neon Postgres | Free | ~28k rows, growing ~500/day | Comfortable; storage is the eventual limit |
 | Vercel | Hobby | 2 cron paths, all pages dynamic | Cron frequency is the binding constraint |
-| Gemini | Free | ~1 call/day + user-triggered Ask | Ask is unmetered per user — the first thing to watch if traffic grows |
+| Gemini | Free | ~1 call/day + user-triggered Ask | Ask is unmetered per user - the first thing to watch if traffic grows |
 | NewsData.io | Free | 200 credits/day | Optional; unused unless keyed |
 
 ## Deploying

@@ -13,7 +13,7 @@ export type StoryRef = {
   url: string;
   sourceName: string;
   category: Category;
-  /** ISO 8601 — this crosses into a client component, where Dates are noise. */
+  /** ISO 8601 - this crosses into a client component, where Dates are noise. */
   publishedAt: string;
 };
 
@@ -36,7 +36,7 @@ export function StoryActions({
   reveal?: boolean;
 }) {
   const saved = useIsSaved(story.id);
-  // A saved story wears its bookmark permanently — hiding the one control that
+  // A saved story wears its bookmark permanently - hiding the one control that
   // reports state would make the list feel like it had forgotten the story.
   const hide = reveal && !saved;
 
@@ -49,7 +49,7 @@ export function StoryActions({
     >
       <SaveButton story={story} />
       <ShareButton title={story.title} url={story.url} />
-      {/* Off on public deployments — see lib/features.ts. Save and share cost
+      {/* Off on public deployments - see lib/features.ts. Save and share cost
           nothing per reader; this one calls a paid API on every click. */}
       {ASK_ENABLED && <AskArticleButton articleId={story.id} title={story.title} />}
     </span>
@@ -82,7 +82,7 @@ function SaveButton({ story }: { story: StoryRef }) {
  * Share where the browser has a share sheet, copy where it doesn't.
  *
  * `navigator.share` only exists on phones and only over HTTPS, and it throws
- * when the reader dismisses the sheet — which is not an error, just a "no".
+ * when the reader dismisses the sheet - which is not an error, just a "no".
  * Everywhere else the useful thing is the link on the clipboard with the
  * headline attached, so it can be pasted into a message as-is.
  */
@@ -108,12 +108,12 @@ function ShareButton({ title, url }: { title: string; url: string }) {
         await navigator.share({ title, url });
         return;
       } catch {
-        // Dismissed, or the sheet refused — fall through to the clipboard so
+        // Dismissed, or the sheet refused - fall through to the clipboard so
         // the button always does something.
       }
     }
     try {
-      await navigator.clipboard.writeText(`${title} — ${url}`);
+      await navigator.clipboard.writeText(`${title} - ${url}`);
       setCopied(true);
     } catch {
       // No clipboard permission. Opening the link is a poor substitute, so

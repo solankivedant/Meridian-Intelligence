@@ -8,7 +8,7 @@ import { STORAGE_KEYS } from "./storageKeys";
  *
  * A news page's job on a second visit is different from its job on a first
  * one: the question stops being "what is here" and becomes "what is here that
- * I haven't seen". Two records answer it — the set of stories opened from this
+ * I haven't seen". Two records answer it - the set of stories opened from this
  * browser, and the timestamp of the previous visit.
  */
 
@@ -23,7 +23,7 @@ export type ReadLog = Record<string, number>;
 
 /**
  * The archive runs to six figures; the read log must not. Oldest entries are
- * dropped first — a story read four months ago being un-dimmed is a far
+ * dropped first - a story read four months ago being un-dimmed is a far
  * smaller cost than a storage quota error.
  */
 const READ_LIMIT = 1500;
@@ -67,7 +67,7 @@ type Visit = { previous: number; current: number };
 
 /**
  * Two opens inside this window are the same visit. Without it, a reader who
- * opens a story in a tab and comes back would be told nothing is new — the
+ * opens a story in a tab and comes back would be told nothing is new - the
  * return would have reset the boundary to a minute ago.
  */
 const SAME_VISIT_MS = 30 * 60 * 1000;
@@ -92,7 +92,7 @@ function resolveVisit(): Visit {
   return visit;
 }
 
-/** Called once from the layout, in an effect — resolving must not write during render. */
+/** Called once from the layout, in an effect - resolving must not write during render. */
 export function recordVisit(): void {
   writeStored(VISIT_KEY, resolveVisit());
 }

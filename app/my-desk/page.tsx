@@ -17,7 +17,7 @@ export const revalidate = 0;
 // would kill the request before the first one returned.
 export const maxDuration = 60;
 
-/** A topic is a phrase, not a query language — anything longer is a paste. */
+/** A topic is a phrase, not a query language - anything longer is a paste. */
 const DEFAULT_RANGE: TimeRangeKey = "1m";
 
 // Shown on the empty desk. Chosen to demonstrate the range of what works: a
@@ -65,7 +65,7 @@ export default async function MyDeskPage({
         <p className="measure mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)]">
           Name a topic you follow. Every story the archive holds on it is pulled,
           read by Gemini, stripped of routine filings and duplicates, and returned
-          ranked by what actually matters — each with a line on why it is there.
+          ranked by what actually matters - each with a line on why it is there.
         </p>
 
         <TopicForm topic={topic} range={range} desk={desk.key} />
@@ -81,7 +81,7 @@ export default async function MyDeskPage({
         <Section
           index="01"
           title="Start with a topic"
-          description="A sector, a scheme, an instrument, a relationship — anything the archive covers."
+          description="A sector, a scheme, an instrument, a relationship - anything the archive covers."
           accentVar="--cat-tech"
         >
           <div className="flex flex-wrap gap-2">
@@ -124,7 +124,7 @@ async function TopicDesk({
         <p className="measure text-[15px] leading-relaxed text-[var(--text-secondary)]">
           The archive has no stories matching <strong>{topic}</strong> in this
           window. Try a wider window, fewer words, or the words a headline would
-          actually use — <span className="meta">customs duty</span> rather than{" "}
+          actually use - <span className="meta">customs duty</span> rather than{" "}
           <span className="meta">import taxes going up</span>.
         </p>
       </Section>
@@ -240,7 +240,7 @@ function DeskPending({ topic }: { topic: string }) {
       accentVar="--cat-tech"
     >
       {/* The model takes tens of seconds. The wait is shaped like the answer
-          — a written read, then ranked tiles — so nothing moves when it lands. */}
+          - a written read, then ranked tiles - so nothing moves when it lands. */}
       <div className="flex flex-col gap-6">
         <div className="animate-pulse">
           <TextSkeleton lines={3} />

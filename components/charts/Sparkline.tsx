@@ -7,7 +7,7 @@ import { MAGNITUDE_HUE, count, monthLabel } from "./chartUtils";
  * A sparkline is deliberately axis-free: it answers "what shape is this" and
  * nothing else, and the row it sits in carries the numbers. Every sparkline in
  * a column is drawn against **its own** maximum, because the comparison the
- * column invites is of shape, not height — the totals column already ranks
+ * column invites is of shape, not height - the totals column already ranks
  * magnitude, and a shared scale would flatten twenty of the twenty-five rows
  * into a straight line.
  */

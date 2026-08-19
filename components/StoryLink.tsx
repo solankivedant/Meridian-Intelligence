@@ -40,7 +40,7 @@ export function StoryLink({
       rel="noopener noreferrer"
       onClick={open}
       // Middle-click and cmd-click never fire onClick in every browser, but
-      // both fire auxclick — without this, "open in a background tab" would
+      // both fire auxclick - without this, "open in a background tab" would
       // never mark anything read.
       onAuxClick={open}
       data-story-id={id}

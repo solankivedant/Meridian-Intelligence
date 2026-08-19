@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   try {
     const answer = await generateText({
       system:
-        "You answer questions about a single news/policy article using only the headline, excerpt, and metadata given to you — you do not have access to the full article text. If the excerpt doesn't contain enough detail to answer, say so plainly and suggest the user open the source link rather than guessing. Keep answers concise (2-4 sentences unless the question genuinely needs more).",
+        "You answer questions about a single news/policy article using only the headline, excerpt, and metadata given to you - you do not have access to the full article text. If the excerpt doesn't contain enough detail to answer, say so plainly and suggest the user open the source link rather than guessing. Keep answers concise (2-4 sentences unless the question genuinely needs more).",
       prompt: `Article:
 Title: ${article.title}
 Source: ${article.source.name}

@@ -49,7 +49,7 @@ export function Sidebar() {
 
       {/* Portalled to <body>: the header carries `backdrop-blur`, and a
           backdrop-filter makes its element the containing block for fixed
-          descendants — left in place, the drawer sized itself to the header
+          descendants - left in place, the drawer sized itself to the header
           instead of the viewport and opened as a stub in the top-left. */}
       {open &&
         createPortal(
@@ -118,7 +118,7 @@ export function Sidebar() {
                   label="Your desk"
                   icon={Sparkles}
                   color="var(--cat-tech)"
-                  hint="Name a topic — Gemini ranks the archive on it"
+                  hint="Name a topic - Gemini ranks the archive on it"
                   active={pathname === "/my-desk"}
                   onNavigate={close}
                 />
@@ -130,7 +130,7 @@ export function Sidebar() {
                   label="Saved stories"
                   icon={Bookmark}
                   color="var(--cat-subsidy)"
-                  hint="Kept in this browser — no account, works offline"
+                  hint="Kept in this browser - no account, works offline"
                   active={pathname === "/saved"}
                   onNavigate={close}
                 />

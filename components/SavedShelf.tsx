@@ -73,7 +73,7 @@ function ShelfToolbar({ stories }: { stories: SavedStory[] }) {
       await navigator.clipboard.writeText(savedToMarkdown(stories));
       setCopied(true);
     } catch {
-      /* clipboard refused — the download below is the fallback path */
+      /* clipboard refused - the download below is the fallback path */
     }
   }
 
@@ -154,7 +154,7 @@ function EmptyShelf() {
       <Bookmark className="h-6 w-6 text-[var(--text-muted)]" aria-hidden />
       <p className="measure text-[15px] leading-relaxed text-[var(--text-secondary)]">
         Nothing saved yet. Every story in the feed carries a <strong>Save</strong>{" "}
-        control in its byline — or press <Key>S</Key> with a story focused. The list
+        control in its byline - or press <Key>S</Key> with a story focused. The list
         lives in this browser alone: no account, nothing sent anywhere, and it works
         offline once saved.
       </p>
@@ -182,7 +182,7 @@ function Key({ children }: { children: React.ReactNode }) {
 
 /**
  * A saved snapshot back into the shape the feed's card expects. Excerpt and
- * tags were never stored — they cost storage and add nothing to a list the
+ * tags were never stored - they cost storage and add nothing to a list the
  * reader has already chosen to keep.
  */
 function toFeedArticle(story: SavedStory): FeedArticle {

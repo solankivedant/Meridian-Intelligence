@@ -6,7 +6,7 @@ const C = Category;
 // Every feed below was fetch-tested. Endpoints that 401/403/404 (WSJ, IMF,
 // World Bank, Reuters Agency, NDTV Profit direct, Zee Biz) or emit malformed
 // XML (Financial Express, The Print, Scroll, Firstpost, AP News, Down To Earth)
-// are deliberately absent — re-test before adding any of them back.
+// are deliberately absent - re-test before adding any of them back.
 //
 // `defaultCategory` only applies when categorize() finds no keyword match, so
 // feeds point at the category their off-keyword items most plausibly belong to.
@@ -143,7 +143,7 @@ export const NEWSDATA_SOURCE: SourceConfig = {
   type: SourceType.API,
   defaultCategory: Category.BUSINESS_STARTUP,
   region: Region.INDIA,
-  // Broad news API spanning far more than business/policy — only keep items
+  // Broad news API spanning far more than business/policy - only keep items
   // that explicitly match one of our category keyword rules.
   strict: true,
 };

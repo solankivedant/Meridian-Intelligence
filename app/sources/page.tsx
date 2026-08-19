@@ -38,7 +38,7 @@ export default async function SourcesPage() {
   // the two are listed separately rather than in one undifferentiated table.
   //
   // The direct list is built from config, not from the database, so a feed
-  // that has been added but not yet polled still shows up — at zero.
+  // that has been added but not yet polled still shows up - at zero.
   const storedByName = new Map(sources.map((s) => [s.name, s]));
   const configured: SourceEntry[] = ALL_CONFIGURED_SOURCES.map((config) => ({
     id: config.name,
@@ -80,7 +80,7 @@ export default async function SourcesPage() {
         </h1>
         <p className="measure mt-3 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
           Every item on this dashboard is a headline, a short excerpt, and a link
-          back to the publisher — full article text is never stored. Categories
+          back to the publisher - full article text is never stored. Categories
           are assigned on ingest by a keyword rule set, so an item&apos;s section
           may differ from the feed&apos;s default.
         </p>
@@ -119,7 +119,7 @@ export default async function SourcesPage() {
           index={next()}
           title="Publishers via the news archive"
           note={`${discovered.length.toLocaleString("en-IN")} outlets`}
-          description="The historical crawl queries a dated news archive rather than a fixed feed list, so these outlets appear because they published something matching one of the dashboard's topics — not because they were configured here. Ordered by how much they contributed."
+          description="The historical crawl queries a dated news archive rather than a fixed feed list, so these outlets appear because they published something matching one of the dashboard's topics - not because they were configured here. Ordered by how much they contributed."
         >
           <SourceList rows={discovered} initial={24} step={100} searchable />
         </Section>
@@ -149,7 +149,7 @@ export default async function SourcesPage() {
           <Step
             n="4"
             title="Store the pointer"
-            body="Headline, excerpt, publisher, timestamp and link. Nothing is rewritten and no article body is copied — every item opens at its publisher."
+            body="Headline, excerpt, publisher, timestamp and link. Nothing is rewritten and no article body is copied - every item opens at its publisher."
           />
         </div>
 

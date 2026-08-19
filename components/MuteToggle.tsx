@@ -8,7 +8,7 @@ import { toggleMutedSource, useMutedSources } from "@/lib/prefs";
  *
  * Wire-service syndication means one story can arrive from a dozen outlets,
  * and the reader who does not rate one of them has no way to say so. Muting
- * dims that publisher's tiles wherever they appear rather than deleting them —
+ * dims that publisher's tiles wherever they appear rather than deleting them -
  * the feed's counts and numbering are computed on the server, and a client
  * that removed rows would leave the page claiming forty stories while showing
  * thirty-one.
@@ -24,8 +24,8 @@ export function MuteToggle({ sourceName }: { sourceName: string }) {
       aria-pressed={muted}
       title={
         muted
-          ? `${sourceName} is muted — its stories are dimmed in the feed`
-          : `Mute ${sourceName} — dim its stories in the feed`
+          ? `${sourceName} is muted - its stories are dimmed in the feed`
+          : `Mute ${sourceName} - dim its stories in the feed`
       }
       className="shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 data-[muted=true]:opacity-100"
       data-muted={muted ? "true" : undefined}

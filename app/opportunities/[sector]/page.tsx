@@ -54,8 +54,8 @@ export async function generateMetadata({
  * One sector, in depth.
  *
  * The page is ordered by how much you can trust it. The measured charts come
- * first — coverage over time, where that coverage sits across the eight
- * sections, quarter-on-quarter direction, who is publishing it — because those
+ * first - coverage over time, where that coverage sits across the eight
+ * sections, quarter-on-quarter direction, who is publishing it - because those
  * are arithmetic on rows this app collected. The market primer comes after,
  * clearly attributed to the model that wrote it. Then the stories themselves,
  * so every claim above has something to click through to.
@@ -126,7 +126,7 @@ export default async function SectorPage({
             title="The signal"
             accentVar="--cat-investment"
             note={`${WINDOW_MONTHS} months`}
-            description="Measured from this archive. Counts are stories, not rupees — and every rate is this sector's share of all coverage, so it cannot be inflated by the archive simply growing."
+            description="Measured from this archive. Counts are stories, not rupees - and every rate is this sector's share of all coverage, so it cannot be inflated by the archive simply growing."
           >
             <div className="flex flex-col gap-9">
               <StatRow>
@@ -169,7 +169,7 @@ export default async function SectorPage({
                 />
                 <StatTile
                   label="Last filed"
-                  value={signal.latestAt ? timeAgo(new Date(signal.latestAt)) : "—"}
+                  value={signal.latestAt ? timeAgo(new Date(signal.latestAt)) : "-"}
                   note={`${detail.topSources.length} publishers filing`}
                 />
               </StatRow>
@@ -198,7 +198,7 @@ export default async function SectorPage({
 
               <Panel
                 title="Quarter on quarter"
-                caption="Change in this sector's share of all coverage, against the previous quarter. Share rather than story count, so a quarter in which the whole archive grew does not read as this sector growing. Direction is the point — the bars share one symmetric scale."
+                caption="Change in this sector's share of all coverage, against the previous quarter. Share rather than story count, so a quarter in which the whole archive grew does not read as this sector growing. Direction is the point - the bars share one symmetric scale."
               >
                 <DivergingBars rows={quarters} />
               </Panel>
@@ -234,7 +234,7 @@ export default async function SectorPage({
             title="The market"
             accentVar="--cat-tech"
             note="written by Gemini"
-            description="Size, growth, the ratios that matter for this industry, and the routes into it — estimates, not measurements."
+            description="Size, growth, the ratios that matter for this industry, and the routes into it - estimates, not measurements."
           >
             <Suspense fallback={<MarketPending />}>
               <MarketRead sector={sector.label} headlines={articles.map((a) => a.title)} />
@@ -319,7 +319,7 @@ function Panel({
  * Every chart's numbers, one click away.
  *
  * A chart that cannot be read as a table is a chart some readers cannot read at
- * all — screen readers, anyone who needs an exact value rather than a position,
+ * all - screen readers, anyone who needs an exact value rather than a position,
  * and anyone checking the shape against the figures. Collapsed by default so it
  * costs nothing to the reader who does not need it.
  */

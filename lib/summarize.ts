@@ -38,7 +38,7 @@ Rules:
 - Lead with what actually matters to a business reader: decisions taken, money moved, rules changed. Ignore routine or promotional items.
 - Write plainly and specifically. No hedging, no "various developments", no meta-commentary about the briefing itself.
 - Indian English, third person, present or present-perfect tense. Amounts in the form the source uses (crore, lakh, billion).
-- No markdown, no bullet characters, no headings — the fields are rendered as plain text.`;
+- No markdown, no bullet characters, no headings - the fields are rendered as plain text.`;
 
 const RESPONSE_SCHEMA = {
   type: "object",
@@ -105,7 +105,7 @@ function isCategory(value: unknown): value is Category {
 /**
  * Writes the daily brief's summary with Gemini.
  *
- * Returns null rather than throwing whenever the summary can't be produced —
+ * Returns null rather than throwing whenever the summary can't be produced -
  * no key, too little news, or an API failure. The brief is built by a cron job
  * whose real product is the headline list; losing the written summary must not
  * cost the day its brief.

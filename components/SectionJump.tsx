@@ -18,7 +18,7 @@ const TARGETS: { id: string; label: string; icon: LucideIcon; colorVar: string }
   { id: "pulse", label: "Pulse", icon: Activity, colorVar: "--cat-tech" },
 ];
 
-/** Roughly the sticky masthead's height — the line a section counts as "at the top". */
+/** Roughly the sticky masthead's height - the line a section counts as "at the top". */
 const HEADER_OFFSET = 150;
 
 function sameOrder(a: string[], b: string[]): boolean {
@@ -40,7 +40,7 @@ export function SectionJump() {
 
   useEffect(() => {
     // Which sections exist is a property of the rendered page, so it is read
-    // from the DOM rather than mapped from the route — and read on the next
+    // from the DOM rather than mapped from the route - and read on the next
     // frame, because the page has to be laid out before it can be measured.
     let ids: string[] = [];
 
@@ -66,7 +66,7 @@ export function SectionJump() {
       sync();
     };
 
-    // Read straight away — effects run after the commit, so the sections are
+    // Read straight away - effects run after the commit, so the sections are
     // in the document and measurable by now. The deferred second pass is for
     // sections that arrive later out of a Suspense boundary; doing *only* the
     // deferred pass is what left this row empty, because a frame callback
@@ -74,7 +74,7 @@ export function SectionJump() {
     // React re-runs it, and in development it always re-runs it.
     // Read now, then keep watching. The masthead is streamed and hydrated
     // before <main> exists, so at this moment the page's sections are usually
-    // not in the document yet — which is why this row was silently empty on
+    // not in the document yet - which is why this row was silently empty on
     // every page. A single deferred pass is not enough either: sections behind
     // a Suspense boundary can arrive seconds later. The observer is debounced
     // to one read per frame and stops once every target has been found.

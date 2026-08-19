@@ -5,8 +5,8 @@ import { useCallback, useSyncExternalStore } from "react";
 /**
  * The one place this app talks to `localStorage`.
  *
- * Everything a reader accumulates without an account — what they've read, what
- * they've saved, how they want the page to look — lives here. Two things make
+ * Everything a reader accumulates without an account - what they've read, what
+ * they've saved, how they want the page to look - lives here. Two things make
  * that harder than `localStorage.getItem`:
  *
  *  - *Hydration.* The server has no idea what's in the reader's browser, so the
@@ -18,14 +18,14 @@ import { useCallback, useSyncExternalStore } from "react";
  *  - *Sharing.* A save button in a card, the count in the masthead and the
  *    shelf on /saved are three components reading one value. Without a
  *    subscription they drift apart until the next navigation, so every write
- *    notifies every reader of that key — including readers in other tabs, via
+ *    notifies every reader of that key - including readers in other tabs, via
  *    the `storage` event.
  *
  * Values are JSON. `fallback` must be a stable reference (a module constant,
  * not a literal in the component body) or the snapshot cache churns.
  */
 
-/** Parsed values, keyed by storage key — `getSnapshot` must be referentially stable. */
+/** Parsed values, keyed by storage key - `getSnapshot` must be referentially stable. */
 const parsed = new Map<string, unknown>();
 /** The raw string each cached value was parsed from, so foreign writes invalidate it. */
 const rawCache = new Map<string, string | null>();
@@ -53,7 +53,7 @@ function bridgeOtherTabs() {
   bridged = true;
   window.addEventListener("storage", (event) => {
     if (!event.key) {
-      // The whole store was cleared — every cached key is now stale.
+      // The whole store was cleared - every cached key is now stale.
       rawCache.clear();
       parsed.clear();
       listeners.forEach((set) => set.forEach((listener) => listener()));
@@ -87,7 +87,7 @@ export function writeStored<T>(key: string, value: T): void {
   try {
     window.localStorage.setItem(key, raw);
   } catch {
-    /* quota or blocked storage — the value still lives in memory for this page */
+    /* quota or blocked storage - the value still lives in memory for this page */
   }
   rawCache.set(key, raw);
   parsed.set(key, value);
@@ -125,8 +125,8 @@ export function useStored<T>(key: string, fallback: T): T {
 /**
  * False on the server and through hydration, true immediately after.
  *
- * For the handful of places that can't render a neutral state — a control whose
- * label *is* the stored value — this is the honest way to hold off one frame.
+ * For the handful of places that can't render a neutral state - a control whose
+ * label *is* the stored value - this is the honest way to hold off one frame.
  */
 export function useHydrated(): boolean {
   return useSyncExternalStore(

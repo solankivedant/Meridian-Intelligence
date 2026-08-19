@@ -8,7 +8,7 @@ import { SavedCount } from "./SavedCount";
 /**
  * The masthead's standing nav.
  *
- * The drawer holds everything — two desks, eight sections, search, sources —
+ * The drawer holds everything - two desks, eight sections, search, sources -
  * but a destination you have to open a menu to discover is a destination most
  * readers never find, and a page whose own name appears nowhere on screen is
  * one you can't place. These four are the top-level places; the sections stay
@@ -41,7 +41,7 @@ export function PrimaryNav() {
             className="flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 py-2 text-[13px] transition-colors"
             style={{
               // The current page is marked by a rule under it, the way a tab
-              // is — colour alone was too quiet to answer "where am I".
+              // is - colour alone was too quiet to answer "where am I".
               borderColor: active ? (accent ?? "var(--text-primary)") : "transparent",
               color: active ? "var(--text-primary)" : "var(--text-secondary)",
               fontWeight: active ? 600 : 400,

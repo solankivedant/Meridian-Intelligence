@@ -11,14 +11,14 @@ import type { FeedArticle } from "@/components/ArticleRow";
  * from a feed we curate rather than one the archive crawl happened to surface,
  * while still keeping the choice near the top of the window.
  */
-// Regulators publish a steady drip of procedural notices — auction results,
+// Regulators publish a steady drip of procedural notices - auction results,
 // money-market operations, numbered circulars, enforcement orders against
 // named individuals. They belong in the feed, but they are never the story a
 // reader should open on.
 const ROUTINE_TITLE =
   /^(result of|money market operations|auction|reserve money|rbi bulletin|weekly statistical|daily|minutes of|list of|general remittance|order dated|notice under)\b|\b(auction held on|as on \d|press release:|notification no|circular no|recovery certificate|in the matter of|adjudication order|settlement order|show cause notice)\b/i;
 
-/** Share of characters that are digits — high in tables, low in prose. */
+/** Share of characters that are digits - high in tables, low in prose. */
 function digitDensity(text: string): number {
   if (!text) return 0;
   let digits = 0;
@@ -29,7 +29,7 @@ function digitDensity(text: string): number {
 function score(article: FeedArticle, index: number, poolSize: number): number {
   let total = 0;
 
-  // A deck to quote is worth a lot — but only a real one. `deck()` rejects
+  // A deck to quote is worth a lot - but only a real one. `deck()` rejects
   // descriptions that merely restate the headline, and a pasted table reads as
   // noise at display size no matter how long it is.
   const excerpt = deck(article.title, article.excerpt);
@@ -56,7 +56,7 @@ function score(article: FeedArticle, index: number, poolSize: number): number {
 
 /**
  * Index of the best lead candidate within the first `window` articles. The
- * window is wide enough to see past a single publisher's bulk drop — SEBI and
+ * window is wide enough to see past a single publisher's bulk drop - SEBI and
  * PIB routinely file twenty-plus items within the same minute.
  */
 export function pickLeadIndex(articles: FeedArticle[], window = 40): number {

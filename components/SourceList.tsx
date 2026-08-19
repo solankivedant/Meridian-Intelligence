@@ -20,7 +20,7 @@ export type SourceEntry = {
  * A list of sources that does not run off the bottom of the page.
  *
  * The archive crawl has surfaced well over a thousand publishers, and printing
- * them all made provenance — the point of this page — something you had to
+ * them all made provenance - the point of this page - something you had to
  * scroll past rather than read. The list opens at a readable height, reveals in
  * chunks, and (where it is long enough to need it) can be searched by name, so
  * "is my outlet in here?" is a question you answer by typing rather than by
@@ -55,7 +55,7 @@ export function SourceList({
   }, [rows, query]);
 
   // A search that matches four outlets should show all four, not the first
-  // page of them — the cap exists for the unfiltered list.
+  // page of them - the cap exists for the unfiltered list.
   const searching = query.trim().length > 0;
   const cap = searching ? Math.max(limit, 60) : limit;
   const visible = filtered.slice(0, cap);
@@ -64,15 +64,15 @@ export function SourceList({
   if (rows.length === 0) {
     return (
       <p className="text-[14px] text-[var(--text-muted)]">
-        Nothing recorded yet — run an ingest to populate this list.
+        Nothing recorded yet - run an ingest to populate this list.
       </p>
     );
   }
 
   return (
     <div>
-      {/* The mute list is invisible everywhere else — a story from a muted
-          publisher is dimmed, not labelled — so this page, which is where
+      {/* The mute list is invisible everywhere else - a story from a muted
+          publisher is dimmed, not labelled - so this page, which is where
           muting happens, is where it has to be accountable. */}
       {muted.length > 0 && (
         <div
@@ -85,7 +85,7 @@ export function SourceList({
             aria-hidden
           />
           <span className="text-[13px] text-[var(--text-secondary)]">
-            {muted.length} {muted.length === 1 ? "publisher is" : "publishers are"} muted —
+            {muted.length} {muted.length === 1 ? "publisher is" : "publishers are"} muted -
             their stories are dimmed in the feed, never removed.
           </span>
           <button

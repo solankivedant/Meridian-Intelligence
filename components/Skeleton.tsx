@@ -2,7 +2,7 @@
  * Placeholders shaped like the thing that is coming.
  *
  * A spinner tells the reader that something is happening; a skeleton tells
- * them what — and because it occupies the same geometry as the real content,
+ * them what - and because it occupies the same geometry as the real content,
  * the page does not jump when the content lands. The shapes here deliberately
  * mirror the feed's own measurements: a three-column grid of bordered cells
  * with a left accent edge, headline lines, then a byline.

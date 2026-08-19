@@ -6,7 +6,7 @@ const LABEL_W = 210;
 const VALUE_W = 52;
 
 /**
- * A ranked comparison of nominal things — publishers, here.
+ * A ranked comparison of nominal things - publishers, here.
  *
  * Every bar is the same colour. Publishers have no natural order, so colouring
  * them individually would be identity nobody asked for; shading them darker

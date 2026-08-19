@@ -9,7 +9,7 @@ const PAD = { top: 16, right: 46, bottom: 26, left: 38 };
  * Coverage over the window, month by month.
  *
  * One series over time, so: a line, not bars, and one hue rather than the
- * categorical palette — there is nothing here to tell apart. The fill is a
+ * categorical palette - there is nothing here to tell apart. The fill is a
  * 10% wash under the line, which reads as "this area is the same thing as the
  * line" rather than as a second, heavier series.
  *

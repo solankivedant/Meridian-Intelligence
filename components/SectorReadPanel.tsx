@@ -28,7 +28,7 @@ export function SectorReadPanel({ read }: { read: SectorRead }) {
           Written by <strong className="text-[var(--text-primary)]">{read.model}</strong>,{" "}
           {timeAgo(new Date(read.generatedAt))}. Every figure below is an{" "}
           <strong className="text-[var(--text-primary)]">approximation</strong> of the
-          commonly published range — not a filing, a price, or a verified statistic,
+          commonly published range - not a filing, a price, or a verified statistic,
           and not advice.
         </p>
       </div>
@@ -155,8 +155,8 @@ export function SectorReadUnavailable({ configured }: { configured: boolean }) {
       style={{ borderColor: "var(--cat-geopolitics)" }}
     >
       {configured
-        ? "The market primer could not be written just now. The measured signals above stand on their own — they are counted from this archive and do not depend on the model."
-        : "Gemini is not configured on this deployment (GEMINI_API_KEY is unset), so the market primer — size, growth rate, sector ratios and routes in — is unavailable. Everything above is measured from the archive and is unaffected."}
+        ? "The market primer could not be written just now. The measured signals above stand on their own - they are counted from this archive and do not depend on the model."
+        : "Gemini is not configured on this deployment (GEMINI_API_KEY is unset), so the market primer - size, growth rate, sector ratios and routes in - is unavailable. Everything above is measured from the archive and is unaffected."}
     </p>
   );
 }

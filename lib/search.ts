@@ -9,7 +9,7 @@ import type { FeedArticle } from "@/components/ArticleRow";
  *
  * Prisma's query builder can't reach Postgres' `tsvector` operators, so this
  * drops to raw SQL. The expression matches the GIN index created in
- * `20260818020834_region_and_search` exactly — change one and you must change
+ * `20260818020834_region_and_search` exactly - change one and you must change
  * the other, or every search silently becomes a sequential scan over tens of
  * thousands of rows.
  */
@@ -23,7 +23,7 @@ export type MatchMode = "all" | "any";
 /**
  * Turns free text into a tsquery.
  *
- * Every term gets a `:*` prefix wildcard so partial words match while typing —
+ * Every term gets a `:*` prefix wildcard so partial words match while typing -
  * "semicon" should find "semiconductor". Terms are AND-ed by default, which is
  * what people expect from a search box; `any` exists for the topic desk, where
  * a phrase like "EV battery subsidies" should still retrieve candidates when

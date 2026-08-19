@@ -65,7 +65,7 @@ export function ArchiveSection({
         showSections={showSections}
       />
 
-      {/* Only the ids and timestamps cross to the browser — the banner counts,
+      {/* Only the ids and timestamps cross to the browser - the banner counts,
           it does not render stories. */}
       <NewSinceBanner
         stories={articles.map((article) => ({
@@ -87,7 +87,7 @@ export function ArchiveSection({
             <DayFeed
               articles={articles}
               showCategory={showCategory}
-              // Page 2 starts at 41, not at 1 — the number is the story's
+              // Page 2 starts at 41, not at 1 - the number is the story's
               // position in the whole filtered list, not on the screen.
               startIndex={(parsed.page - 1) * PAGE_SIZE + 1}
             />

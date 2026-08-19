@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUp } from "lucide-react";
 
-/** Roughly two screens — far enough that scrolling back is a real chore. */
+/** Roughly two screens - far enough that scrolling back is a real chore. */
 const REVEAL_AT = 1400;
 
 /**

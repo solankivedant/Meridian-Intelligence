@@ -11,7 +11,7 @@ export type FeedSearchParams = {
   range?: string;
   /** Comma-separated sector keys. */
   tags?: string;
-  /** Single sector key — the pre-multi-select parameter, still honoured. */
+  /** Single sector key - the pre-multi-select parameter, still honoured. */
   tag?: string;
   /** Comma-separated section slugs, e.g. `policy-regulatory,investment-fdi`. */
   cats?: string;
@@ -36,7 +36,7 @@ export type ParsedFeedParams = {
  * "Newest first" is the only order a news archive needs most days, but two
  * others earn their place: reading a window forwards (what happened, in the
  * order it happened) and reading it section by section, which is what the
- * pulse invites — you look at the day's skew, then want the busiest section's
+ * pulse invites - you look at the day's skew, then want the busiest section's
  * stories together rather than interleaved with everything else.
  */
 export type SortKey = "new" | "old" | "section";
@@ -63,7 +63,7 @@ export function parseCategorySlugs(raw: string | undefined): Category[] {
       .filter((slug) => CATEGORY_SLUGS.has(slug))
   );
   // Rebuilt from CATEGORY_META so the parameter is canonical whatever order it
-  // was typed in — two links selecting the same sections produce one URL.
+  // was typed in - two links selecting the same sections produce one URL.
   return CATEGORY_META.filter((meta) => wanted.has(meta.slug)).map((meta) => meta.category);
 }
 
@@ -134,7 +134,7 @@ export function feedOrderBy(parsed: ParsedFeedParams): Prisma.ArticleOrderByWith
       return [{ publishedAt: "asc" }];
     case "section":
       // Postgres orders an enum by its declaration order, which is the palette
-      // order the whole site is built on — so "by section" comes out in the
+      // order the whole site is built on - so "by section" comes out in the
       // same sequence as the pulse, the drawer and the footer.
       return [{ category: "asc" }, { publishedAt: "desc" }];
     default:
@@ -147,7 +147,7 @@ export function feedOrderBy(parsed: ParsedFeedParams): Prisma.ArticleOrderByWith
  *
  * The unfiltered first page lifts one story out of the feed and gives it the
  * lead treatment, so fetching a flat `PAGE_SIZE` left the grid one story short
- * — 39 tiles where the pager promised 40. It takes one extra row instead, and
+ * - 39 tiles where the pager promised 40. It takes one extra row instead, and
  * every later page skips that row so the lifted story is not served twice.
  */
 export function feedSlice(parsed: ParsedFeedParams): { skip: number; take: number } {

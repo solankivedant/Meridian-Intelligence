@@ -9,7 +9,7 @@ const H = 34;
  * How a sector's coverage splits across the eight sections.
  *
  * Part-to-whole with identity as the job, so this is the one chart on the desk
- * that uses the categorical palette — and it uses the site's existing fixed
+ * that uses the categorical palette - and it uses the site's existing fixed
  * assignment, so a section is the same colour here as it is in the pulse, the
  * drawer and every card's left edge. Horizontal because the section names are
  * long.
@@ -17,7 +17,7 @@ const H = 34;
  * The segments are separated by 2px of surface rather than by a stroke, and a
  * legend is always drawn: eight hues is the token ceiling, two of them are a
  * yellow and an orange, and no reader should have to distinguish them by colour
- * alone. Inline labels are measured before they are placed — a label that would
+ * alone. Inline labels are measured before they are placed - a label that would
  * not fit is dropped rather than clipped, and its value is still in the legend.
  */
 export function StackedShare({

@@ -5,7 +5,7 @@ import { useSavedStories } from "@/lib/saved";
 /**
  * The number on the "Saved" tab.
  *
- * It is the only proof the shelf exists — a reader who has never opened it has
+ * It is the only proof the shelf exists - a reader who has never opened it has
  * no reason to think the site remembers anything. Absent at zero, so an empty
  * list doesn't advertise itself, and absent until hydration, so it can never
  * contradict the server's markup.

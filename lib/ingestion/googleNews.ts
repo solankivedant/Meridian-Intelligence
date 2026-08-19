@@ -58,7 +58,7 @@ export type ArchiveQuery = {
 };
 
 // One query per category, each anchored on India so the archive stays on-topic.
-// Keep queries under ~200 characters — Google silently truncates long ones.
+// Keep queries under ~200 characters - Google silently truncates long ones.
 export const INDIA_ARCHIVE_QUERIES: ArchiveQuery[] = [
   {
     key: "policy",
@@ -203,7 +203,7 @@ export const ARCHIVE_QUERIES: ArchiveQuery[] = [
   ...WORLD_ARCHIVE_QUERIES,
 ];
 
-// Google News indexes plenty of hosts that aren't newsrooms — corporate blogs,
+// Google News indexes plenty of hosts that aren't newsrooms - corporate blogs,
 // social platforms, SEO content farms. Anything matching these is dropped,
 // since an unattributable headline is worse than no headline.
 const PUBLISHER_DENYLIST = [

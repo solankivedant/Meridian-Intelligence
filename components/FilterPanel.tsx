@@ -34,7 +34,7 @@ function sectorSummary(tags: string[]): string {
 
 /**
  * Filters live in an explicitly framed, tinted panel rather than floating as a
- * loose row of pills — previously they read as content, and on a page that is
+ * loose row of pills - previously they read as content, and on a page that is
  * mostly headlines the controls were the hardest thing to find.
  *
  * All three controls sit on one line. Stacked in labelled rows they cost four
@@ -68,7 +68,7 @@ export function FilterPanel({
 
   return (
     // Positioned, because the sector drawer opens across the panel's full
-    // width rather than out of the control that owns it — anchored to the
+    // width rather than out of the control that owns it - anchored to the
     // control it would hang off the section's right edge.
     <div
       className="relative mb-7 border"
@@ -104,7 +104,7 @@ export function FilterPanel({
             return (
               <Link
                 key={r.key}
-                // Picking a relative range drops any active month selection —
+                // Picking a relative range drops any active month selection -
                 // the two are alternative browsing modes, not combined.
                 href={feedHref(basePath, { ...carry, range: r.key, month: "" })}
                 aria-current={active ? "true" : undefined}

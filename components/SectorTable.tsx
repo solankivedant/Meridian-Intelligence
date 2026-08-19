@@ -24,7 +24,7 @@ export function sortSectors(signals: SectorSignal[], sort: SectorSort): SectorSi
   const sorted = signals.slice();
   switch (sort) {
     case "momentum":
-      // Unrated sectors sink rather than sorting as zero — "not enough
+      // Unrated sectors sink rather than sorting as zero - "not enough
       // coverage to say" is not the same as "flat".
       return sorted.sort((a, b) => (b.momentum ?? -Infinity) - (a.momentum ?? -Infinity));
     case "volume":
@@ -45,7 +45,7 @@ export function sortSectors(signals: SectorSignal[], sort: SectorSort): SectorSi
  *
  * A table, not a chart. Twenty-five classes all carrying meaning is well past
  * the point where colour can tell them apart, and the reader's question here is
- * lookup — "where does my sector sit" — which a chart answers badly and a
+ * lookup - "where does my sector sit" - which a chart answers badly and a
  * sorted table answers exactly. The only marks are one sparkline per row, for
  * shape, and one bar per row, for direction; both are single-hue, because the
  * rows are not eight series, they are twenty-five instances of the same series.
@@ -144,7 +144,7 @@ export function SectorTable({
                   </Td>
                   <Td className="text-right">
                     <span className="flex items-center justify-end gap-2">
-                      {/* Direction as a mark, magnitude as the number beside it —
+                      {/* Direction as a mark, magnitude as the number beside it -
                           a signed percentage alone reads as a wall of text when
                           there are twenty-five of them down a column. */}
                       <span

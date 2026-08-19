@@ -7,7 +7,7 @@ import { metaForCategory } from "@/lib/categoryMeta";
  *
  * The overview takes the narrower column and the takeaways the wider one, then
  * split into two. Given the other way round, a three-line standfirst sat beside
- * a five-item list and left half the panel empty — the narrow column gives the
+ * a five-item list and left half the panel empty - the narrow column gives the
  * prose enough lines to stand up to the list beside it.
  */
 export function BriefSummaryPanel({ summary }: { summary: BriefSummary }) {

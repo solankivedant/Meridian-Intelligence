@@ -71,7 +71,7 @@ export default async function SearchPage({
             name="q"
             defaultValue={query}
             autoFocus
-            placeholder="Headline or excerpt — e.g. semiconductor incentive"
+            placeholder="Headline or excerpt - e.g. semiconductor incentive"
             maxLength={MAX_QUERY_LENGTH}
             aria-label="Search the archive"
             className="min-w-0 flex-1 border-b bg-transparent py-1.5 text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--text-primary)]"

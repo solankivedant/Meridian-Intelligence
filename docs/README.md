@@ -1,7 +1,7 @@
 # Project documentation
 
 Reference set for the India Policy & Business Dashboard. The root
-[`README.md`](../README.md) is the *setup* guide — install, keys, deploy. These
+[`README.md`](../README.md) is the *setup* guide - install, keys, deploy. These
 documents are the *reasoning*: what the product is for, how it is built, and why
 it is built that way.
 
@@ -21,7 +21,7 @@ Indian policy news is scattered across ministry press-release pages, regulator
 notification feeds and a dozen business dailies, and none of it is organised the
 way someone tracking a sector needs it. This dashboard ingests ~78 RSS feeds on
 a schedule, uses a manual dated news-archive crawl, sorts every story into one
-of eight categories and 25 cross-cutting sector tags, and renders it as a publication —
+of eight categories and 25 cross-cutting sector tags, and renders it as a publication -
 a feed grouped by day, a scored lead story, an AI-written daily wrap, and a
 searchable archive that currently holds ~28,000 stories going back to 2019.
 
@@ -38,9 +38,9 @@ searchable archive that currently holds ~28,000 stories going back to 2019.
 
 ## Conventions used across these docs
 
-- **Desk** — India or World. Both share the same eight categories.
-- **Category** — one of the eight top-level sections a story is filed under.
-- **Sector tag** — a cross-cutting sub-domain (semiconductors, fintech, MSME…).
+- **Desk** - India or World. Both share the same eight categories.
+- **Category** - one of the eight top-level sections a story is filed under.
+- **Sector tag** - a cross-cutting sub-domain (semiconductors, fintech, MSME…).
   A story has one category and zero or more sector tags.
-- **The lead** — the one story a page opens on, chosen by score, not recency.
-- **The wrap** — the AI-written summary of the last 24 hours.
+- **The lead** - the one story a page opens on, chosen by score, not recency.
+- **The wrap** - the AI-written summary of the last 24 hours.

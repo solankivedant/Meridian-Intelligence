@@ -21,7 +21,7 @@
   --rule-strong: rgba(22, 22, 26, 0.26);
   --ink-wash: rgba(22, 22, 26, 0.04);
 
-  /* categorical (fixed order, one per category — see lib/categoryMeta.ts) */
+  /* categorical (fixed order, one per category - see lib/categoryMeta.ts) */
   --cat-policy: #2a78d6; /* blue */
   --cat-subsidy: #eb6834; /* orange */
   --cat-tech: #1baf7a; /* aqua */
@@ -90,7 +90,7 @@ body {
 
 /* ---- editorial primitives ---------------------------------------------- */
 
-/* Headlines. Newsreader is an optical-size variable serif — letting the
+/* Headlines. Newsreader is an optical-size variable serif - letting the
    browser pick the optical size is what keeps a 40px lead and a 15px row
    headline both looking correct rather than one being a scaled copy. */
 .headline {
@@ -131,7 +131,7 @@ body {
   max-width: 62ch;
 }
 
-/* Underline that grows from the left on hover — a quieter link affordance
+/* Underline that grows from the left on hover - a quieter link affordance
    than a color change, and it keeps headlines reading as headlines. */
 .link-underline {
   background-image: linear-gradient(currentColor, currentColor);
@@ -192,7 +192,7 @@ a:focus-visible .link-underline,
   opacity: 1;
 }
 
-/* A muted publisher's tile is pushed back, not removed — the feed's counts and
+/* A muted publisher's tile is pushed back, not removed - the feed's counts and
    numbering come from the server and must keep describing what is on screen. */
 .story-cell[data-muted="true"] {
   opacity: 0.42;
@@ -210,7 +210,7 @@ a:focus-visible .link-underline,
  * Compact is the scanning view: the same stories with their decks dropped and
  * the grid pulled in. It is a display preference rather than a different feed,
  * so it is expressed as CSS on one root attribute instead of a second set of
- * components — nothing re-renders, and it survives navigation for free.
+ * components - nothing re-renders, and it survives navigation for free.
  */
 :root[data-density="compact"] .story-deck {
   display: none;

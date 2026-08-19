@@ -158,7 +158,7 @@ type TagRule = {
   keywords: string[];
 };
 
-// Sub-domain / sector tags — cross-cutting, independent of category. An
+// Sub-domain / sector tags - cross-cutting, independent of category. An
 // article can carry several (e.g. a POLICY_REGULATORY piece about a new
 // EV subsidy gets both "electric-vehicles" and "renewable-energy" tags).
 // Curated to 25 business-relevant sub-domains.

@@ -16,7 +16,7 @@ export type Coverage = {
  * Archive-wide totals for the masthead strip.
  *
  * These scan the whole table and are identical for every reader, so they are
- * cached rather than recomputed on each request — with tens of thousands of
+ * cached rather than recomputed on each request - with tens of thousands of
  * rows they were the slowest part of rendering a page whose actual content is
  * one indexed forty-row query.
  */

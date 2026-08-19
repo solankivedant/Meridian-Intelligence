@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
  *
  * "Stories in the last year" is one value; drawn as a one-bar bar chart it
  * would be a chart with nothing to compare. The tile is the honest form: a
- * label, the figure at display size, and — where there is one — the change
+ * label, the figure at display size, and - where there is one - the change
  * that gives it context, since a number without a direction is a number a
  * reader cannot act on.
  */
@@ -21,7 +21,7 @@ export function StatTile({
   /** e.g. "+42% on last year". Omit where nothing meaningful compares. */
   delta?: string;
   deltaTone?: "up" | "down" | "neutral";
-  /** One line under the figure — what it is measured over, or a caveat. */
+  /** One line under the figure - what it is measured over, or a caveat. */
   note?: ReactNode;
 }) {
   const deltaColor =

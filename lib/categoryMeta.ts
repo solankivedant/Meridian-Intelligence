@@ -22,7 +22,7 @@ export type CategoryMeta = {
 };
 
 // Order matches the validated 8-slot categorical palette (references/palette.md
-// in the dataviz skill) — fixed per-category assignment, never reordered/cycled.
+// in the dataviz skill) - fixed per-category assignment, never reordered/cycled.
 export const CATEGORY_META: CategoryMeta[] = [
   {
     category: Category.POLICY_REGULATORY,

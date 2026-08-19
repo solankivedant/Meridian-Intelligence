@@ -2,9 +2,9 @@
 
 ## 1. The problem
 
-Anyone whose work depends on Indian policy — a founder waiting on a PLI
+Anyone whose work depends on Indian policy - a founder waiting on a PLI
 notification, an analyst tracking RBI circulars, a consultant briefing clients on
-trade rules — currently reconstructs the same picture by hand every morning:
+trade rules - currently reconstructs the same picture by hand every morning:
 
 - **Primary sources are unreadable as feeds.** PIB, RBI, SEBI and PM India all
   publish RSS, but as an undifferentiated stream of numbered circulars, auction
@@ -45,7 +45,7 @@ full article text (see §6).
 
 ### 3.2 Organise
 - File every story into exactly one of eight categories by keyword rules, not
-  by which feed it arrived on — a policy story from a markets feed is still
+  by which feed it arrived on - a policy story from a markets feed is still
   policy.
 - Attach zero or more of 25 sector tags.
 - Assign a desk (India / World).
@@ -56,7 +56,7 @@ full article text (see §6).
 - A feed grouped by IST day, each day opening with a feature.
 - Eight category pages, a World desk, a sources page, a personal topic desk.
 - Full-text search with typeahead over every stored headline and excerpt.
-- Filters — period, month, sector — combinable and shareable as a URL.
+- Filters - period, month, sector - combinable and shareable as a URL.
 
 ### 3.4 Interpret
 - **The wrap**: one Gemini call per day writes a standfirst plus 3–5
@@ -76,15 +76,15 @@ full article text (see §6).
 - R5 Search the whole archive in well under a second.
 - R6 Never store full article text; always link back to the publisher.
 - R7 Degrade to a useful page when the DB, an AI key or a feed is unavailable.
-- R8 Deep history — at least two years, not just the RSS window.
+- R8 Deep history - at least two years, not just the RSS window.
 
 ### Should have
-- S1 An AI daily wrap that is skippable, not load-bearing. — shipped
-- S2 A World desk tracked alongside India. — shipped
-- S3 Per-article Q&A. — shipped
-- S4 A user-defined topic desk. — shipped
-- S5 Email or push delivery of the wrap. — **not built**
-- S6 Saved topics that persist across visits. — **not built** (topic desk is
+- S1 An AI daily wrap that is skippable, not load-bearing. - shipped
+- S2 A World desk tracked alongside India. - shipped
+- S3 Per-article Q&A. - shipped
+- S4 A user-defined topic desk. - shipped
+- S5 Email or push delivery of the wrap. - **not built**
+- S6 Saved topics that persist across visits. - **not built** (topic desk is
   URL state only; there are no user accounts)
 
 ### Won't have (deliberate)
@@ -114,8 +114,8 @@ full article text (see §6).
   looks conservative about API calls traces back to this.
 - **Serverless timeouts.** Anything longer than ~60s must run as a local script
   (`npm run backfill`) rather than in a route.
-- **No client-side state store.** Filters live in the URL. This is a feature —
-  every view is linkable — and it removes a whole class of bugs.
+- **No client-side state store.** Filters live in the URL. This is a feature -
+  every view is linkable - and it removes a whole class of bugs.
 
 ## 7. Open questions
 

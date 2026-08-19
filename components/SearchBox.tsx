@@ -23,7 +23,7 @@ const DEBOUNCE_MS = 180;
  * It sits in the middle of the header at full width because search is how most
  * readers re-find a story they half-remember, and it suggests headlines as you
  * type so a partial memory ("semicon…") resolves without a round trip to the
- * results page. Enter always still runs the full search — the dropdown is a
+ * results page. Enter always still runs the full search - the dropdown is a
  * shortcut, never the only way through.
  */
 export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
@@ -68,7 +68,7 @@ export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
         setResults({ query, items: data.suggestions ?? [], total: data.total ?? 0 });
         setActive(-1);
       } catch {
-        /* aborted or offline — the field stays a plain search box */
+        /* aborted or offline - the field stays a plain search box */
       }
     }, DEBOUNCE_MS);
 
@@ -92,7 +92,7 @@ export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
   const runSearch = () => {
     if (!query) return;
     setOpen(false);
-    // Kept so the command palette can offer it back — re-running a search you
+    // Kept so the command palette can offer it back - re-running a search you
     // ran yesterday is the most common search there is.
     rememberSearch(query);
     router.push(`/search?q=${encodeURIComponent(query)}`);
@@ -152,7 +152,7 @@ export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           maxLength={MAX_QUERY_LENGTH}
-          placeholder="Search every headline — e.g. semiconductor incentive"
+          placeholder="Search every headline - e.g. semiconductor incentive"
           aria-label="Search the archive"
           role="combobox"
           aria-expanded={showList}

@@ -9,7 +9,7 @@ import { generateJson, geminiModel, isGeminiConfigured } from "@/lib/gemini";
  * This is the one part of the opportunities desk that the archive cannot
  * supply. Story counts measure attention; nobody allocates capital on
  * attention. So the figures here come from the model, and the page is
- * unambiguous about that — every number is marked as an estimate, attributed
+ * unambiguous about that - every number is marked as an estimate, attributed
  * to the model that wrote it, and dated. Nothing here is a quote, a filing, or
  * a price, and none of it is advice. Where the model is not configured the
  * panel simply does not render and the measured signals stand on their own,
@@ -30,7 +30,7 @@ export type SectorRead = {
   metrics: SectorMetric[];
   drivers: string[];
   risks: string[];
-  /** How a public-market investor gets exposure — categories, never tips. */
+  /** How a public-market investor gets exposure - categories, never tips. */
   exposure: { route: string; note: string }[];
   /** What would have to be true for the case to work. */
   watchlist: string[];
@@ -149,7 +149,7 @@ function buildPrompt(sector: string, headlines: string[]): string {
  * Written once every six hours per sector, not once per reader.
  *
  * The model call takes tens of seconds and costs money, and a sector primer is
- * the same document for everyone who opens the page — it moves on the timescale
+ * the same document for everyone who opens the page - it moves on the timescale
  * of quarters, not requests.
  */
 export const getSectorRead = unstable_cache(

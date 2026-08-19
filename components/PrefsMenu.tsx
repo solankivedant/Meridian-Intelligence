@@ -122,7 +122,7 @@ export function PrefsMenu() {
               ))}
             </div>
             <p className="mt-1.5 text-[11px] leading-snug text-[var(--text-muted)]">
-              Compact drops the decks and tightens the grid — the scanning view.
+              Compact drops the decks and tightens the grid - the scanning view.
             </p>
           </Group>
 

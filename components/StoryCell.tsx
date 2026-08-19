@@ -9,8 +9,8 @@ import { useMutedSources } from "@/lib/prefs";
  * It became a client component when three reader-side states needed to show on
  * the cell rather than inside it: a story that arrived since the last visit
  * gets a wash of its section colour, a story from a muted publisher recedes
- * until hovered, and both have to be decided in the browser. The tile itself —
- * headline, deck, byline — is still server-rendered and passed straight
+ * until hovered, and both have to be decided in the browser. The tile itself -
+ * headline, deck, byline - is still server-rendered and passed straight
  * through as children.
  */
 export function StoryCell({
@@ -44,7 +44,7 @@ export function StoryCell({
     <div
       data-muted={muted ? "true" : undefined}
       className={`story-cell flex border p-4 pl-[13px] transition-colors hover:border-[var(--rule-strong)] ${className}`}
-      title={muted ? `${sourceName} is muted — unmute it on the sources page` : undefined}
+      title={muted ? `${sourceName} is muted - unmute it on the sources page` : undefined}
       style={{
         // Four longhands rather than `borderColor` plus an override: React
         // warns when a shorthand and a longhand for the same property are both

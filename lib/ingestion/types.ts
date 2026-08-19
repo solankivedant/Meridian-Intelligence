@@ -25,5 +25,5 @@ export type SourceConfig = {
   strict?: boolean;
 };
 
-/** A source entry before its desk is stamped on — see sources.ts. */
+/** A source entry before its desk is stamped on - see sources.ts. */
 export type SourceDefinition = Omit<SourceConfig, "region">;

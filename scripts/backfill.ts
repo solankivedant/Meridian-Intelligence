@@ -2,7 +2,7 @@
  * One-off historical crawl:  npm run backfill -- --months=18
  *
  * A full 18-month crawl issues ~150 requests and takes several minutes, which
- * is well past any serverless timeout — that's why this runs locally rather
+ * is well past any serverless timeout - that's why this runs locally rather
  * than behind the cron route. Re-running is safe: articles dedupe on URL and
  * on normalized headline.
  */

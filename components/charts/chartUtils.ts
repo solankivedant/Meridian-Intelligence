@@ -4,13 +4,13 @@
  *
  * There is no chart library here. The charts are four fixed shapes over data
  * this app already holds, they render on the server, and a dependency would
- * cost more kilobytes than the entire page — but the reason to keep them by
+ * cost more kilobytes than the entire page - but the reason to keep them by
  * hand is the specs: a chart library's defaults are dashed gridlines, a
  * saturated area fill and a value on every point, and undoing those is more
  * work than drawing the marks.
  */
 
-/** Bars are capped rather than filling their slot — the leftover band is air. */
+/** Bars are capped rather than filling their slot - the leftover band is air. */
 export const MAX_BAR = 24;
 /** The rounded data-end. The baseline end stays square. */
 export const END_RADIUS = 4;
@@ -67,7 +67,7 @@ export function niceScale(max: number, ticks = 3): { top: number; values: number
   return { top, values };
 }
 
-/** `2026-08` to `Aug` — and to `Aug 26` when a year boundary needs marking. */
+/** `2026-08` to `Aug` - and to `Aug 26` when a year boundary needs marking. */
 export function monthTick(key: string, withYear = false): string {
   const [year, month] = key.split("-");
   const name = new Date(Date.UTC(Number(year), Number(month) - 1, 1)).toLocaleDateString(
@@ -90,9 +90,9 @@ export function count(value: number): string {
   return value.toLocaleString("en-IN");
 }
 
-/** A rate as a signed percentage: `+42%`, `-8%`, `—` when there is nothing to compare. */
+/** A rate as a signed percentage: `+42%`, `-8%`, `-` when there is nothing to compare. */
 export function percentChange(value: number | null): string {
-  if (value === null || !Number.isFinite(value)) return "—";
+  if (value === null || !Number.isFinite(value)) return "-";
   const rounded = Math.round(value * 100);
   return `${rounded > 0 ? "+" : ""}${rounded}%`;
 }

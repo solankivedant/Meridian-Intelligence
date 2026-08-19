@@ -5,7 +5,7 @@
  * "@prisma/client" pulls the generated client into whatever bundle the file
  * ends up in. In a client component that means `@prisma/client/index-browser`,
  * which is a build-time hard failure. These are plain const objects, so any
- * file — server or client — can import them for free.
+ * file - server or client - can import them for free.
  *
  * The types are the same string-literal unions Prisma generates, so values
  * from here are accepted anywhere a Prisma enum is expected. Keep in sync with

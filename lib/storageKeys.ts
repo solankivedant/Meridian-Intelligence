@@ -4,7 +4,7 @@
  * Deliberately free of `"use client"`. The pre-paint script in
  * `components/PreferencesScript.tsx` is server-rendered, and a value imported
  * from a client module into a server component arrives as a client *reference*
- * rather than the string itself — which silently compiled into a script that
+ * rather than the string itself - which silently compiled into a script that
  * read key `undefined` and defaulted every reader back to the light theme.
  * Plain constants in a plain module are readable from both sides.
  *

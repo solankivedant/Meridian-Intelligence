@@ -8,7 +8,7 @@ import { STORAGE_KEYS } from "@/lib/storageKeys";
  * every navigation to a fresh document. The only fix is a synchronous script
  * in the markup that reads the same two keys `lib/prefs.ts` writes and sets
  * the attributes the stylesheet keys off. It is deliberately tiny, and it
- * fails silently — a browser that refuses storage still gets the light theme
+ * fails silently - a browser that refuses storage still gets the light theme
  * rather than an exception before anything has rendered.
  */
 export function PreferencesScript() {

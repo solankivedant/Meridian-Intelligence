@@ -131,7 +131,7 @@ export default async function WorldPage({
         index="03"
         title="The pulse"
         note={windowLabel(parsed.range, parsed.month)}
-        description="How the world desk's volume splits across the eight sections — and the fastest way to narrow the feed to one of them."
+        description="How the world desk's volume splits across the eight sections - and the fastest way to narrow the feed to one of them."
       >
         <CategoryPulse counts={countByCategory} basePath="/world" filters={parsed} />
       </Section>

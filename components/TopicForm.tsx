@@ -15,7 +15,7 @@ export const DESK_OPTIONS: { key: string; label: string; region?: Region }[] = [
  * The one control on the personalised desk: the topic, the window it reads,
  * and which desk it reads from.
  *
- * A plain GET form on purpose — the resulting desk is a URL, so a topic the
+ * A plain GET form on purpose - the resulting desk is a URL, so a topic the
  * reader follows can be bookmarked, shared, or pinned as a tab, and the page
  * needs no client JavaScript to work.
  */

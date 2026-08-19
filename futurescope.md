@@ -14,20 +14,20 @@ The first pass of this file was a list of UI complaints. All of it shipped:
 
 | Original ask | Status |
 | --- | --- |
-| Section identification is hard on every page | **Done** — every section is an enclosed panel with an accent cap and a numbered marker |
-| Filter section is hard to find | **Done** — framed, tinted panel; period/month/sector now on one row |
-| Date should be larger in the header | **Done** — 17–20px, upright instead of italic |
-| Sidebar with all sections, opened by an icon | **Done** — `components/Sidebar.tsx` |
-| Search should answer in about a second | **Done** — GIN-indexed tsvector, plus typeahead in the masthead |
-| Proper section borders, less scrolling | **Done** — panels, day-grouped feed, 40 per page |
-| Select multiple sub-domains together | **Done** — multi-select sector chips in `?tags=` |
-| More Indian sources + a world page | **Done** — 59 India / 19 World feeds, `/world` |
+| Section identification is hard on every page | **Done** - every section is an enclosed panel with an accent cap and a numbered marker |
+| Filter section is hard to find | **Done** - framed, tinted panel; period/month/sector now on one row |
+| Date should be larger in the header | **Done** - 17–20px, upright instead of italic |
+| Sidebar with all sections, opened by an icon | **Done** - `components/Sidebar.tsx` |
+| Search should answer in about a second | **Done** - GIN-indexed tsvector, plus typeahead in the masthead |
+| Proper section borders, less scrolling | **Done** - panels, day-grouped feed, 40 per page |
+| Select multiple sub-domains together | **Done** - multi-select sector chips in `?tags=` |
+| More Indian sources + a world page | **Done** - 59 India / 19 World feeds, `/world` |
 
 Everything below is new ground.
 
 ---
 
-## Tier 1 — high value, days of work
+## Tier 1 - high value, days of work
 
 ### 1. A dark-mode toggle
 The entire dark palette already exists under `:root[data-theme="dark"]` in
@@ -37,7 +37,7 @@ choice unlocks a finished feature for an afternoon's work.
 *Touches:* `app/globals.css` (done), a new toggle component, `app/layout.tsx`.
 
 ### 2. Story clustering
-The dedupe step throws away the fact that five outlets ran the same story —
+The dedupe step throws away the fact that five outlets ran the same story -
 which is itself the strongest available signal of importance. Keep the cluster
 instead: store a `clusterKey` on `Article`, show "covered by 6 outlets" on the
 card, and expand to the list on click.
@@ -78,7 +78,7 @@ other people's tools.
 
 ---
 
-## Tier 2 — the next real capability
+## Tier 2 - the next real capability
 
 ### 8. Accounts, saved topics and email digests
 The largest missing capability, and the blocker behind three PRD "should
@@ -87,7 +87,7 @@ between visits and no alert can exist without somewhere to send it.
 
 Smallest version that works: magic-link email auth, a `SavedTopic` table, and a
 daily job that runs each saved topic through the existing `lib/topicBrief.ts`
-and mails the result. The retrieval and the brief-writing already exist — this
+and mails the result. The retrieval and the brief-writing already exist - this
 is auth plus a scheduler plus an email provider.
 *Decide first:* the PRD deliberately says no accounts. This reverses that.
 
@@ -117,13 +117,13 @@ its own project (see #15).
 exists".
 
 ### 12. Weekly and monthly digests
-`/week/2026-W33` and `/month/2026-08` — a written wrap over a longer window,
+`/week/2026-W33` and `/month/2026-08` - a written wrap over a longer window,
 generated once and stored. The daily wrap already proves the mechanism; a
 weekly one is what people forward to colleagues.
 
 ---
 
-## Tier 3 — ambitious
+## Tier 3 - ambitious
 
 ### 13. Policy threads
 Follow one instrument from consultation paper → draft rules → notification →
@@ -132,7 +132,7 @@ same-thread classifier. This is the feature that would make the product
 genuinely hard to replace.
 
 ### 14. Impact scoring
-Per sector, rank today's stories by how much they actually matter — a
+Per sector, rank today's stories by how much they actually matter - a
 notification that changes a duty rate over a conference speech. `leadStory.ts`
 already scores for prominence; this is the same idea aimed at relevance, and it
 needs feedback data to train on, which needs accounts (#8).
@@ -140,13 +140,13 @@ needs feedback data to train on, which needs accounts (#8).
 ### 15. Document intelligence
 Ingest gazette notifications and ministry PDFs, extract the operative change,
 and let people ask questions against the actual text rather than a headline.
-Changes the legal posture (see the PRD's constraint on storing full text) —
+Changes the legal posture (see the PRD's constraint on storing full text) -
 decide that before building.
 
 ### 16. Multilingual
 Hindi and major regional-language sources, and a translated UI. Doubles source
 coverage for a large part of the audience. Ingestion is language-agnostic
-already; categorisation is not — the keyword rules are English-only.
+already; categorisation is not - the keyword rules are English-only.
 
 ### 17. A public API
 Everything is already a clean read model. `/api/v1/articles` with the existing

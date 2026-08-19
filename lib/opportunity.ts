@@ -8,7 +8,7 @@ import { TAG_META } from "@/lib/categorize";
  *
  * Everything in this module is *measured*, not asserted: it counts what India's
  * ministries, regulators and newsrooms have actually published against each of
- * the 25 sector tags, month by month. That is a real signal and a narrow one —
+ * the 25 sector tags, month by month. That is a real signal and a narrow one -
  * coverage volume is attention, not revenue, and a sector can be loud because
  * it is in trouble. The numbers here are labelled as coverage throughout, and
  * the market-side figures a reader wants next (market size, sector CAGR,
@@ -26,7 +26,7 @@ const MOMENTUM_DAYS = 90;
 /**
  * A quarter needs at least this many stories behind it before a rate of change
  * means anything. Two stories becoming twelve is not a 500% acceleration, it is
- * two stories — and without a floor those rows own the top of the table.
+ * two stories - and without a floor those rows own the top of the table.
  */
 const MIN_MOMENTUM_BASE = 12;
 
@@ -39,7 +39,7 @@ export type SectorSignal = {
   total: number;
   /** Oldest month first, gaps filled with zero so the series is continuous. */
   monthly: MonthPoint[];
-  /** The same months as a share of all coverage — what the rates are built on. */
+  /** The same months as a share of all coverage - what the rates are built on. */
   monthlyShare: MonthPoint[];
   /** Stories in the last 90 days. */
   recent: number;
@@ -57,9 +57,9 @@ export type SectorSignal = {
   /** This sector's share of all coverage in the window. */
   share: number;
   byCategory: { category: Category; count: number }[];
-  /** Share of coverage that is policy or subsidy news — how state-driven it is. */
+  /** Share of coverage that is policy or subsidy news - how state-driven it is. */
   policyShare: number;
-  /** Share that is investment/FDI news — how much money is visibly moving. */
+  /** Share that is investment/FDI news - how much money is visibly moving. */
   capitalShare: number;
   /** Most recent story date, epoch ms. */
   latestAt: number | null;
@@ -174,7 +174,7 @@ async function computeSignals(region: Region): Promise<SectorSignal[]> {
     // the desk is computed from, and the reason is collection, not statistics:
     // the archive was backfilled and then kept live, so its raw monthly volume
     // rises steeply on its own. Measured in absolute counts, every sector on
-    // the board "accelerates" — the growth being read is the crawler's, not
+    // the board "accelerates" - the growth being read is the crawler's, not
     // the sector's. A share cancels that out entirely: it rises only when a
     // sector gains ground on everything else being published.
     const shares = monthly.map((point) => {
@@ -233,7 +233,7 @@ function monthAxis(count: number): string[] {
  * Last twelve months against the twelve before them.
  *
  * Year on year rather than month on month because policy news is violently
- * seasonal — a Budget lands in February and a sector's February is not
+ * seasonal - a Budget lands in February and a sector's February is not
  * comparable to its January in any year.
  */
 function yearOnYear(shares: MonthPoint[]): number | null {
@@ -243,7 +243,7 @@ function yearOnYear(shares: MonthPoint[]): number | null {
   return prior > 0 ? last / prior - 1 : null;
 }
 
-/** Mean share across a run of months — a share cannot be summed. */
+/** Mean share across a run of months - a share cannot be summed. */
 function mean(points: MonthPoint[]): number {
   if (points.length === 0) return 0;
   return points.reduce((total, point) => total + point.count, 0) / points.length;
@@ -254,7 +254,7 @@ function mean(points: MonthPoint[]): number {
  *
  * Computed on annual totals, not on end-point months: a single quiet December
  * would otherwise set the growth rate for two years. With a 24-month archive
- * this spans one year, so it and the year-on-year figure agree — it is written
+ * this spans one year, so it and the year-on-year figure agree - it is written
  * as a rate rather than a ratio because that is the form a reader compares
  * against a market CAGR.
  */
@@ -274,7 +274,7 @@ export function sectorByKey(key: string): { key: string; label: string } | undef
 /**
  * How interesting a sector looks, in one number, for ordering the table.
  *
- * Deliberately crude and deliberately transparent — it is a *sort order*, not a
+ * Deliberately crude and deliberately transparent - it is a *sort order*, not a
  * rating, and the page says so. Momentum carries it because acceleration is the
  * thing a coverage archive can actually see; state support and visible capital
  * are the two multipliers that separate "a lot of noise" from "a lot of noise

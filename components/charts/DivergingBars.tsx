@@ -15,12 +15,12 @@ export type DivergingRow = {
   label: string;
   /** A rate, where 0.42 is +42%. */
   value: number | null;
-  /** Shown in the tooltip — the counts the rate was computed from. */
+  /** Shown in the tooltip - the counts the rate was computed from. */
   detail?: string;
 };
 
 /**
- * Change against a zero baseline — quarter-on-quarter coverage, here.
+ * Change against a zero baseline - quarter-on-quarter coverage, here.
  *
  * Polarity is the job, so this is a diverging form: bars grow left or right
  * from a centre line, with the surface itself as the neutral midpoint. The

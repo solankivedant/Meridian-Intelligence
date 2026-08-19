@@ -6,7 +6,7 @@ export function SiteFooter() {
     <footer className="border-t" style={{ borderColor: "var(--rule)" }}>
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:px-8">
         {/* The masthead has room for one line above the name, and "daily
-            intelligence briefing" is the one that earns it — it tells a reader
+            intelligence briefing" is the one that earns it - it tells a reader
             what kind of thing they are looking at. What the paper actually
             covers belongs here, at the foot, where a reader who has scrolled
             the whole page is the one asking. */}
@@ -59,7 +59,7 @@ export function SiteFooter() {
         <p className="measure text-xs leading-relaxed text-[var(--text-muted)]">
           Headlines, short excerpts, and links are aggregated from public feeds
           published by Indian ministries, regulators, and newsrooms. Full article
-          text is never stored — every item links back to its publisher.{" "}
+          text is never stored - every item links back to its publisher.{" "}
           <Link href="/sources" className="underline underline-offset-2">
             See all sources
           </Link>

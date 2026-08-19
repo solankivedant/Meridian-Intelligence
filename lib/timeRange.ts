@@ -95,7 +95,7 @@ export function monthOptions(): MonthOption[] {
       year++;
     }
   }
-  // Most recent month first — that's the one people want to browse most often.
+  // Most recent month first - that's the one people want to browse most often.
   return options.reverse();
 }
 

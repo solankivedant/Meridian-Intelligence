@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
  *
  * Sections are drawn as panels: a ruled box with a tinted header strip and an
  * accent cap along the top edge. A page of loose rules under small labels read
- * as one undifferentiated column no matter how the labels were styled — an
+ * as one undifferentiated column no matter how the labels were styled - an
  * enclosing border is what actually tells the eye where a section starts and
  * stops, and the accent ties a category page's panels to that category.
  */
@@ -56,7 +56,7 @@ export function Section({
               </span>
             )}
             {/* The section name is the page's main wayfinding device, so it is
-                set well above the body ramp — a reader scrolling fast should be
+                set well above the body ramp - a reader scrolling fast should be
                 able to land on it without reading anything else. */}
             <h2 className="headline text-[28px] leading-[1.12] font-semibold text-[var(--text-primary)] sm:text-[36px]">
               {title}

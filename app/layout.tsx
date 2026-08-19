@@ -35,11 +35,11 @@ export const metadata: Metadata = {
   // only its own title and gets " · Meridian" appended. Repeating the masthead
   // in five files is how a rename leaves half a site on the old name.
   title: {
-    default: "Meridian — Policy, business & markets",
+    default: "Meridian - Policy, business & markets",
     template: "%s · Meridian",
   },
   description:
-    "New Indian government policy, regulation, subsidies, business opportunities, tech & innovation pushes, economy, investment, trade, and geopolitics — pulled from official and news sources.",
+    "New Indian government policy, regulation, subsidies, business opportunities, tech & innovation pushes, economy, investment, trade, and geopolitics - pulled from official and news sources.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
         {/* First tab stop on every page. Eight sections, two rows of nav and a
             search field stand between the top of the document and the day's
-            stories — that is a lot of tabbing for a keyboard reader who came
+            stories - that is a lot of tabbing for a keyboard reader who came
             to read. */}
         <a href="#main" className="skip-link">
           Skip to the stories

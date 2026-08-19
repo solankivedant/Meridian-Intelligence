@@ -4,12 +4,12 @@ import { useStored, writeStored } from "./clientStore";
 import { STORAGE_KEYS } from "./storageKeys";
 
 /**
- * Display preferences — the settings that change how the page looks rather
+ * Display preferences - the settings that change how the page looks rather
  * than what it contains.
  *
  * Theme and density are written to `<html>` as data attributes rather than
  * threaded through components, because both have to be correct in the very
- * first painted frame — `components/PreferencesScript.tsx` reads the same keys
+ * first painted frame - `components/PreferencesScript.tsx` reads the same keys
  * from `lib/storageKeys.ts` before React runs.
  */
 
@@ -41,7 +41,7 @@ export function applyTheme(theme: Theme): void {
   const dark =
     theme === "dark" ||
     (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  // Only "dark" is a real hook in the stylesheet — light is the plain :root.
+  // Only "dark" is a real hook in the stylesheet - light is the plain :root.
   if (dark) document.documentElement.setAttribute("data-theme", "dark");
   else document.documentElement.setAttribute("data-theme", "light");
 }
@@ -114,7 +114,7 @@ export function rememberSearch(query: string): void {
     const raw = window.localStorage.getItem(RECENT_KEY);
     if (raw) current = JSON.parse(raw) as string[];
   } catch {
-    /* unreadable store — start a fresh list */
+    /* unreadable store - start a fresh list */
   }
   const next = [trimmed, ...current.filter((entry) => entry !== trimmed)].slice(0, RECENT_LIMIT);
   writeStored(RECENT_KEY, next);

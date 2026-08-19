@@ -67,7 +67,7 @@ model DailyBrief {
   date        DateTime @unique @db.Date
   highlights  Json
   // Gemini's written wrap for the day: { overview, points[], model,
-  // generatedAt }. Null whenever summarisation was unconfigured or failed —
+  // generatedAt }. Null whenever summarisation was unconfigured or failed -
   // the highlight list above stands on its own. See lib/summarize.ts.
   summary     Json?
   generatedAt DateTime @default(now())

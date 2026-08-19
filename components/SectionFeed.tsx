@@ -15,7 +15,7 @@ type SectionGroup = {
  * The feed grouped by section rather than by day.
  *
  * This is what "sort by section" is actually for. Ordering the rows by section
- * without grouping them would produce a feed with invisible seams — the eye
+ * without grouping them would produce a feed with invisible seams - the eye
  * cannot see where one section ends in a three-column mosaic. Because the query
  * already orders by section and then by date, a single pass is enough: a new
  * group starts wherever the section changes.
@@ -56,7 +56,7 @@ export function SectionFeed({
         const meta = metaForCategory(group.category);
         const accent = `var(${meta.colorVar})`;
         // Each section still leads with its strongest story rather than its
-        // latest — same reasoning as the page lead (see lib/leadStory.ts).
+        // latest - same reasoning as the page lead (see lib/leadStory.ts).
         const { lead: feature, rest } = withLeadFirst(group.articles);
         if (!feature) return null;
 

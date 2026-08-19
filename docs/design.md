@@ -7,12 +7,12 @@ follows from that one decision.
 
 1. **The page has a reading order.** A grid of identical tiles tells you nothing
    about where to start. One lead, one feature per day, cards between them, rows
-   in narrow columns — mixing registers is what creates hierarchy.
+   in narrow columns - mixing registers is what creates hierarchy.
 2. **Structure comes from enclosure, not from labels.** A page of loose rules
    under small headings reads as one undifferentiated column however the
    headings are styled. Sections are boxes.
 3. **Colour is signal, never decoration.** Eight hues, one per category, used
-   for accents only — dots, kickers, meters, section caps. A page has one focal
+   for accents only - dots, kickers, meters, section caps. A page has one focal
    point per section rather than eight competing ones.
 4. **Filters are chrome, content is content.** The filter panel is explicitly
    framed and tinted so it cannot be mistaken for a story.
@@ -34,7 +34,7 @@ in a component.
 | `--ink-wash` | Hover and active fills |
 
 ### The eight categories
-Fixed assignment, never reordered or cycled — the order below is the palette
+Fixed assignment, never reordered or cycled - the order below is the palette
 order and it is mirrored in `lib/categoryMeta.ts` and in the masthead's colour
 strip.
 
@@ -62,7 +62,7 @@ explicit theme hook.
 | `.headline-tight` | Newsreader serif, 1.28 line-height | Feed rows, suggestion titles |
 | `.kicker` | Geist Sans, 11px, 600, `+0.09em`, uppercase | Small all-caps labels. Caps need to open up at 10–11px, not tighten. |
 | `.meta` | Geist Mono, 11px, tabular figures | Timestamps, counts, section numbers |
-| `.measure` | — | Caps body copy at 62ch regardless of container |
+| `.measure` | - | Caps body copy at 62ch regardless of container |
 
 Newsreader is optical-size variable, so the browser picks the right optical size
 for a 40px lead and a 15px row headline. That is why one family covers both
@@ -76,23 +76,23 @@ accent riding the panel's own top edge (not a separate bar inside it, so the box
 stays one shape). Header carries a two-digit marker, the title at 28–36px, an
 optional right-aligned note, and a description at reading size.
 
-Section titles are set well above the body ramp deliberately — a reader
+Section titles are set well above the body ramp deliberately - a reader
 scrolling fast should be able to land on one without reading anything else.
 
 ### Masthead (`components/Header.tsx`)
 Four bands:
-1. An eight-segment colour strip — a legend for the category dots used
+1. An eight-segment colour strip - a legend for the category dots used
    throughout the page, not decoration.
 2. Sidebar toggle · wordmark · **search, centred and full width** · dateline.
    The dateline is the one piece of chrome that says "this is today's edition",
    so it is set at reading size (17–20px), upright rather than italic.
 3. A full-width search row between the masthead breakpoint and phone size.
-   On a phone search stays in the drawer — a third sticky row costs too much.
+   On a phone search stays in the drawer - a third sticky row costs too much.
 4. Primary nav (India · World · Your desk · Sources) with the current page
    marked by a rule under it, plus the **jump links** on the right.
 
 ### Jump links (`components/SectionJump.tsx`)
-One bordered box per section — Latest, Wrap, Lead, Pulse — each with its own
+One bordered box per section - Latest, Wrap, Lead, Pulse - each with its own
 accent. They read as a set of doors out of the current section rather than as
 another line of nav text. Which boxes appear is read off the rendered page, so
 the World desk shows three and a category page two with no per-page wiring; the
@@ -108,7 +108,7 @@ box for the section you are in highlights as you scroll.
 
 ### Filter panel (`components/FilterPanel.tsx`)
 A framed, tinted panel with a header strip (label, match count, reset) and all
-three controls — **period, month and sector — on one line**. Stacked as labelled
+three controls - **period, month and sector - on one line**. Stacked as labelled
 rows they cost four lines above every feed while leaving two thirds of each row
 empty. The 25 sector chips are the only part that needs the room, so they alone
 drop into a full-width drawer under the row when opened.
@@ -130,7 +130,7 @@ toggles itself in the `tags` parameter.
 
 - The current page and the active section carry `aria-current`.
 - Sector chips are `aria-pressed` links; filters work without JavaScript.
-- The typeahead is a proper `combobox` — `aria-expanded`, `aria-controls`,
+- The typeahead is a proper `combobox` - `aria-expanded`, `aria-controls`,
   `aria-autocomplete`, arrow-key navigation, Escape to dismiss.
 - Category colour is never the only carrier of meaning; a dot always sits beside
   a label.

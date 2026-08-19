@@ -11,7 +11,7 @@ import { STORAGE_KEYS } from "./storageKeys";
  * What's stored is a *snapshot* of the story, not a reference to it: title,
  * link, publisher, section, date. Storing ids alone would make /saved a page
  * that can't render without a round trip, and would quietly lose an item the
- * day its row leaves the archive. A saved story is the reader's copy — it
+ * day its row leaves the archive. A saved story is the reader's copy - it
  * keeps working offline, and it survives whatever happens upstream.
  */
 
@@ -26,7 +26,7 @@ export type SavedStory = {
   url: string;
   sourceName: string;
   category: Category;
-  /** ISO 8601 — Date objects don't survive a JSON round trip. */
+  /** ISO 8601 - Date objects don't survive a JSON round trip. */
   publishedAt: string;
   savedAt: number;
 };
@@ -93,7 +93,7 @@ export function savedToMarkdown(stories: SavedStory[]): string {
         month: "short",
         year: "numeric",
       });
-      lines.push(`- [${story.title}](${story.url}) — ${story.sourceName}, ${date}`);
+      lines.push(`- [${story.title}](${story.url}) - ${story.sourceName}, ${date}`);
     }
     lines.push(``);
   }

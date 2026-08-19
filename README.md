@@ -1,72 +1,72 @@
-# Meridian — policy, business & markets
+# Meridian - policy, business & markets
 
 A dashboard that pulls together, on a schedule, what's happening in India across:
 policy & regulation, subsidies & schemes, business & startups, tech & innovation
 pushes, the economy & markets, investment/FDI, trade (import/export), and
-geopolitics — from ~35 official government and business-news RSS feeds, a dated
+geopolitics - from ~35 official government and business-news RSS feeds, a dated
 news-archive crawl that backfills months of history, and (optionally) the
 NewsData.io API.
 
 ## How it works
 
-- **`lib/ingestion/`** — one module per source type. RSS sources (`rss.ts`) are
+- **`lib/ingestion/`** - one module per source type. RSS sources (`rss.ts`) are
   fetched and normalized from the feed list in `sources.ts` (PIB, RBI, SEBI, PM
   India, plus the Economic Times / Business Standard / Mint / BusinessLine /
   The Hindu / Indian Express / Moneycontrol / Inc42 desks); `googleNews.ts`
   queries a dated news archive; the optional NewsData.io source (`newsdata.ts`)
   only runs if `NEWSDATA_API_KEY` is set. `run.ts` orchestrates all of them.
-- **Historical backfill (`lib/ingestion/backfill.ts`, `npm run backfill`)** — RSS
+- **Historical backfill (`lib/ingestion/backfill.ts`, `npm run backfill`)** - RSS
   only ever exposes a publisher's latest few dozen items, which is why a fresh
   install starts out showing "the last few days" and nothing else. The backfill
   walks the Google News archive month by month with `after:`/`before:` date
   operators, running eight India-scoped topical queries per month, and
   attributes each story to its actual publisher rather than to the aggregator.
   A single crawl of two years pulls in thousands of stories.
-- **`lib/categorize.ts`** — a keyword-based rule set assigns each article to one
+- **`lib/categorize.ts`** - a keyword-based rule set assigns each article to one
   of the 8 categories, independent of which source it came from, plus a
-  cross-cutting sub-domain tag (25 curated sectors — renewable energy, ports &
+  cross-cutting sub-domain tag (25 curated sectors - renewable energy, ports &
   shipping, fintech, MSME, etc). If nothing matches, the card falls back to
   showing its category as the tag, so every card always has at least one.
-- **Dedup** — every article is upserted on its `url` (unique). Because wire copy
+- **Dedup** - every article is upserted on its `url` (unique). Because wire copy
   is republished under many URLs, ingestion *also* compares a normalized
   headline (`lib/ingestion/dedupe.ts`) against everything already stored in the
   window being processed, so five outlets carrying the same PTI story produce
   one entry.
-- **Filters** — the feed and every category page support a time-range filter
+- **Filters** - the feed and every category page support a time-range filter
   (24h/7d/1m/3m/1y/all, `?range=`), a browse-by-month picker covering a rolling
-  24 months (`?month=`), a sector filter (`?tag=`), and pagination (`?page=`) —
+  24 months (`?month=`), a sector filter (`?tag=`), and pagination (`?page=`) -
   all combinable and shareable as URLs.
-- **Reading order** — the page opens on a scored lead rather than whatever is
+- **Reading order** - the page opens on a scored lead rather than whatever is
   newest (`lib/leadStory.ts`): a story with a real deck, from a curated feed,
   and not a routine auction result or numbered circular. The feed below is
   grouped by IST day, each day opening with a feature and dropping into
   scannable rows.
-- **"The wrap" — an AI-written daily summary** — the same 24-hour headlines
+- **"The wrap" - an AI-written daily summary** - the same 24-hour headlines
   that fill the brief are sent to Gemini, which writes a short standfirst plus
   3-5 category-tagged takeaways (`lib/summarize.ts`). Stored on the day's
   `DailyBrief` row and rendered at the top of the home page. Needs
   `GEMINI_API_KEY`; without it the brief still generates, just without the
   written summary.
-- **"Ask AI" per article (off by default)** — an "Ask" button on every story
+- **"Ask AI" per article (off by default)** - an "Ask" button on every story
   that calls Gemini (via `/api/ask`, `lib/gemini.ts`) with just that article's
   headline/excerpt/metadata to answer a free-text question about it, in an
   overlay with a few starter prompts. **Disabled unless `NEXT_PUBLIC_ENABLE_ASK`
-  is exactly `"true"`** — it is the one Gemini feature whose cost scales with
+  is exactly `"true"`** - it is the one Gemini feature whose cost scales with
   traffic instead of with content, so a public deployment leaving it on is an
   open tap on your API key. The flag gates the button *and* the route: with it
   unset, `/api/ask` returns 404 no matter who posts to it. See
   `lib/features.ts`.
-- **`/api/cron/ingest`** — pulls all sources and stores new articles. Scheduled
+- **`/api/cron/ingest`** - pulls all sources and stores new articles. Scheduled
   daily via `vercel.json` (Vercel Hobby plan allows at most once/day per cron;
   see "Going faster than daily" below).
-- **`/api/cron/brief`** — builds the "In brief" panel from the last 24h of
+- **`/api/cron/brief`** - builds the "In brief" panel from the last 24h of
   articles, a handful of highlights per category, which the front page
   interleaves so one busy category can't fill the whole list. Scheduled daily,
   after ingestion.
 - Both cron routes are protected by `CRON_SECRET` (see below).
 
 We deliberately store only a **headline, short excerpt, and link back to the
-source** — never full article text — both to stay on solid fair-use footing for
+source** - never full article text - both to stay on solid fair-use footing for
 the news sources and to keep this an aggregator, not a republisher. See the
 `/sources` page in the running app for exactly what's being pulled from where.
 
@@ -97,7 +97,7 @@ curl http://localhost:3000/api/cron/brief
 ## Getting a database (Neon, free tier)
 
 1. Create a project at [neon.tech](https://neon.tech).
-2. Copy the **pooled** connection string (hostname contains `-pooler`) — this
+2. Copy the **pooled** connection string (hostname contains `-pooler`) - this
    matters for serverless (Vercel) so connections don't exhaust the DB's limit.
 3. Put it in `.env` as `DATABASE_URL`, then run `npx prisma migrate dev --name init`
    to create the tables.
@@ -107,19 +107,19 @@ curl http://localhost:3000/api/cron/brief
 1. Sign up at [newsdata.io](https://newsdata.io) (free tier: 200 credits/day,
    allows commercial use, has India + business/politics filters).
 2. Copy the API key into `.env` as `NEWSDATA_API_KEY`.
-3. Ingestion picks it up automatically on the next run — no code changes.
+3. Ingestion picks it up automatically on the next run - no code changes.
 
 ## Getting a Gemini API key (optional, for "The wrap" and "Ask AI")
 
 1. Create a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
 2. Copy it into `.env` as `GEMINI_API_KEY`.
-3. Both features pick it up on the next request — no code changes. `lib/gemini.ts`
-   is the shared client (hand-rolled `fetch`, not the SDK — see its file
+3. Both features pick it up on the next request - no code changes. `lib/gemini.ts`
+   is the shared client (hand-rolled `fetch`, not the SDK - see its file
    comment for why): `/api/cron/brief` makes one call/day to `gemini-3.5-flash`
    (override with `GEMINI_MODEL`) over the day's ~32 headlines; `/api/ask`
    makes one call per question, capped at 1024 output tokens (and is disabled
    unless `NEXT_PUBLIC_ENABLE_ASK="true"`). There's no
-   per-user rate limiting on `/api/ask` since the app has no auth layer — fine
+   per-user rate limiting on `/api/ask` since the app has no auth layer - fine
    for personal/local use, worth adding a limiter before a public deploy.
    Summarisation failures are logged and swallowed (brief keeps its headline
    list, previous day's wrap stays in place); `/api/ask` failures surface as a
@@ -131,7 +131,7 @@ curl http://localhost:3000/api/cron/brief
 2. In Vercel: **New Project** → import the repo.
 3. Add environment variables in the Vercel project settings: `DATABASE_URL`
    (and `NEWSDATA_API_KEY` / `GEMINI_API_KEY` if you have them).
-4. Generate a random string and set it as `CRON_SECRET` in Vercel's env vars —
+4. Generate a random string and set it as `CRON_SECRET` in Vercel's env vars -
    Vercel Cron then automatically sends it as a bearer token on scheduled
    requests, so nobody else can trigger your ingestion/brief routes.
 5. Deploy. `vercel.json` already defines the two daily cron jobs; Vercel picks
@@ -156,8 +156,8 @@ the day is.
 ## What's next (Phase 2)
 
 - PRS India (legislative tracker), Startup India schemes feed, DGFT/TRADESTAT
-  trade-data scraping, MEA geopolitics — all HTML-scrape-only sources, each
+  trade-data scraping, MEA geopolitics - all HTML-scrape-only sources, each
   needs its own bespoke, more fragile scraper.
 - Optional LLM-based re-categorization / "why this matters" enrichment.
-- Optional Google Trends widget (no reliable free API exists today — `pytrends`
+- Optional Google Trends widget (no reliable free API exists today - `pytrends`
   is unmaintained/rate-limited; SerpApi is a paid alternative).

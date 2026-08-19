@@ -18,9 +18,9 @@ generated Prisma client directly.
 
 One row per publisher. Two populations live here:
 
-- **Configured feeds** (~78) — defined in `lib/ingestion/sources.ts`, upserted
+- **Configured feeds** (~78) - defined in `lib/ingestion/sources.ts`, upserted
   with their URL and type kept current on every run.
-- **Discovered publishers** (~3,400) — created by the archive crawl, which
+- **Discovered publishers** (~3,400) - created by the archive crawl, which
   attributes each story to the outlet that published it rather than to the
   aggregator. These have a placeholder URL and exist mainly so a story has a
   byline.
@@ -40,11 +40,11 @@ story came from; a curated feed scores higher.
 
 | Column | Purpose |
 | --- | --- |
-| `title`, `excerpt` | Headline and a short deck. **Never full text** — see the PRD's legal constraint. |
+| `title`, `excerpt` | Headline and a short deck. **Never full text** - see the PRD's legal constraint. |
 | `url` | **Unique.** The primary dedupe key; ingestion upserts on it. |
 | `category` | Assigned by content, not by feed. |
 | `region` | Desk. |
-| `tags` | `String[]` of sector keys — 25 curated sub-domains. Empty is legal; the UI falls back to showing the category. |
+| `tags` | `String[]` of sector keys - 25 curated sub-domains. Empty is legal; the UI falls back to showing the category. |
 | `publishedAt` | The publisher's timestamp. Everything user-facing sorts and groups on this. |
 | `fetchedAt` | When we saw it. Useful for diagnosing a stalled crawl. |
 
@@ -60,7 +60,7 @@ story came from; a curated feed scores higher.
 
 The GIN index is created in migration `20260818020834_region_and_search` and is
 **not** expressible in the Prisma schema. The expression in `lib/search.ts` must
-match it exactly — if the two drift, search still returns correct results but
+match it exactly - if the two drift, search still returns correct results but
 degrades to a sequential scan over the whole table.
 
 `tags` has no GIN index. Sector filtering uses `hasSome`, which is fast enough
@@ -73,11 +73,11 @@ One row per calendar day.
 | Column | Shape |
 | --- | --- |
 | `date` | Unique, `@db.Date`. The IST day the brief covers. |
-| `highlights` | `Json` — a few stories per category, keyed by category. The front page interleaves these so one busy category cannot fill the panel. |
-| `summary` | `Json?` — Gemini's wrap: `{ overview, points[], model, generatedAt }`. **Nullable**: null whenever summarisation was unconfigured or failed, and the highlight list stands on its own. |
+| `highlights` | `Json` - a few stories per category, keyed by category. The front page interleaves these so one busy category cannot fill the panel. |
+| `summary` | `Json?` - Gemini's wrap: `{ overview, points[], model, generatedAt }`. **Nullable**: null whenever summarisation was unconfigured or failed, and the highlight list stands on its own. |
 | `generatedAt` | Timestamp shown as "generated 4h ago" in the UI. |
 
-Storing the wrap as JSON rather than columns is deliberate — its shape is owned
+Storing the wrap as JSON rather than columns is deliberate - its shape is owned
 by `lib/summarize.ts` and has changed twice without a migration.
 
 ## What is deliberately absent

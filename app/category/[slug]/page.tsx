@@ -62,7 +62,7 @@ export default async function CategoryPage({
     safeQuery(() => db.article.count({ where }), 0),
   ]);
 
-  // Only the first page of an unfiltered view gets a lead treatment — deeper
+  // Only the first page of an unfiltered view gets a lead treatment - deeper
   // in the archive there is no "top story", just more of the record.
   const showLead = parsed.page === 1 && !isNarrowed(parsed);
   const { lead, rest } = showLead

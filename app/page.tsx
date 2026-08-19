@@ -27,7 +27,7 @@ import {
 
 export const revalidate = 0;
 
-// Sized to land near the lead's own height — a much longer list leaves the
+// Sized to land near the lead's own height - a much longer list leaves the
 // column beside it empty.
 const BRIEF_ITEMS = 5;
 
@@ -215,7 +215,7 @@ export default async function Home({
         index={next()}
         title="The pulse"
         note={windowLabel(parsed.range, parsed.month)}
-        description="How the window's volume splits across the eight sections — and the fastest way to narrow the feed to one of them."
+        description="How the window's volume splits across the eight sections - and the fastest way to narrow the feed to one of them."
       >
         <CategoryPulse counts={countByCategory} basePath="/" filters={parsed} />
       </Section>

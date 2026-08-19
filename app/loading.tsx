@@ -4,8 +4,8 @@ import { FeedSkeleton, TextSkeleton } from "@/components/Skeleton";
 /**
  * What every route shows while its data is in flight.
  *
- * All four desks open on the same thing — a panel header, a filter row, then a
- * day of tiles — so one placeholder covers the lot. Without it a slow query
+ * All four desks open on the same thing - a panel header, a filter row, then a
+ * day of tiles - so one placeholder covers the lot. Without it a slow query
  * leaves the reader on the previous page with nothing to say the click
  * registered, which is the moment people click again.
  */

@@ -9,7 +9,7 @@
 
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
-/** Flash is the right tier here — the work is compression, not reasoning. */
+/** Flash is the right tier here - the work is compression, not reasoning. */
 const DEFAULT_MODEL = "gemini-3.5-flash";
 
 const DEFAULT_TIMEOUT_MS = 25_000;
@@ -104,7 +104,7 @@ export async function generateText({
         signal: AbortSignal.timeout(timeoutMs),
       });
     } catch (err) {
-      // Timeout or transport failure — worth another try.
+      // Timeout or transport failure - worth another try.
       lastError = new GeminiError(
         `Gemini request failed: ${err instanceof Error ? err.message : String(err)}`
       );

@@ -299,7 +299,7 @@ export function CommandPalette({
 
   const searchFallback = query.trim().length >= 2;
   // The archive search is always the last row, so a query that matches nothing
-  // still has somewhere to go — and Enter on an empty selection means "search".
+  // still has somewhere to go - and Enter on an empty selection means "search".
   const rows = matches.length + (searchFallback ? 1 : 0);
   const index = Math.min(active, Math.max(rows - 1, 0));
 
@@ -372,7 +372,7 @@ export function CommandPalette({
               setQuery(event.target.value);
               setActive(0);
             }}
-            placeholder="Jump to a desk, a section, a setting — or search the archive"
+            placeholder="Jump to a desk, a section, a setting - or search the archive"
             aria-label="Command or search"
             className="min-w-0 flex-1 bg-transparent text-[15px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
           />

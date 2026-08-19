@@ -22,9 +22,9 @@ export type FeedArticle = {
 /**
  * Four registers for the same record:
  *
- *  - `lead`    the one story a page opens on — display headline, full deck
- *  - `feature` the first story of a day — a step down, still with a deck
- *  - `card`    a tile in the feed grid — headline, two lines of deck, byline
+ *  - `lead`    the one story a page opens on - display headline, full deck
+ *  - `feature` the first story of a day - a step down, still with a deck
+ *  - `card`    a tile in the feed grid - headline, two lines of deck, byline
  *  - `row`     a single hairline-separated line, for narrow columns
  *
  * Mixing registers is the point. A page of identical tiles has no reading
@@ -45,7 +45,7 @@ export function ArticleRow({
   showCategory?: boolean;
   /** Position in the list this story is being shown in, 1-based. */
   index?: number;
-  /** Editorial line on why this story is here — the topic desk sets it. */
+  /** Editorial line on why this story is here - the topic desk sets it. */
   note?: string;
 }) {
   const meta = metaForCategory(article.category);
@@ -161,7 +161,7 @@ export function ArticleRow({
             className="mt-1.5"
             showCategory={showCategory}
             // The day header already establishes the date, so a row only
-            // needs a clock — shown in the right margin where the eye can
+            // needs a clock - shown in the right margin where the eye can
             // read the column, and folded into the byline on narrow screens.
             timeDisplay="narrow-only"
             revealActions
@@ -182,7 +182,7 @@ export function ArticleRow({
  * The line above a headline: its number in the list, then the category.
  *
  * The numeral is the point. A grid of tiles has no inherent reading order, and
- * "the third one" is not something a reader can say about a mosaic — a printed
+ * "the third one" is not something a reader can say about a mosaic - a printed
  * rank gives every story a handle, and on the topic desk it *is* the ranking.
  * It carries the category colour so one glance reads as both.
  */
@@ -278,7 +278,7 @@ function Byline({
   );
 }
 
-/** The story as the client-side controls see it — plain, serialisable fields. */
+/** The story as the client-side controls see it - plain, serialisable fields. */
 function storyRef(article: FeedArticle): StoryRef {
   return {
     id: article.id,

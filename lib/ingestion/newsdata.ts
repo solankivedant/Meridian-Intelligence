@@ -12,7 +12,7 @@ type NewsDataResponse = {
 
 // Optional source: only runs if NEWSDATA_API_KEY is configured. Free tier
 // (newsdata.io) allows commercial use, 200 credits/day, India + business
-// filters — see README for signup steps.
+// filters - see README for signup steps.
 export async function fetchNewsDataArticles(): Promise<RawArticle[]> {
   const apiKey = process.env.NEWSDATA_API_KEY;
   if (!apiKey) return [];
@@ -22,7 +22,7 @@ export async function fetchNewsDataArticles(): Promise<RawArticle[]> {
   url.searchParams.set("country", "in");
   url.searchParams.set("language", "en");
   // "politics"/"world" on NewsData.io skew toward general political/crime
-  // news, not government policy — dropped in favor of the strict categorize()
+  // news, not government policy - dropped in favor of the strict categorize()
   // filter (see sources.ts) doing the topical filtering instead.
   url.searchParams.set("category", "business,technology");
 

@@ -9,8 +9,8 @@ import { count, percent, percentChange } from "./charts/chartUtils";
  *
  * A whole dashboard nobody knows about is a dashboard nobody opens, and the
  * front page is where readers already are. Rather than a banner advertising the
- * feature, this shows the actual finding — the three sectors accelerating
- * hardest right now — so the strip is worth reading even for someone who never
+ * feature, this shows the actual finding - the three sectors accelerating
+ * hardest right now - so the strip is worth reading even for someone who never
  * clicks it. Everything shown is measured; the framing says so.
  */
 export function OpportunityStrip({ movers }: { movers: SectorSignal[] }) {
@@ -79,7 +79,7 @@ export function OpportunityStrip({ movers }: { movers: SectorSignal[] }) {
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[var(--text-muted)]">
         <TrendingUp className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span>
-          Coverage momentum across 25 sectors — attention, not returns, and not advice.
+          Coverage momentum across 25 sectors - attention, not returns, and not advice.
         </span>
         <Link
           href="/opportunities"

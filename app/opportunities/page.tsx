@@ -19,7 +19,7 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Opportunities",
   description:
-    "Which Indian sectors the policy and business archive is getting louder about — coverage momentum, state support and visible capital across 25 sectors.",
+    "Which Indian sectors the policy and business archive is getting louder about - coverage momentum, state support and visible capital across 25 sectors.",
 };
 
 /**
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
  * Everything ranked here is measured off this archive: how much has been
  * published about each sector, whether that is accelerating, how much of it is
  * the state acting, and how much is money visibly moving. That is a real and
- * genuinely useful signal — policy attention reliably precedes capital in
- * India — and it is emphatically not a valuation. The page says so at the top
+ * genuinely useful signal - policy attention reliably precedes capital in
+ * India - and it is emphatically not a valuation. The page says so at the top
  * rather than in a footnote, because a table sorted by "opportunity" invites
  * exactly the wrong reading if it doesn't.
  */
@@ -72,7 +72,7 @@ export default async function OpportunitiesPage({
         >
           These are measures of <strong>coverage</strong>, not of returns. A sector
           gets louder when it is in trouble as readily as when it is booming, and
-          nothing on this desk is investment advice — it is a research starting
+          nothing on this desk is investment advice - it is a research starting
           point, and every figure links back to the stories it was counted from.
         </p>
       </header>
@@ -117,7 +117,7 @@ export default async function OpportunitiesPage({
 
           {signals.length === 0 ? (
             <p className="text-[15px] text-[var(--text-muted)]">
-              No sector coverage yet — run an ingest to populate the archive.
+              No sector coverage yet - run an ingest to populate the archive.
             </p>
           ) : (
             <SectorTable
@@ -143,7 +143,7 @@ export default async function OpportunitiesPage({
           </Definition>
           <Definition term="Shape">
             Monthly coverage across the window, each sector drawn against its own
-            peak — the line is for shape, not height. The totals column ranks size.
+            peak - the line is for shape, not height. The totals column ranks size.
           </Definition>
           <Definition term="Momentum">
             The change in a sector&rsquo;s <strong>share of all coverage</strong>,
@@ -153,7 +153,7 @@ export default async function OpportunitiesPage({
             absolute terms, every sector would look like it was accelerating. A
             share rises only when a sector gains ground on everything else being
             published. Quarters rather than months, because policy news is seasonal
-            — a Budget lands in February and skews any monthly comparison around
+            - a Budget lands in February and skews any monthly comparison around
             it. Sectors with fewer than twelve stories in the prior quarter are
             left unrated rather than handed a rate that a handful of stories cannot
             support.
@@ -163,20 +163,20 @@ export default async function OpportunitiesPage({
             subsidy news. High means the sector moves when the government moves.
           </Definition>
           <Definition term="Capital">
-            The share that is investment or FDI news — money visibly being
+            The share that is investment or FDI news - money visibly being
             committed, rather than announced intent.
           </Definition>
           <Definition term="Opportunity">
             The default ranking: momentum, scaled by how much coverage there is,
             weighted up by state support and by capital. It is a sort order and
-            nothing more — sectors under twenty stories are excluded so a small
+            nothing more - sectors under twenty stories are excluded so a small
             base cannot manufacture a big swing.
           </Definition>
         </dl>
 
         <p className="measure mt-5 text-[13px] leading-relaxed text-[var(--text-muted)]">
           Each sector&rsquo;s own page adds the market-side figures a reader needs
-          next — size, growth rate, the ratios that matter for that industry, and
+          next - size, growth rate, the ratios that matter for that industry, and
           the routes into it. Those are written by a language model and labelled as
           estimates, because this archive cannot measure them.{" "}
           <Link href="/sources" className="underline underline-offset-2">

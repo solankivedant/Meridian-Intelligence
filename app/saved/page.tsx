@@ -20,7 +20,7 @@ export default function SavedPage() {
           Saved stories
         </h1>
         <p className="measure mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)]">
-          Kept in this browser, not in an account — nothing here is sent anywhere.
+          Kept in this browser, not in an account - nothing here is sent anywhere.
           Each story is stored whole, so the list keeps working offline and holds on
           to items long after they have scrolled out of the archive.
         </p>
