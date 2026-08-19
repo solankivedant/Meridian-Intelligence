@@ -11,7 +11,19 @@ export function Pagination({
   total,
 }: {
   basePath: string;
-  params: { range?: string; tags?: string; month?: string };
+  /**
+   * The facets the current view is built from. Every one of them has to be
+   * written back into the link: paging is a change of page and nothing else,
+   * and a pager that quietly dropped `sort` and `cats` sent a reader who asked
+   * for "oldest first, policy only" back to the default feed on page two.
+   */
+  params: {
+    range?: string;
+    tags?: string;
+    cats?: string;
+    sort?: string;
+    month?: string;
+  };
   /** Extra query values to preserve, e.g. a search term and its scope. */
   extra?: Record<string, string | undefined>;
   page: number;
@@ -25,6 +37,8 @@ export function Pagination({
     const search = new URLSearchParams();
     if (params.range) search.set("range", params.range);
     if (params.tags) search.set("tags", params.tags);
+    if (params.cats) search.set("cats", params.cats);
+    if (params.sort) search.set("sort", params.sort);
     if (params.month) search.set("month", params.month);
     for (const [key, value] of Object.entries(extra ?? {})) {
       if (value) search.set(key, value);

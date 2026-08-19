@@ -6,6 +6,7 @@ import { metaForSlug, CATEGORY_META } from "@/lib/categoryMeta";
 import { Section } from "@/components/Section";
 import { ArticleGrid } from "@/components/ArticleGrid";
 import { Pagination } from "@/components/Pagination";
+import { SectionIcon } from "@/components/MetaIcon";
 import { PAGE_SIZE } from "@/lib/feedQuery";
 
 export const revalidate = 0;
@@ -110,6 +111,7 @@ export default async function SearchPage({
                   active={categoryMeta?.slug === meta.slug}
                   color={`var(${meta.colorVar})`}
                 >
+                  <SectionIcon meta={meta} size="xs" />
                   {meta.shortLabel}
                 </Chip>
               ))}
@@ -174,7 +176,7 @@ function Chip({
     <Link
       href={href}
       aria-current={active ? "true" : undefined}
-      className="border px-2 py-0.5 text-[11px] transition-colors"
+      className="inline-flex items-center gap-1.5 border px-2 py-0.5 text-[11px] transition-colors"
       style={
         active
           ? {

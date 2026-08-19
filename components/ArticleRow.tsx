@@ -5,6 +5,7 @@ import { StoryLink } from "./StoryLink";
 import { NewBadge } from "./NewBadge";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { tagLabel } from "@/lib/categorize";
+import { SectorIcon } from "./MetaIcon";
 import { clockTime, timeAgo } from "@/lib/formatTime";
 import { deck } from "@/lib/deck";
 
@@ -304,7 +305,11 @@ function TagList({ tags, className = "" }: { tags: string[]; className?: string 
   return (
     <div className={`flex flex-wrap gap-x-3 gap-y-1 ${className}`}>
       {tags.slice(0, 5).map((tag) => (
-        <span key={tag} className="kicker text-[10px] text-[var(--text-muted)]">
+        <span
+          key={tag}
+          className="kicker flex items-center gap-1 text-[10px] text-[var(--text-muted)]"
+        >
+          <SectorIcon sector={tag} size="xs" />
           {tagLabel(tag)}
         </span>
       ))}

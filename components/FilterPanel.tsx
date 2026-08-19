@@ -2,11 +2,12 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow, X } from "lucide-react";
 import { TIME_RANGES, TimeRangeKey, monthOptions } from "@/lib/timeRange";
 import { TAG_META } from "@/lib/categorize";
 import { Category } from "@/lib/enums";
 import { CATEGORY_META } from "@/lib/categoryMeta";
+import { metaForSector } from "@/lib/sectorMeta";
 import { SORTS, SortKey, categorySlugs, feedHref } from "@/lib/feedQuery";
 
 export type FeedFilters = {
@@ -16,6 +17,9 @@ export type FeedFilters = {
   sort: SortKey;
   month: string;
 };
+
+/** Which of the two pickers is expanded. Never both. */
+type Drawer = "section" | "sector" | null;
 
 /** What the closed section control says it is currently doing. */
 function sectionSummary(cats: Category[]): string {
@@ -40,14 +44,19 @@ function sectorSummary(tags: string[]): string {
  * loose row of pills - previously they read as content, and on a page that is
  * mostly headlines the controls were the hardest thing to find.
  *
- * All three controls sit on one line. Stacked in labelled rows they cost four
- * lines of height above every feed while leaving two thirds of each row empty;
- * the twenty-six sector chips are the only part that genuinely needs the room,
- * so they alone drop into a panel under the row when opened.
+ * All five controls sit on one line. The section and sector pickers need far
+ * more room than a line has, so they open into a drawer *underneath* the
+ * control row, inside the panel's own border and in the normal flow of the
+ * page. They used to open as absolutely-positioned overlays hanging off the
+ * panel's bottom edge, which dropped a floating slab across the first row of
+ * stories - it read as a rendering fault rather than a menu, and the two could
+ * overlap each other. In flow, the panel simply grows, the feed moves down and
+ * nothing is ever covered. Only one drawer is open at a time, for the same
+ * reason.
  *
- * Sector selection is multiple-choice and driven entirely by links: each chip
- * toggles itself in the `tags` query parameter, so combinations stay
- * shareable, bookmarkable and work without client JavaScript.
+ * Selection is multiple-choice and driven entirely by links: each chip toggles
+ * itself in the query string, so combinations stay shareable, bookmarkable and
+ * work without client JavaScript.
  */
 export function FilterPanel({
   basePath,
@@ -69,14 +78,16 @@ export function FilterPanel({
   const months = monthOptions();
   const carry = { range, tags, cats, sort, month };
   const [open, setOpen] = useState(hasFilters);
+  const [drawer, setDrawer] = useState<Drawer>(null);
   const contentId = useId();
+  const drawerId = useId();
+
+  const toggle = (which: Exclude<Drawer, null>) =>
+    setDrawer((current) => (current === which ? null : which));
 
   return (
-    // Positioned, because the sector drawer opens across the panel's full
-    // width rather than out of the control that owns it - anchored to the
-    // control it would hang off the section's right edge.
     <div
-      className="relative mb-7 border"
+      className="mb-7 border"
       style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-2)" }}
     >
       <div
@@ -118,195 +129,204 @@ export function FilterPanel({
         </span>
       </div>
 
-      <div
-        id={contentId}
-        className={`${open ? "flex" : "hidden"} flex-wrap items-start gap-x-4 gap-y-3 px-4 py-3 md:flex md:items-center`}
-      >
-        <Group label="Period">
-          {TIME_RANGES.map((r) => {
-            const active = !month && r.key === range;
-            return (
-              <Link
-                key={r.key}
-                // Picking a relative range drops any active month selection -
-                // the two are alternative browsing modes, not combined.
-                href={feedHref(basePath, { ...carry, range: r.key, month: "" })}
-                aria-current={active ? "true" : undefined}
-                className="border px-2.5 py-1 text-[12px] transition-colors"
-                style={
-                  active
-                    ? {
-                        borderColor: "var(--text-primary)",
-                        backgroundColor: "var(--text-primary)",
-                        color: "var(--surface-1)",
-                        fontWeight: 600,
-                      }
-                    : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
-                }
-              >
-                {r.label}
-              </Link>
-            );
-          })}
-        </Group>
-
-        <Divider />
-
-        <Group label="Month">
-          <form action={basePath} method="GET" className="flex items-center gap-1.5">
-            <input type="hidden" name="tags" value={tags.join(",")} />
-            <input type="hidden" name="cats" value={categorySlugs(cats).join(",")} />
-            <input type="hidden" name="sort" value={sort} />
-            <select
-              name="month"
-              defaultValue={month}
-              aria-label="Browse a specific month"
-              className="border bg-transparent px-2 py-1 text-[12px] text-[var(--text-primary)] outline-none"
-              style={{
-                borderColor: month ? "var(--text-primary)" : "var(--rule-strong)",
-                backgroundColor: "var(--surface-1)",
-              }}
-            >
-              <option value="">Any month</option>
-              {months.map((m) => (
-                <option key={m.key} value={m.key}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="kicker border px-2.5 py-1 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
-              style={{ borderColor: "var(--rule-strong)" }}
-            >
-              Go
-            </button>
-          </form>
-        </Group>
-
-        {showSections && (
-          <>
-            <Divider />
-
-            {/* The same eight sections the pulse meters, as a filter. Reading
-                the day's skew and then acting on it - policy is busy today,
-                show me only that - was previously a trip to a section page
-                that dropped every other filter on the way. */}
-            <Group label="Section">
-              <details className="group/section w-full sm:w-auto">
-                <summary
-                  className="flex cursor-pointer list-none items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors [&::-webkit-details-marker]:hidden"
+      <div id={contentId} className={open ? "block" : "hidden md:block"}>
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-3 px-4 py-3 md:items-center">
+          <Group label="Period">
+            {TIME_RANGES.map((r) => {
+              const active = !month && r.key === range;
+              return (
+                <Link
+                  key={r.key}
+                  // Picking a relative range drops any active month selection -
+                  // the two are alternative browsing modes, not combined.
+                  href={feedHref(basePath, { ...carry, range: r.key, month: "" })}
+                  aria-current={active ? "true" : undefined}
+                  className="border px-2.5 py-1 text-[12px] transition-colors"
                   style={
-                    cats.length > 0
+                    active
                       ? {
                           borderColor: "var(--text-primary)",
-                          backgroundColor: "var(--ink-wash)",
-                          color: "var(--text-primary)",
+                          backgroundColor: "var(--text-primary)",
+                          color: "var(--surface-1)",
                           fontWeight: 600,
                         }
-                      : {
-                          borderColor: "var(--rule-strong)",
-                          backgroundColor: "var(--surface-1)",
-                          color: "var(--text-secondary)",
-                        }
+                      : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
                   }
                 >
-                  {sectionSummary(cats)}
-                  <ChevronDown
-                    className="h-3.5 w-3.5 shrink-0 transition-transform group-open/section:rotate-180"
-                    aria-hidden
-                  />
-                </summary>
+                  {r.label}
+                </Link>
+              );
+            })}
+          </Group>
 
-                <div
-                  className="static z-20 mt-2 grid w-full gap-1.5 border-t p-3 shadow-lg md:absolute md:inset-x-0 md:top-full md:mt-0 md:grid-cols-2 lg:grid-cols-4"
-                  style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
+          <Divider />
+
+          <Group label="Month">
+            <form action={basePath} method="GET" className="flex items-center gap-1.5">
+              <input type="hidden" name="tags" value={tags.join(",")} />
+              <input type="hidden" name="cats" value={categorySlugs(cats).join(",")} />
+              <input type="hidden" name="sort" value={sort} />
+              <select
+                name="month"
+                defaultValue={month}
+                aria-label="Browse a specific month"
+                className="border bg-transparent px-2 py-1 text-[12px] text-[var(--text-primary)] outline-none"
+                style={{
+                  borderColor: month ? "var(--text-primary)" : "var(--rule-strong)",
+                  backgroundColor: "var(--surface-1)",
+                }}
+              >
+                <option value="">Any month</option>
+                {months.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="kicker border px-2.5 py-1 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                style={{ borderColor: "var(--rule-strong)" }}
+              >
+                Go
+              </button>
+            </form>
+          </Group>
+
+          {showSections && (
+            <>
+              <Divider />
+
+              {/* The same eight sections the pulse meters, as a filter. Reading
+                  the day's skew and then acting on it - policy is busy today,
+                  show me only that - was previously a trip to a section page
+                  that dropped every other filter on the way. */}
+              <Group label="Section">
+                <PickerButton
+                  label={sectionSummary(cats)}
+                  open={drawer === "section"}
+                  active={cats.length > 0}
+                  controls={drawerId}
+                  accent="var(--text-primary)"
+                  onClick={() => toggle("section")}
+                />
+              </Group>
+            </>
+          )}
+
+          <Divider />
+
+          <Group label="Sector">
+            <PickerButton
+              label={sectorSummary(tags)}
+              open={drawer === "sector"}
+              active={tags.length > 0}
+              controls={drawerId}
+              accent="var(--cat-policy)"
+              onClick={() => toggle("sector")}
+            />
+          </Group>
+
+          <Divider />
+
+          <Group label="Sort">
+            {SORTS.map((option) => {
+              const active = option.key === sort;
+              return (
+                <Link
+                  key={option.key}
+                  href={feedHref(basePath, { ...carry, sort: option.key })}
+                  aria-current={active ? "true" : undefined}
+                  title={option.hint}
+                  className="flex items-center gap-1 border px-2.5 py-1 text-[12px] transition-colors"
+                  style={
+                    active
+                      ? {
+                          borderColor: "var(--text-primary)",
+                          backgroundColor: "var(--text-primary)",
+                          color: "var(--surface-1)",
+                          fontWeight: 600,
+                        }
+                      : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
+                  }
                 >
-                  {CATEGORY_META.map((meta) => {
-                    const active = cats.includes(meta.category);
-                    const next = active
-                      ? cats.filter((c) => c !== meta.category)
-                      : [...cats, meta.category];
-                    const count = counts?.get(meta.category);
-                    return (
-                      <Link
-                        key={meta.slug}
-                        href={feedHref(basePath, { ...carry, cats: next })}
-                        aria-pressed={active}
-                        className="flex items-center gap-2 border px-2 py-1 text-[12px] transition-colors"
-                        style={{
-                          borderColor: active ? `var(${meta.colorVar})` : "var(--rule)",
-                          backgroundColor: active
-                            ? `color-mix(in srgb, var(${meta.colorVar}) 13%, var(--surface-1))`
-                            : "var(--surface-1)",
-                          color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                          fontWeight: active ? 600 : 400,
-                        }}
-                      >
-                        <span
-                          className="h-2 w-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: `var(${meta.colorVar})` }}
-                          aria-hidden
-                        />
-                        <span className="min-w-0 flex-1 truncate">{meta.label}</span>
-                        {count !== undefined && <span className="meta shrink-0">{count}</span>}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </details>
-            </Group>
-          </>
+                  {active && <ArrowDownWideNarrow className="h-3 w-3 shrink-0" aria-hidden />}
+                  {option.label}
+                </Link>
+              );
+            })}
+          </Group>
+        </div>
+
+        {drawer === "section" && showSections && (
+          <DrawerPanel
+            id={drawerId}
+            title="Pick any number of sections"
+            onClose={() => setDrawer(null)}
+            clearHref={cats.length > 0 ? feedHref(basePath, { ...carry, cats: [] }) : undefined}
+          >
+            <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4">
+              {CATEGORY_META.map((meta) => {
+                const active = cats.includes(meta.category);
+                const next = active
+                  ? cats.filter((c) => c !== meta.category)
+                  : [...cats, meta.category];
+                const count = counts?.get(meta.category);
+                const Icon = meta.icon;
+                return (
+                  <Link
+                    key={meta.slug}
+                    href={feedHref(basePath, { ...carry, cats: next })}
+                    aria-pressed={active}
+                    className="flex items-center gap-2 border px-2 py-1.5 text-[12px] transition-colors"
+                    style={{
+                      borderColor: active ? `var(${meta.colorVar})` : "var(--rule)",
+                      backgroundColor: active
+                        ? `color-mix(in srgb, var(${meta.colorVar}) 13%, var(--surface-1))`
+                        : "var(--surface-1)",
+                      color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    <Icon
+                      className="h-4 w-4 shrink-0"
+                      style={{ color: `var(${meta.colorVar})` }}
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1 truncate">{meta.label}</span>
+                    {count !== undefined && <span className="meta shrink-0">{count}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </DrawerPanel>
         )}
 
-        <Divider />
-
-        <Group label="Sector">
-          <details className="group/sector w-full sm:w-auto">
-            <summary
-              className="flex cursor-pointer list-none items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors [&::-webkit-details-marker]:hidden"
-              style={
-                tags.length > 0
-                  ? {
-                      borderColor: "var(--cat-policy)",
-                      backgroundColor: "color-mix(in srgb, var(--cat-policy) 12%, var(--surface-1))",
-                      color: "var(--cat-policy)",
-                      fontWeight: 600,
-                    }
-                  : {
-                      borderColor: "var(--rule-strong)",
-                      backgroundColor: "var(--surface-1)",
-                      color: "var(--text-secondary)",
-                    }
-              }
-            >
-              {sectorSummary(tags)}
-              <ChevronDown
-                className="h-3.5 w-3.5 shrink-0 transition-transform group-open/sector:rotate-180"
-                aria-hidden
-              />
-            </summary>
-
-            <div
-              className="static z-20 mt-2 flex w-full flex-wrap gap-1.5 border-t p-3 shadow-lg md:absolute md:inset-x-0 md:top-full md:mt-0"
-              style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
-            >
+        {drawer === "sector" && (
+          <DrawerPanel
+            id={drawerId}
+            title="Pick any number of sectors"
+            onClose={() => setDrawer(null)}
+            clearHref={tags.length > 0 ? feedHref(basePath, { ...carry, tags: [] }) : undefined}
+          >
+            <div className="flex flex-wrap gap-1.5">
               {TAG_META.map((t) => {
                 const active = tags.includes(t.key);
                 const next = active ? tags.filter((x) => x !== t.key) : [...tags, t.key];
+                const meta = metaForSector(t.key);
+                const Icon = meta.icon;
                 return (
                   <Link
                     key={t.key}
                     href={feedHref(basePath, { ...carry, tags: next })}
                     aria-pressed={active}
-                    className="border px-2 py-0.5 text-[11px] transition-colors"
+                    className="flex items-center gap-1.5 border px-2 py-1 text-[11px] transition-colors"
                     style={
                       active
                         ? {
-                            borderColor: "var(--cat-policy)",
-                            backgroundColor:
-                              "color-mix(in srgb, var(--cat-policy) 15%, var(--surface-1))",
-                            color: "var(--cat-policy)",
+                            borderColor: `var(${meta.colorVar})`,
+                            backgroundColor: `color-mix(in srgb, var(${meta.colorVar}) 15%, var(--surface-1))`,
+                            color: "var(--text-primary)",
                             fontWeight: 600,
                           }
                         : {
@@ -316,44 +336,112 @@ export function FilterPanel({
                           }
                     }
                   >
+                    <Icon
+                      className="h-3.5 w-3.5 shrink-0"
+                      style={{ color: `var(${meta.colorVar})` }}
+                      aria-hidden
+                    />
                     {t.label}
                   </Link>
                 );
               })}
             </div>
-          </details>
-        </Group>
-
-        <Divider />
-
-        <Group label="Sort">
-          {SORTS.map((option) => {
-            const active = option.key === sort;
-            return (
-              <Link
-                key={option.key}
-                href={feedHref(basePath, { ...carry, sort: option.key })}
-                aria-current={active ? "true" : undefined}
-                title={option.hint}
-                className="flex items-center gap-1 border px-2.5 py-1 text-[12px] transition-colors"
-                style={
-                  active
-                    ? {
-                        borderColor: "var(--text-primary)",
-                        backgroundColor: "var(--text-primary)",
-                        color: "var(--surface-1)",
-                        fontWeight: 600,
-                      }
-                    : { borderColor: "var(--rule-strong)", color: "var(--text-secondary)" }
-                }
-              >
-                {active && <ArrowDownWideNarrow className="h-3 w-3 shrink-0" aria-hidden />}
-                {option.label}
-              </Link>
-            );
-          })}
-        </Group>
+          </DrawerPanel>
+        )}
       </div>
+    </div>
+  );
+}
+
+/** The closed state of a picker: what it is set to, and that it opens. */
+function PickerButton({
+  label,
+  open,
+  active,
+  accent,
+  controls,
+  onClick,
+}: {
+  label: string;
+  open: boolean;
+  active: boolean;
+  accent: string;
+  controls: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      aria-controls={open ? controls : undefined}
+      className="flex items-center gap-1.5 border px-2.5 py-1 text-[12px] transition-colors"
+      style={
+        active
+          ? {
+              borderColor: accent,
+              backgroundColor: `color-mix(in srgb, ${accent} 12%, var(--surface-1))`,
+              color: accent,
+              fontWeight: 600,
+            }
+          : {
+              borderColor: open ? "var(--text-primary)" : "var(--rule-strong)",
+              backgroundColor: "var(--surface-1)",
+              color: "var(--text-secondary)",
+            }
+      }
+    >
+      {label}
+      <ChevronDown
+        className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+        aria-hidden
+      />
+    </button>
+  );
+}
+
+/** The expanded picker: a full-width band inside the panel, not over the page. */
+function DrawerPanel({
+  id,
+  title,
+  clearHref,
+  onClose,
+  children,
+}: {
+  id: string;
+  title: string;
+  clearHref?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      id={id}
+      className="border-t px-4 py-3"
+      style={{ borderColor: "var(--rule-strong)", backgroundColor: "var(--surface-1)" }}
+    >
+      <div className="mb-2 flex items-center gap-3">
+        <span className="kicker text-[9px] text-[var(--text-muted)]">{title}</span>
+        <span className="ml-auto flex items-center gap-3">
+          {clearHref && (
+            <Link
+              href={clearHref}
+              className="kicker text-[9px] text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+            >
+              Clear
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close the picker"
+            className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        </span>
+      </div>
+      {children}
     </div>
   );
 }
@@ -367,7 +455,7 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/** Hairline between the three controls, drawn only when they share a line. */
+/** Hairline between the controls, drawn only when they share a line. */
 function Divider() {
   return (
     <span

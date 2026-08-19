@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, TrendingUp } from "lucide-react";
 import type { SectorSignal } from "@/lib/opportunity";
 import { Sparkline } from "./charts/Sparkline";
+import { SectorIcon } from "./MetaIcon";
 import { count, percent, percentChange } from "./charts/chartUtils";
 
 /**
@@ -42,6 +43,7 @@ export function OpportunityStrip({ movers }: { movers: SectorSignal[] }) {
               >
                 {String(i + 1).padStart(2, "0")}
               </span>
+              <SectorIcon sector={signal.key} size="md" />
               <span className="headline-tight min-w-0 flex-1 truncate text-[16px] text-[var(--text-primary)]">
                 <span className="link-underline">{signal.label}</span>
               </span>

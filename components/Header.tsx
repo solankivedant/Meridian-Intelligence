@@ -7,7 +7,8 @@ import { SearchBox } from "./SearchBox";
 import { PrefsMenu } from "./PrefsMenu";
 import { ReadingProgress } from "./ReadingProgress";
 import { LocalClock } from "./LocalClock";
-import { todayDateline } from "@/lib/formatTime";
+import { CalendarDays } from "lucide-react";
+import { todayDateline, todayShort } from "@/lib/formatTime";
 
 export function Header() {
   return (
@@ -77,8 +78,28 @@ export function Header() {
       <div className="border-t" style={{ borderColor: "var(--rule)" }}>
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-3 sm:px-6">
           <PrimaryNav />
-          <div className="ml-auto hidden shrink-0 py-1.5 md:block">
+
+          {/* The jump links and the dateline share this slot because only one
+              of them is ever wanted here: above the masthead's breakpoint the
+              date and clock are already up there, and below it they are
+              nowhere at all - which is why a phone had no edition date on the
+              page. Exactly one is displayed, so `ml-auto` on both is safe. */}
+          <div className="ml-auto hidden shrink-0 py-1.5 lg:block">
             <SectionJump />
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 py-2 lg:hidden">
+            <CalendarDays
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: "var(--cat-policy)" }}
+              aria-hidden
+            />
+            <span className="text-[12px] leading-none font-medium whitespace-nowrap text-[var(--text-secondary)]">
+              {todayShort()}
+            </span>
+            <span className="text-[var(--rule-strong)]" aria-hidden>
+              ·
+            </span>
+            <LocalClock variant="compact" />
           </div>
         </div>
       </div>

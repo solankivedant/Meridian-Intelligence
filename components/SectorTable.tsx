@@ -3,6 +3,8 @@ import { ArrowUpRight } from "lucide-react";
 import type { SectorSignal } from "@/lib/opportunity";
 import { opportunityScore } from "@/lib/opportunity";
 import { Sparkline } from "./charts/Sparkline";
+import { SectorAccordion } from "./SectorAccordion";
+import { metaForSector } from "@/lib/sectorMeta";
 import { FALLING_HUE, RISING_HUE, count, percent, percentChange } from "./charts/chartUtils";
 
 export type SectorSort = "score" | "momentum" | "volume" | "policy" | "capital" | "name";
@@ -49,6 +51,13 @@ export function sortSectors(signals: SectorSignal[], sort: SectorSort): SectorSi
  * sorted table answers exactly. The only marks are one sparkline per row, for
  * shape, and one bar per row, for direction; both are single-hue, because the
  * rows are not eight series, they are twenty-five instances of the same series.
+ *
+ * Eight columns need about 46rem, which is wider than a phone and wider than a
+ * tablet once the page's own margins are taken off, so below `lg` the same rows
+ * are rendered as an expandable list instead (see `SectorAccordion`). The table
+ * is not merely hidden there: a scroller that puts every figure off-screen to
+ * the right of the ranking is not a smaller version of this table, it is a
+ * table nobody reads.
  */
 export function SectorTable({
   signals,
@@ -98,7 +107,13 @@ export function SectorTable({
         })}
       </div>
 
-      <div className="overflow-x-auto">
+      {/* The rank chips above are shared: the accordion is the same rows in the
+          same order, so sorting works identically on either. */}
+      <div className="lg:hidden">
+        <SectorAccordion signals={rows} />
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[46rem] border-collapse text-left">
           <thead>
             <tr className="border-b" style={{ borderColor: "var(--rule-strong)" }}>
@@ -131,9 +146,12 @@ export function SectorTable({
                   <Td>
                     <Link
                       href={`/opportunities/${signal.key}`}
-                      className="text-[14px] font-medium text-[var(--text-primary)] underline-offset-4 group-hover:underline"
+                      className="flex items-center gap-2 text-[14px] font-medium text-[var(--text-primary)]"
                     >
-                      {signal.label}
+                      <SectorGlyph sectorKey={signal.key} />
+                      <span className="underline-offset-4 group-hover:underline">
+                        {signal.label}
+                      </span>
                     </Link>
                   </Td>
                   <Td className="meta text-right text-[12px] text-[var(--text-primary)]">
@@ -187,6 +205,23 @@ export function SectorTable({
         </table>
       </div>
     </div>
+  );
+}
+
+/** The sector's own mark, so a row is recognisable before it is read. */
+function SectorGlyph({ sectorKey }: { sectorKey: string }) {
+  const meta = metaForSector(sectorKey);
+  const Icon = meta.icon;
+  return (
+    <span
+      className="inline-flex h-6 w-6 shrink-0 items-center justify-center"
+      style={{
+        color: `var(${meta.colorVar})`,
+        backgroundColor: `color-mix(in srgb, var(${meta.colorVar}) 13%, transparent)`,
+      }}
+    >
+      <Icon className="h-3.5 w-3.5" aria-hidden />
+    </span>
   );
 }
 

@@ -31,6 +31,22 @@
   --cat-trade: #4a3aa7; /* violet */
   --cat-geopolitics: #e34948; /* red */
 
+  /* sector family (25 sector tags share twelve swatches - see lib/sectorMeta.ts).
+     Deliberately a separate scale from --cat-*: those eight hues mean a
+     section, and one legend cannot carry two meanings. */
+  --sec-green: #1f9d55;
+  --sec-lime: #6d9c12;
+  --sec-teal: #0f8f95;
+  --sec-sky: #2a78d6;
+  --sec-indigo: #4a3aa7;
+  --sec-purple: #8b47c9;
+  --sec-magenta: #c8438a;
+  --sec-red: #d93f3f;
+  --sec-orange: #d9691c;
+  --sec-amber: #b8860a;
+  --sec-brown: #86603d;
+  --sec-slate: #5a6673;
+
   --background: var(--paper);
   --foreground: var(--text-primary);
 }
@@ -66,6 +82,20 @@
   --cat-economy: #35ac35;
   --cat-trade: #9085e9;
   --cat-geopolitics: #ef7070;
+
+  /* Lifted for a dark plane; the family groupings are unchanged. */
+  --sec-green: #3cbd74;
+  --sec-lime: #96c22c;
+  --sec-teal: #2ab3b8;
+  --sec-sky: #4d95ea;
+  --sec-indigo: #9085e9;
+  --sec-purple: #b477ec;
+  --sec-magenta: #e878b0;
+  --sec-red: #ef7070;
+  --sec-orange: #f0884a;
+  --sec-amber: #ddab2c;
+  --sec-brown: #b9906a;
+  --sec-slate: #97a3b1;
 }
 
 /* The masthead's jump links glide to their section instead of teleporting;

@@ -8,6 +8,7 @@ import { CategoryPulse } from "@/components/CategoryPulse";
 import { CoverageStrip } from "@/components/CoverageStrip";
 import { ArchiveSection } from "@/components/ArchiveSection";
 import { getCoverage } from "@/lib/coverage";
+import { getSectionBoard } from "@/lib/sectionBoard";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import { windowLabel } from "@/lib/timeRange";
@@ -39,7 +40,7 @@ export default async function WorldPage({
   const where = buildFeedWhere(parsed, { region: Region.WORLD });
   const pulseWhere = buildFeedWhere({ ...parsed, cats: [] }, { region: Region.WORLD });
 
-  const [counts, articles, total, coverage] = await Promise.all([
+  const [counts, articles, total, coverage, board] = await Promise.all([
     safeQuery(
       () =>
         db.article.groupBy({
@@ -61,6 +62,7 @@ export default async function WorldPage({
     ),
     safeQuery(() => db.article.count({ where }), 0),
     safeQuery(() => getCoverage(Region.WORLD), null),
+    parsed.sort === "section" ? getSectionBoard(parsed, { region: Region.WORLD }) : undefined,
   ]);
 
   const countByCategory = new Map(counts.map((c) => [c.category, c._count._all]));
@@ -94,6 +96,7 @@ export default async function WorldPage({
         articles={rest}
         total={total}
         counts={countByCategory}
+        board={board}
       />
 
       {lead && (

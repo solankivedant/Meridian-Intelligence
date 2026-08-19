@@ -13,8 +13,15 @@ import { localClock, localZone } from "@/lib/formatTime";
  *
  * Ticks on the minute boundary rather than every 60s from mount, so the digits
  * change when the reader's system clock changes rather than a few seconds off.
+ *
+ * Two registers. `masthead` is the full-size clock that sits beside the long
+ * dateline on a wide screen; `compact` is the same clock at metadata size for
+ * the nav row, which is where the date and time live below that breakpoint -
+ * they were previously hidden outright on a phone, so the one piece of chrome
+ * that says "this is today's edition" was missing from exactly the device most
+ * readers arrive on.
  */
-export function LocalClock() {
+export function LocalClock({ variant = "masthead" }: { variant?: "masthead" | "compact" }) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -30,6 +37,22 @@ export function LocalClock() {
     tick();
     return () => clearTimeout(timer);
   }, []);
+
+  if (variant === "compact") {
+    return (
+      <span className="inline-flex items-baseline gap-1" suppressHydrationWarning>
+        <time
+          className="text-[12px] leading-none font-medium tabular-nums text-[var(--text-secondary)]"
+          dateTime={now?.toISOString()}
+        >
+          {now ? localClock(now) : "--:--"}
+        </time>
+        <span className="kicker text-[9px] text-[var(--text-muted)]">
+          {now ? localZone(now) : ""}
+        </span>
+      </span>
+    );
+  }
 
   return (
     <span

@@ -13,6 +13,7 @@ import { OpportunityStrip } from "@/components/OpportunityStrip";
 import { getLatestBrief, briefSummaryOf, BriefHighlights } from "@/lib/brief";
 import { getCoverage } from "@/lib/coverage";
 import { getSectorSignals } from "@/lib/opportunity";
+import { getSectionBoard } from "@/lib/sectionBoard";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import { windowLabel } from "@/lib/timeRange";
@@ -80,7 +81,7 @@ export default async function Home({
   // moment you filtered by it could never be used to switch to another.
   const pulseWhere = buildFeedWhere({ ...parsed, cats: [] }, { region: Region.INDIA });
 
-  const [counts, articles, total, coverage, brief, sectors] = await Promise.all([
+  const [counts, articles, total, coverage, brief, sectors, board] = await Promise.all([
     safeQuery(
       () =>
         db.article.groupBy({
@@ -104,6 +105,8 @@ export default async function Home({
     safeQuery(() => getCoverage(Region.INDIA), null),
     safeQuery(() => getLatestBrief(), null),
     safeQuery(() => getSectorSignals(Region.INDIA), []),
+    // Only "sort by section" renders the board, so only it pays for the fetch.
+    parsed.sort === "section" ? getSectionBoard(parsed, { region: Region.INDIA }) : undefined,
   ]);
 
   const countByCategory = new Map(counts.map((c) => [c.category, c._count._all]));
@@ -147,6 +150,7 @@ export default async function Home({
         articles={rest}
         total={total}
         counts={countByCategory}
+        board={board}
       />
 
       {showFrontPage && briefSummary && (

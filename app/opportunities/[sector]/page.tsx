@@ -27,6 +27,8 @@ import {
 import { getSectorRead } from "@/lib/sectorBrief";
 import { isGeminiConfigured } from "@/lib/gemini";
 import { metaForCategory } from "@/lib/categoryMeta";
+import { metaForSector } from "@/lib/sectorMeta";
+import { GlyphTile } from "@/components/MetaIcon";
 import { timeAgo } from "@/lib/formatTime";
 
 export const revalidate = 0;
@@ -68,6 +70,7 @@ export default async function SectorPage({
   const { sector: key } = await params;
   const sector = sectorByKey(key);
   if (!sector) notFound();
+  const face = metaForSector(key);
 
   const [signals, detail, articles] = await Promise.all([
     safeQuery(() => getSectorSignals(Region.INDIA), [] as SectorSignal[]),
@@ -100,9 +103,12 @@ export default async function SectorPage({
           <ArrowLeft className="h-3 w-3" aria-hidden />
           All sectors
         </Link>
-        <h1 className="headline mt-2 text-[32px] leading-[1.06] text-[var(--text-primary)] sm:text-[46px]">
-          {sector.label}
-        </h1>
+        <div className="mt-2 flex items-center gap-3">
+          <GlyphTile icon={face.icon} colorVar={face.colorVar} size="lg" />
+          <h1 className="headline text-[32px] leading-[1.06] text-[var(--text-primary)] sm:text-[46px]">
+            {sector.label}
+          </h1>
+        </div>
         <p className="measure mt-3 text-[15px] leading-relaxed text-[var(--text-secondary)]">
           What {WINDOW_MONTHS} months of Indian policy and business coverage says about
           this sector, followed by the market figures the archive cannot measure.

@@ -8,6 +8,7 @@ import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
 import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
 import { ArchiveSection } from "@/components/ArchiveSection";
+import { SectionIcon } from "@/components/MetaIcon";
 import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import {
@@ -94,7 +95,11 @@ export default async function CategoryPage({
         className="border-t-4 pt-4"
         style={{ borderColor: `var(${meta.colorVar})` }}
       >
-        <span className="kicker" style={{ color: `var(${meta.colorVar})` }}>
+        <span
+          className="kicker flex items-center gap-1.5"
+          style={{ color: `var(${meta.colorVar})` }}
+        >
+          <SectionIcon meta={meta} size="sm" />
           Section
         </span>
         <h1 className="headline mt-1.5 text-[32px] leading-[1.06] text-[var(--text-primary)] sm:text-[46px]">

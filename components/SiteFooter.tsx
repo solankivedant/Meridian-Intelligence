@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CATEGORY_META } from "@/lib/categoryMeta";
+import { SectionIcon } from "./MetaIcon";
 
 export function SiteFooter() {
   return (
@@ -41,11 +42,7 @@ export function SiteFooter() {
               href={`/category/${meta.slug}`}
               className="inline-flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
             >
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: `var(${meta.colorVar})` }}
-                aria-hidden
-              />
+              <SectionIcon meta={meta} size="sm" />
               {meta.label}
             </Link>
           ))}

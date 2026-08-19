@@ -132,6 +132,7 @@ export function Sidebar() {
                       key={meta.slug}
                       href={href}
                       label={meta.label}
+                      icon={meta.icon}
                       color={`var(${meta.colorVar})`}
                       active={pathname === href}
                       onNavigate={close}

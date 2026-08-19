@@ -88,6 +88,23 @@ export function localZone(date: Date): string {
   return parts.find((part) => part.type === "timeZoneName")?.value ?? "";
 }
 
+/**
+ * `Wed, 19 Aug` - the masthead dateline for a narrow screen.
+ *
+ * The full dateline runs to about thirty characters, which is most of a phone's
+ * masthead, so below the breakpoint where it fits the header carries this
+ * instead - same IST basis, minus the year, which is the one part of today's
+ * date nobody is checking.
+ */
+export function todayShort(): string {
+  return new Date().toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: IST,
+  });
+}
+
 /** Full masthead dateline for the current moment. */
 export function todayDateline(): string {
   return new Date().toLocaleDateString("en-IN", {

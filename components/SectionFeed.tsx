@@ -2,6 +2,7 @@ import { ArticleGrid } from "./ArticleGrid";
 import type { FeedArticle } from "./ArticleRow";
 import { withLeadFirst } from "@/lib/leadStory";
 import { metaForCategory } from "@/lib/categoryMeta";
+import { SectionIcon } from "./MetaIcon";
 import { Category } from "@/lib/enums";
 
 type SectionGroup = {
@@ -66,11 +67,9 @@ export function SectionFeed({
               className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b pb-2"
               style={{ borderColor: accent }}
             >
-              <span
-                className="h-2 w-2 shrink-0 self-center rounded-full"
-                style={{ backgroundColor: accent }}
-                aria-hidden
-              />
+              <span className="self-center">
+                <SectionIcon meta={meta} size="md" />
+              </span>
               <h3 className="headline shrink-0 text-[19px] leading-none text-[var(--text-primary)]">
                 {meta.label}
               </h3>

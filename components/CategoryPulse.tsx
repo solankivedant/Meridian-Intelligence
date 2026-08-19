@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { Category } from "@/lib/enums";
 import { CATEGORY_META } from "@/lib/categoryMeta";
+import { SectionIcon } from "./MetaIcon";
 import { feedHref, type ParsedFeedParams } from "@/lib/feedQuery";
 
 /**
@@ -74,12 +75,14 @@ export function CategoryPulse({
                     fontWeight: active ? 600 : 400,
                   }}
                 >
-                  {active && (
+                  {active ? (
                     <Check
                       className="h-3 w-3 shrink-0"
                       style={{ color: `var(${meta.colorVar})` }}
                       aria-hidden
                     />
+                  ) : (
+                    <SectionIcon meta={meta} size="xs" />
                   )}
                   <span className="truncate">{meta.label}</span>
                 </span>
