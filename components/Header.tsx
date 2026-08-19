@@ -7,7 +7,6 @@ import { SearchBox } from "./SearchBox";
 import { PrefsMenu } from "./PrefsMenu";
 import { ReadingProgress } from "./ReadingProgress";
 import { LocalClock } from "./LocalClock";
-import { CalendarDays } from "lucide-react";
 import { todayDateline, todayShort } from "@/lib/formatTime";
 
 export function Header() {
@@ -64,6 +63,26 @@ export function Header() {
             {todayDateline()}
           </span>
           <LocalClock />
+
+          {/* Below the masthead's breakpoint the dateline shortens and drops to
+              the foot of this row, so it sits on the same line as "Meridian" -
+              the position a printed masthead puts its date in, and the one spot
+              on a phone header that is otherwise empty. It lived in the nav row
+              underneath until now, where it was eating the width the desk links
+              scroll through. */}
+          <span
+            className="flex items-baseline gap-1.5 self-end whitespace-nowrap pb-0.5 lg:hidden"
+            aria-label="Today's date and the current time"
+          >
+            <span className="text-[11px] leading-none font-medium text-[var(--text-secondary)]">
+              {todayShort()}
+            </span>
+            <span className="text-[var(--rule-strong)]" aria-hidden>
+              ·
+            </span>
+            <LocalClock variant="compact" />
+          </span>
+
           <PrefsMenu />
         </div>
       </div>
@@ -79,27 +98,12 @@ export function Header() {
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-3 sm:px-6">
           <PrimaryNav />
 
-          {/* The jump links and the dateline share this slot because only one
-              of them is ever wanted here: above the masthead's breakpoint the
-              date and clock are already up there, and below it they are
-              nowhere at all - which is why a phone had no edition date on the
-              page. Exactly one is displayed, so `ml-auto` on both is safe. */}
-          <div className="ml-auto hidden shrink-0 py-1.5 lg:block">
+          {/* Nothing shares this row with the desk links on a phone: it is the
+              only horizontally scrolling nav on the page, and whatever sits
+              beside it comes straight out of the width those links scroll
+              through. The jump links return once there is room for them. */}
+          <div className="ml-auto hidden shrink-0 py-1.5 md:block">
             <SectionJump />
-          </div>
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 py-2 lg:hidden">
-            <CalendarDays
-              className="h-3.5 w-3.5 shrink-0"
-              style={{ color: "var(--cat-policy)" }}
-              aria-hidden
-            />
-            <span className="text-[12px] leading-none font-medium whitespace-nowrap text-[var(--text-secondary)]">
-              {todayShort()}
-            </span>
-            <span className="text-[var(--rule-strong)]" aria-hidden>
-              ·
-            </span>
-            <LocalClock variant="compact" />
           </div>
         </div>
       </div>

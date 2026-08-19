@@ -46,7 +46,7 @@ export function LocalClock({ variant = "masthead" }: { variant?: "masthead" | "c
     // the end of it. The full clock upstairs still carries the zone.
     return (
       <time
-        className="text-[12px] leading-none font-medium tabular-nums text-[var(--text-secondary)]"
+        className="text-[11px] leading-none font-medium tabular-nums text-[var(--text-secondary)]"
         dateTime={now?.toISOString()}
         title={now ? localZone(now) : undefined}
         suppressHydrationWarning
