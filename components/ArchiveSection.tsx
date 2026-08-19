@@ -12,7 +12,7 @@ import { ArticleRow, type FeedArticle } from "./ArticleRow";
 import { Category } from "@/lib/enums";
 import { metaForCategory } from "@/lib/categoryMeta";
 import type { BoardGroup } from "@/lib/sectionBoard";
-import { PAGE_SIZE, ParsedFeedParams, feedLinkParams, isNarrowed } from "@/lib/feedQuery";
+import { ParsedFeedParams, feedLinkParams, isNarrowed } from "@/lib/feedQuery";
 
 /**
  * The filter panel, the day-grouped feed and its pager are always used
@@ -98,7 +98,7 @@ export function ArchiveSection({
           {bySection ? (
             <SectionFeed
               articles={articles}
-              startIndex={(parsed.page - 1) * PAGE_SIZE + 1}
+              startIndex={(parsed.page - 1) * parsed.pageSize + 1}
             />
           ) : (
             <DayFeed
@@ -106,14 +106,14 @@ export function ArchiveSection({
               showCategory={showCategory}
               // Page 2 starts at 41, not at 1 - the number is the story's
               // position in the whole filtered list, not on the screen.
-              startIndex={(parsed.page - 1) * PAGE_SIZE + 1}
+              startIndex={(parsed.page - 1) * parsed.pageSize + 1}
             />
           )}
           <Pagination
             basePath={basePath}
             params={feedLinkParams(parsed)}
             page={parsed.page}
-            pageSize={PAGE_SIZE}
+            pageSize={parsed.pageSize}
             total={total}
           />
         </>

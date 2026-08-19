@@ -1,6 +1,7 @@
 import { Category, Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
+import { isPhoneRequest } from "@/lib/viewport";
 import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
 import { BriefPanel, BriefEntry } from "@/components/BriefPanel";
@@ -15,6 +16,8 @@ import { timeAgo } from "@/lib/formatTime";
 import { windowLabel } from "@/lib/timeRange";
 import {
   FeedSearchParams,
+  PAGE_SIZE,
+  PHONE_PAGE_SIZE,
   parseFeedParams,
   buildFeedWhere,
   feedOrderBy,
@@ -37,7 +40,10 @@ export default async function WorldPage({
 }: {
   searchParams: Promise<FeedSearchParams>;
 }) {
-  const parsed = parseFeedParams(await searchParams);
+  const parsed = parseFeedParams(
+    await searchParams,
+    (await isPhoneRequest()) ? PHONE_PAGE_SIZE : PAGE_SIZE
+  );
   const where = buildFeedWhere(parsed, { region: Region.WORLD });
   const pulseWhere = buildFeedWhere({ ...parsed, cats: [] }, { region: Region.WORLD });
 

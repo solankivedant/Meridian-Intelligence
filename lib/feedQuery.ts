@@ -4,8 +4,18 @@ import { TAG_META } from "@/lib/categorize";
 import { CATEGORY_META, metaForSlug } from "@/lib/categoryMeta";
 import { normalizeRange, rangeCutoff, isValidMonthKey, monthDateRange, TimeRangeKey } from "@/lib/timeRange";
 
-/** Stories per page. Kept modest so a page is scannable end to end. */
+/**
+ * Stories per page.
+ *
+ * Forty is three or four screens of a tiled grid on a laptop - long enough to
+ * be worth a page, short enough to reach the end of. On a phone the same forty
+ * become a single column and roughly twenty screens of thumb, which is not a
+ * page, it is a pit; ten is the same few screens the desktop reader gets. The
+ * size travels on the parsed params rather than being read where it is needed,
+ * so the query, the numbering and the pager cannot disagree about it.
+ */
 export const PAGE_SIZE = 40;
+export const PHONE_PAGE_SIZE = 10;
 
 export type FeedSearchParams = {
   range?: string;
@@ -28,6 +38,8 @@ export type ParsedFeedParams = {
   sort: SortKey;
   month: string;
   page: number;
+  /** Stories on this page - narrower on a phone. See PAGE_SIZE. */
+  pageSize: number;
 };
 
 /**
@@ -72,7 +84,10 @@ export function categorySlugs(cats: Category[]): string[] {
   return CATEGORY_META.filter((meta) => cats.includes(meta.category)).map((meta) => meta.slug);
 }
 
-export function parseFeedParams(params: FeedSearchParams): ParsedFeedParams {
+export function parseFeedParams(
+  params: FeedSearchParams,
+  pageSize: number = PAGE_SIZE
+): ParsedFeedParams {
   // `tag` (singular) predates multi-select; old links and bookmarks still work.
   const raw = [...(params.tags ?? "").split(","), params.tag ?? ""];
   const tags = [...new Set(raw.map((t) => t.trim()).filter((t) => KNOWN_TAGS.has(t)))];
@@ -84,6 +99,7 @@ export function parseFeedParams(params: FeedSearchParams): ParsedFeedParams {
     sort: isSortKey(params.sort) ? params.sort : "new",
     month: isValidMonthKey(params.month) ? params.month : "",
     page: Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1),
+    pageSize,
   };
 }
 
@@ -146,16 +162,17 @@ export function feedOrderBy(parsed: ParsedFeedParams): Prisma.ArticleOrderByWith
  * The slice of the feed a page should fetch.
  *
  * The unfiltered first page lifts one story out of the feed and gives it the
- * lead treatment, so fetching a flat `PAGE_SIZE` left the grid one story short
- * - 39 tiles where the pager promised 40. It takes one extra row instead, and
- * every later page skips that row so the lifted story is not served twice.
+ * lead treatment, so fetching a flat page left the grid one story short - 39
+ * tiles where the pager promised 40. It takes one extra row instead, and every
+ * later page skips that row so the lifted story is not served twice.
  */
 export function feedSlice(parsed: ParsedFeedParams): { skip: number; take: number } {
   // A narrowed view has no lead panel, so nothing is lifted out of it.
   const liftsLead = !isNarrowed(parsed);
+  const size = parsed.pageSize;
   return {
-    skip: (parsed.page - 1) * PAGE_SIZE + (liftsLead && parsed.page > 1 ? 1 : 0),
-    take: liftsLead && parsed.page === 1 ? PAGE_SIZE + 1 : PAGE_SIZE,
+    skip: (parsed.page - 1) * size + (liftsLead && parsed.page > 1 ? 1 : 0),
+    take: liftsLead && parsed.page === 1 ? size + 1 : size,
   };
 }
 

@@ -207,30 +207,93 @@ a:focus-visible .link-underline,
 /* ---- reader state ------------------------------------------------------- */
 
 /*
- * A story already opened from this browser recedes rather than disappears.
- * Dimming is done here, on an attribute the link sets, instead of in the
- * component: it costs no extra render, and it restores on hover so a reader
- * re-reading something is never left squinting at grey text.
+ * A story already opened from this browser recedes rather than disappears, and
+ * a muted publisher's tile is pushed back rather than removed - the feed's
+ * counts and numbering come from the server and must keep describing what is
+ * on screen. Dimming is done here, on attributes the components set, instead of
+ * in the components: it costs no extra render.
+ *
+ * Both treatments are gated on the device actually having a pointer that can
+ * hover, because both depend on hover to undo them. A phone has no such
+ * pointer: `:hover` there either never fires or latches after a tap, and
+ * `:focus-within` is no use either since the only tappable thing in a story
+ * tile is the link that navigates away from it. Ungated, a headline you had
+ * read once was grey permanently, with no gesture on the device that would
+ * bring it back - which is the opposite of "recedes rather than disappears".
  */
-.story-link[data-read="true"] {
-  opacity: 0.52;
-  transition: opacity 160ms ease;
+@media (hover: hover) and (pointer: fine) {
+  .story-link[data-read="true"] {
+    opacity: 0.52;
+    transition: opacity 160ms ease;
+  }
+
+  .story-link[data-read="true"]:hover,
+  .story-link[data-read="true"]:focus-visible {
+    opacity: 1;
+  }
+
+  .story-cell[data-muted="true"] {
+    opacity: 0.42;
+    transition: opacity 160ms ease;
+  }
+
+  .story-cell[data-muted="true"]:hover,
+  .story-cell[data-muted="true"]:focus-within {
+    opacity: 1;
+  }
 }
 
-.story-link[data-read="true"]:hover,
-.story-link[data-read="true"]:focus-visible {
-  opacity: 1;
+/*
+ * Touch gets the signal without the cost.
+ *
+ * A read story is not dimmed at all - it has a `NewBadge` when it is new and
+ * nothing when it is not, which is signal enough for a feed you are scrolling
+ * with a thumb, and full-strength ink is worth more than a state marker.
+ *
+ * A muted publisher still recedes, because the reader asked for that
+ * explicitly and would otherwise see no result from having muted anything. But
+ * it recedes only as far as still-readable: undoing it is a trip to the sources
+ * page, so it cannot be allowed to leave text a reader has to squint at.
+ */
+@media (hover: none), (pointer: coarse) {
+  .story-cell[data-muted="true"] {
+    opacity: 0.72;
+  }
 }
 
-/* A muted publisher's tile is pushed back, not removed - the feed's counts and
-   numbering come from the server and must keep describing what is on screen. */
-.story-cell[data-muted="true"] {
-  opacity: 0.42;
-  transition: opacity 160ms ease;
+/*
+ * A control that stays out of the way until its row is hovered.
+ *
+ * The `sm:` breakpoint used to stand in for "has a pointer", which is only
+ * approximately true and gets the interesting case exactly wrong: a tablet is
+ * wider than `sm` and cannot hover, so save, share and mute were invisible on
+ * an iPad with no gesture to summon them. Asking the device what it can do,
+ * rather than how wide it is, is both shorter and correct - and Tailwind's own
+ * `hover:` utilities compile to this same query, so a `group-hover:` reveal
+ * paired with a width-gated `opacity-0` could never have worked on touch.
+ *
+ * Everywhere else the control is simply always visible, which on a phone is
+ * what you want anyway: there is no pointer to keep it out of the way of.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .reveal-on-hover {
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+
+  /* `:focus-within` on the group as well as the control, so tabbing to the
+     row reveals the cluster before the control itself takes focus. */
+  .group:hover .reveal-on-hover,
+  .group:focus-within .reveal-on-hover,
+  .reveal-on-hover:focus-visible,
+  .reveal-on-hover:focus-within {
+    opacity: 1;
+  }
 }
 
-.story-cell[data-muted="true"]:hover,
-.story-cell[data-muted="true"]:focus-within {
+/* State outranks tidiness: a control reporting that something *is* saved or
+   muted has to stay visible, or the list looks like it forgot. */
+.reveal-on-hover[data-active="true"] {
   opacity: 1;
 }
 

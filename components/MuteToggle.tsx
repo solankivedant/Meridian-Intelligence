@@ -27,8 +27,10 @@ export function MuteToggle({ sourceName }: { sourceName: string }) {
           ? `${sourceName} is muted - its stories are dimmed in the feed`
           : `Mute ${sourceName} - dim its stories in the feed`
       }
-      className="shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 data-[muted=true]:opacity-100"
-      data-muted={muted ? "true" : undefined}
+      className="reveal-on-hover shrink-0"
+      // An already-muted publisher keeps its control on screen whatever the
+      // pointer is doing - see `.reveal-on-hover[data-active]`.
+      data-active={muted ? "true" : undefined}
       style={{ color: muted ? "var(--cat-geopolitics)" : "var(--text-muted)" }}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden />

@@ -1,6 +1,7 @@
 import { Category, Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
+import { isPhoneRequest } from "@/lib/viewport";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
@@ -20,6 +21,8 @@ import { timeAgo } from "@/lib/formatTime";
 import { windowLabel } from "@/lib/timeRange";
 import {
   FeedSearchParams,
+  PAGE_SIZE,
+  PHONE_PAGE_SIZE,
   parseFeedParams,
   buildFeedWhere,
   feedOrderBy,
@@ -75,7 +78,10 @@ export default async function Home({
 }: {
   searchParams: Promise<FeedSearchParams>;
 }) {
-  const parsed = parseFeedParams(await searchParams);
+  const parsed = parseFeedParams(
+    await searchParams,
+    (await isPhoneRequest()) ? PHONE_PAGE_SIZE : PAGE_SIZE
+  );
   const where = buildFeedWhere(parsed, { region: Region.INDIA });
   // The pulse counts every section over the window the reader is browsing,
   // deliberately ignoring their section picks: a meter that vanished the

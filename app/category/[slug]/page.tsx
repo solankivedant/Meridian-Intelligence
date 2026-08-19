@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Region } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { safeQuery } from "@/lib/safeQuery";
+import { isPhoneRequest } from "@/lib/viewport";
 import { metaForSlug } from "@/lib/categoryMeta";
 import { Section } from "@/components/Section";
 import { ArticleRow } from "@/components/ArticleRow";
@@ -13,6 +14,8 @@ import { withLeadFirst } from "@/lib/leadStory";
 import { timeAgo } from "@/lib/formatTime";
 import {
   FeedSearchParams,
+  PAGE_SIZE,
+  PHONE_PAGE_SIZE,
   parseFeedParams,
   buildFeedWhere,
   feedOrderBy,
@@ -44,7 +47,10 @@ export default async function CategoryPage({
   if (!meta) notFound();
 
   const search = await searchParams;
-  const parsed = parseFeedParams(search);
+  const parsed = parseFeedParams(
+    search,
+    (await isPhoneRequest()) ? PHONE_PAGE_SIZE : PAGE_SIZE
+  );
   // A section spans both desks; the reader can narrow it to one.
   const desk = parseDesk(search.desk);
   const where = buildFeedWhere(parsed, { category: meta.category, region: desk });

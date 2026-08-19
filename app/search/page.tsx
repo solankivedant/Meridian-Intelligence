@@ -7,7 +7,8 @@ import { Section } from "@/components/Section";
 import { ArticleGrid } from "@/components/ArticleGrid";
 import { Pagination } from "@/components/Pagination";
 import { SectionIcon } from "@/components/MetaIcon";
-import { PAGE_SIZE } from "@/lib/feedQuery";
+import { PAGE_SIZE, PHONE_PAGE_SIZE } from "@/lib/feedQuery";
+import { isPhoneRequest } from "@/lib/viewport";
 
 export const revalidate = 0;
 
@@ -34,6 +35,9 @@ export default async function SearchPage({
   const region = parseRegion(params.region);
   const categoryMeta = params.category ? metaForSlug(params.category) : undefined;
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  // Same reasoning as the feed: forty results is a page on a laptop and a pit
+  // on a phone.
+  const pageSize = (await isPhoneRequest()) ? PHONE_PAGE_SIZE : PAGE_SIZE;
 
   const { articles, total } = query
     ? await safeQuery(
@@ -41,7 +45,7 @@ export default async function SearchPage({
           searchArticles(
             query,
             { region, category: categoryMeta?.category },
-            { skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }
+            { skip: (page - 1) * pageSize, take: pageSize }
           ),
         { articles: [], total: 0 }
       )
@@ -137,13 +141,13 @@ export default async function SearchPage({
               : "Try fewer words, or widen the desk and section filters above."
           }
         >
-          <ArticleGrid articles={articles} startIndex={(page - 1) * PAGE_SIZE + 1} />
+          <ArticleGrid articles={articles} startIndex={(page - 1) * pageSize + 1} />
           <Pagination
             basePath="/search"
             params={{}}
             extra={{ q: query, region: params.region, category: params.category }}
             page={page}
-            pageSize={PAGE_SIZE}
+            pageSize={pageSize}
             total={total}
           />
         </Section>

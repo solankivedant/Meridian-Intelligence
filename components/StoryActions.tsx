@@ -42,9 +42,7 @@ export function StoryActions({
 
   return (
     <span
-      className={`flex items-center gap-1.5 transition-opacity ${
-        hide ? "sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100" : ""
-      }`}
+      className={`flex items-center gap-1.5 ${hide ? "reveal-on-hover" : ""}`}
       data-noprint
     >
       <SaveButton story={story} />
