@@ -9,6 +9,7 @@
     "lint": "eslint",
     "backfill": "tsx scripts/backfill.ts",
     "ingest": "tsx scripts/ingest.ts",
+    "brief": "tsx scripts/brief.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

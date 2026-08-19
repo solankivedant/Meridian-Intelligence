@@ -1,0 +1,65 @@
+
+# Thrice-daily ingestion.
+#
+# This runs the pipeline on a GitHub runner rather than through the deployed
+# app, for one blunt reason: a full sweep is ~95 feeds and takes minutes, and a
+# Vercel function is capped at 60 seconds. `/api/cron/ingest` could never
+# finish, which is why the archive had stopped growing. A runner has no such
+# cap, talks to Neon directly, and needs no deployment to exist at all - it is
+# `scripts/ingest.ts` from a laptop, on a timer.
+#
+# Times are UTC. IST is UTC+5:30, so:
+#   03:30 UTC = 09:00 IST   (morning run)
+#   09:30 UTC = 15:00 IST   (afternoon run)
+#   15:30 UTC = 21:00 IST   (evening run)
+#
+# GitHub queues scheduled workflows rather than firing them on the second, so
+# expect these a few minutes late - occasionally 15-20 under load. Note too
+# that GitHub disables scheduled workflows in a repository with no activity for
+# 60 days; a commit or a manual run re-arms them.
+
+name: Ingest
+
+on:
+  schedule:
+    - cron: "30 3,9,15 * * *"
+  # So a run can be forced from the Actions tab without waiting for the clock.
+  workflow_dispatch:
+
+# A sweep takes minutes and the runs are six hours apart, so they cannot collide
+# on their own - but a manual run next to a scheduled one can. Overlapping
+# sweeps would only fight over the same connection pool, so a run in progress
+# wins and the newcomer waits.
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEWSDATA_API_KEY: ${{ secrets.NEWSDATA_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `postinstall` runs `prisma generate`, so the client is built here.
+      - name: Install
+        run: npm ci
+
+      - name: Fetch every feed
+        run: npm run ingest
+
+      # Only after the stories are in - the wrap summarises what ingestion just
+      # landed, so running it first would describe yesterday.
+      - name: Regenerate the daily wrap
+        run: npm run brief

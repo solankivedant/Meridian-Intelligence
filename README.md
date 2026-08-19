@@ -56,14 +56,12 @@ NewsData.io API.
   open tap on your API key. The flag gates the button *and* the route: with it
   unset, `/api/ask` returns 404 no matter who posts to it. See
   `lib/features.ts`.
-- **`/api/cron/ingest`** - pulls all sources and stores new articles. Scheduled
-  daily via `vercel.json` (Vercel Hobby plan allows at most once/day per cron;
-  see "Going faster than daily" below).
+- **`/api/cron/ingest`** - pulls all sources and stores new articles.
 - **`/api/cron/brief`** - builds the "In brief" panel from the last 24h of
   articles, a handful of highlights per category, which the front page
-  interleaves so one busy category can't fill the whole list. Scheduled daily,
-  after ingestion.
-- Both cron routes are protected by `CRON_SECRET` (see below).
+  interleaves so one busy category can't fill the whole list.
+- Both cron routes are protected by `CRON_SECRET` (see below). Neither is on a
+  timer any more - see "The schedule" below for why, and for what runs them.
 
 We deliberately store only a **headline, short excerpt, and link back to the
 source** - never full article text - both to stay on solid fair-use footing for
@@ -134,24 +132,38 @@ curl http://localhost:3000/api/cron/brief
 4. Generate a random string and set it as `CRON_SECRET` in Vercel's env vars -
    Vercel Cron then automatically sends it as a bearer token on scheduled
    requests, so nobody else can trigger your ingestion/brief routes.
-5. Deploy. `vercel.json` already defines the two daily cron jobs; Vercel picks
-   them up automatically.
+5. Deploy.
 6. Run `npx prisma migrate deploy` once against the production `DATABASE_URL`
    (from your machine, with `DATABASE_URL` pointed at prod) to create the
-   tables before the first cron run.
+   tables before the first ingestion run.
 
-### Going faster than daily
+## The schedule
 
-Vercel's Hobby plan limits cron jobs to once/day. On a **Pro** plan you can
-edit `vercel.json` to run `/api/cron/ingest` more often, e.g. every 2 hours:
+Ingestion runs **three times a day, at 09:00, 15:00 and 21:00 IST**, from
+`.github/workflows/ingest.yml`. It runs `npm run ingest` and then `npm run
+brief` on a GitHub runner, talking to the database directly.
 
-```json
-{ "path": "/api/cron/ingest", "schedule": "0 */2 * * *" }
-```
+It is not a Vercel cron, and `vercel.json` no longer exists. A full sweep is
+~95 feeds and takes minutes; a Vercel function is capped at 60 seconds, so the
+cron that used to live there was killed part-way through every run and the
+archive quietly stopped growing. Vercel's Hobby plan also caps crons at
+once/day, which cannot express "twice". A runner has neither limit, needs no
+deployment to exist, and is what `scripts/ingest.ts` was written for in the
+first place.
 
-Keep `/api/cron/brief` at once/day (it summarizes the last 24h, more frequent
-runs don't add value) but schedule it *after* whatever your last ingest run of
-the day is.
+To set it up, add three **repository** secrets under Settings → Secrets and
+variables → Actions: `DATABASE_URL`, `NEWSDATA_API_KEY`, `GEMINI_API_KEY`.
+`CRON_SECRET` is not needed - the runner never goes through HTTP. Then use
+Actions → Ingest → **Run workflow** to fire the first run without waiting.
+
+Two things to know about GitHub's scheduler: it queues rather than firing on
+the second, so runs land a few minutes late (occasionally 15-20 under load);
+and it disables scheduled workflows in a repository with no activity for 60
+days, which any commit or manual run re-arms.
+
+To change the times, edit the `cron:` line in the workflow. It is in **UTC**,
+so subtract 5:30 from the IST time you want - `30 3,9,15 * * *` is 09:00,
+15:00 and 21:00 IST.
 
 ## What's next (Phase 2)
 
