@@ -2,13 +2,13 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
-import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow, X } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ArrowDownWideNarrow, Radio, X } from "lucide-react";
 import { TIME_RANGES, TimeRangeKey, monthOptions } from "@/lib/timeRange";
 import { TAG_META } from "@/lib/categorize";
 import { Category } from "@/lib/enums";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { metaForSector } from "@/lib/sectorMeta";
-import { SORTS, SortKey, categorySlugs, feedHref } from "@/lib/feedQuery";
+import { MAX_SOURCE_LENGTH, SORTS, SortKey, categorySlugs, feedHref } from "@/lib/feedQuery";
 
 export type FeedFilters = {
   range: TimeRangeKey;
@@ -16,6 +16,8 @@ export type FeedFilters = {
   cats: Category[];
   sort: SortKey;
   month: string;
+  /** Publisher name fragment. Empty means every publisher. */
+  src: string;
 };
 
 /** Which of the two pickers is expanded. Never both. */
@@ -73,10 +75,11 @@ export function FilterPanel({
   /** False on a section page, where there is nothing left to narrow. */
   showSections?: boolean;
 }) {
-  const { range, tags, cats, sort, month } = filters;
-  const hasFilters = tags.length > 0 || cats.length > 0 || sort !== "new" || month !== "";
+  const { range, tags, cats, sort, month, src } = filters;
+  const hasFilters =
+    tags.length > 0 || cats.length > 0 || sort !== "new" || month !== "" || src !== "";
   const months = monthOptions();
-  const carry = { range, tags, cats, sort, month };
+  const carry = { range, tags, cats, sort, month, src };
   const [open, setOpen] = useState(hasFilters);
   const [drawer, setDrawer] = useState<Drawer>(null);
   const contentId = useId();
@@ -101,6 +104,7 @@ export function FilterPanel({
         {typeof resultCount === "number" && (
           <span className="meta" role="status" aria-live="polite">
             {resultCount.toLocaleString("en-IN")} matching stories
+            {src && <> from publishers named &ldquo;{src}&rdquo;</>}
           </span>
         )}
         <span className="ml-auto flex items-center gap-2">
@@ -163,9 +167,7 @@ export function FilterPanel({
 
           <Group label="Month">
             <form action={basePath} method="GET" className="flex items-center gap-1.5">
-              <input type="hidden" name="tags" value={tags.join(",")} />
-              <input type="hidden" name="cats" value={categorySlugs(cats).join(",")} />
-              <input type="hidden" name="sort" value={sort} />
+              <Carry filters={filters} except="month" />
               <select
                 name="month"
                 defaultValue={month}
@@ -190,6 +192,57 @@ export function FilterPanel({
               >
                 Go
               </button>
+            </form>
+          </Group>
+
+          <Divider />
+
+          {/* Narrowing to one publisher. A reader who trusts the RBI's own
+              releases over a paper's write-up of them, or who wants to read one
+              wire end to end, was previously stuck scrolling the feed looking
+              at bylines. It is a free-text fragment rather than a menu because
+              the archive holds well over a thousand publishers - see the note
+              in `buildFeedWhere`. */}
+          <Group label="Source">
+            <form action={basePath} method="GET" className="flex min-w-0 items-center gap-1.5">
+              <Carry filters={filters} except="src" />
+              <span
+                className="flex min-w-0 items-center gap-1.5 border px-2 py-1"
+                style={{
+                  borderColor: src ? "var(--text-primary)" : "var(--rule-strong)",
+                  backgroundColor: "var(--surface-1)",
+                }}
+              >
+                <Radio className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" aria-hidden />
+                <input
+                  type="search"
+                  name="src"
+                  defaultValue={src}
+                  maxLength={MAX_SOURCE_LENGTH}
+                  placeholder="Any publisher"
+                  aria-label="Show only stories from publishers whose name contains"
+                  autoComplete="off"
+                  className="w-[8.5rem] min-w-0 bg-transparent text-[12px] text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+                />
+              </span>
+              <button
+                type="submit"
+                className="kicker border px-2.5 py-1 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+                style={{ borderColor: "var(--rule-strong)" }}
+              >
+                Go
+              </button>
+              {/* Clearing through a link rather than an emptied field, so the
+                  publisher leaves the URL instead of sitting in it as `src=`. */}
+              {src && (
+                <Link
+                  href={feedHref(basePath, { ...carry, src: "" })}
+                  aria-label="Show every publisher again"
+                  className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                </Link>
+              )}
             </form>
           </Group>
 
@@ -443,6 +496,35 @@ function DrawerPanel({
       </div>
       {children}
     </div>
+  );
+}
+
+/**
+ * The facets a GET form has to hand back, as hidden fields.
+ *
+ * Two controls submit rather than link - the month select and the publisher
+ * field - and a form posts only its own inputs, so anything not restated here
+ * is dropped on submit. Defaults are left out so the everyday URL stays short,
+ * and the control's own facet is excluded because its visible input owns it.
+ */
+function Carry({ filters, except }: { filters: FeedFilters; except: "month" | "src" }) {
+  const values: Record<string, string> = {
+    range: filters.range,
+    tags: filters.tags.join(","),
+    cats: categorySlugs(filters.cats).join(","),
+    sort: filters.sort === "new" ? "" : filters.sort,
+    month: filters.month,
+    src: filters.src,
+  };
+
+  return (
+    <>
+      {Object.entries(values)
+        .filter(([key, value]) => key !== except && value !== "")
+        .map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} />
+        ))}
+    </>
   );
 }
 

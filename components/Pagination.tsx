@@ -23,6 +23,7 @@ export function Pagination({
     cats?: string;
     sort?: string;
     month?: string;
+    src?: string;
   };
   /** Extra query values to preserve, e.g. a search term and its scope. */
   extra?: Record<string, string | undefined>;
@@ -40,6 +41,7 @@ export function Pagination({
     if (params.cats) search.set("cats", params.cats);
     if (params.sort) search.set("sort", params.sort);
     if (params.month) search.set("month", params.month);
+    if (params.src) search.set("src", params.src);
     for (const [key, value] of Object.entries(extra ?? {})) {
       if (value) search.set(key, value);
     }

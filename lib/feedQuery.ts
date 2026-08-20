@@ -29,6 +29,8 @@ export type FeedSearchParams = {
   month?: string;
   page?: string;
   q?: string;
+  /** Publisher name fragment, e.g. `rbi`. Matched case-insensitively. */
+  src?: string;
 };
 
 export type ParsedFeedParams = {
@@ -40,6 +42,8 @@ export type ParsedFeedParams = {
   page: number;
   /** Stories on this page - narrower on a phone. See PAGE_SIZE. */
   pageSize: number;
+  /** Publisher name fragment. Empty means every publisher. */
+  src: string;
 };
 
 /**
@@ -58,6 +62,15 @@ export const SORTS: { key: SortKey; label: string; hint: string }[] = [
   { key: "old", label: "Oldest", hint: "Read the window forwards" },
   { key: "section", label: "By section", hint: "Grouped by section, newest within each" },
 ];
+
+/**
+ * Longest publisher fragment accepted.
+ *
+ * The filter is a substring match on a name, not a search over prose - the
+ * longest name on record is well under this, and a cap keeps a pasted essay
+ * out of the query and out of the URL.
+ */
+export const MAX_SOURCE_LENGTH = 60;
 
 const KNOWN_TAGS = new Set(TAG_META.map((t) => t.key));
 const CATEGORY_SLUGS = new Map(CATEGORY_META.map((meta) => [meta.slug, meta.category]));
@@ -100,6 +113,7 @@ export function parseFeedParams(
     month: isValidMonthKey(params.month) ? params.month : "",
     page: Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1),
     pageSize,
+    src: (params.src ?? "").trim().slice(0, MAX_SOURCE_LENGTH),
   };
 }
 
@@ -112,6 +126,7 @@ export function isNarrowed(parsed: ParsedFeedParams): boolean {
     // grouping both assume newest-first and read as broken without it.
     parsed.sort !== "new" ||
     parsed.month !== "" ||
+    parsed.src !== "" ||
     parsed.range !== "7d"
   );
 }
@@ -140,6 +155,15 @@ export function buildFeedWhere(
     // Multiple sectors read as "any of these", which is what a reader picking
     // several related industries expects.
     ...(parsed.tags.length ? { tags: { hasSome: parsed.tags } } : {}),
+    // Narrowing to a publisher is a match on the source's name rather than a
+    // picked id: the archive carries well over a thousand publishers, most of
+    // them found by the crawl rather than configured, so a dropdown of them is
+    // not a control anyone can use. A fragment also does the thing a reader
+    // actually wants - "rbi" reaches the RBI's press releases and its circulars
+    // without them having to know the exact string either feed registered.
+    ...(parsed.src
+      ? { source: { is: { name: { contains: parsed.src, mode: "insensitive" } } } }
+      : {}),
   };
 }
 
@@ -190,6 +214,7 @@ export type FeedHrefParts = {
   cats?: Category[];
   sort?: SortKey;
   month?: string;
+  src?: string;
 };
 
 /**
@@ -208,6 +233,7 @@ export function feedHref(basePath: string, parts: FeedHrefParts): string {
   if (parts.cats?.length) search.set("cats", categorySlugs(parts.cats).join(","));
   if (parts.sort && parts.sort !== "new") search.set("sort", parts.sort);
   if (parts.month) search.set("month", parts.month);
+  if (parts.src) search.set("src", parts.src);
   const qs = search.toString();
   return qs ? `${basePath}?${qs}` : basePath;
 }
@@ -220,5 +246,6 @@ export function feedLinkParams(parsed: ParsedFeedParams) {
     cats: categorySlugs(parsed.cats).join(","),
     sort: parsed.sort === "new" ? "" : parsed.sort,
     month: parsed.month,
+    src: parsed.src,
   };
 }
