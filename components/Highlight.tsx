@@ -18,6 +18,8 @@
  * browser only where a client component (the masthead box) needs it.
  */
 
+import { allTermForms } from "@/lib/searchTerms";
+
 /** How a term is allowed to sit inside the text it matched. */
 export type MatchMode =
   /**
@@ -33,25 +35,17 @@ export type MatchMode =
   | "anywhere";
 
 /**
- * The searchable words in a query.
+ * The words to mark for a query.
  *
- * Deliberately the same reduction `toTsQuery` performs in `lib/search.ts` -
- * lowercased, stripped to alphanumerics, single characters dropped, capped at
- * eight - so the words that get marked are the words that were searched. It is
- * duplicated rather than imported because `lib/search.ts` pulls in Prisma, and
- * the masthead's search box runs in the browser.
+ * The same forms the query itself was built from - the words as typed, plus
+ * the compounds they may have been written as - so a story that says
+ * "Semiconductor" gets the whole word marked rather than the "Semi" that
+ * happened to be typed with a space after it. `lib/searchTerms.ts` is shared
+ * with the query builder and free of any database import, which is what lets
+ * this run in the browser.
  */
 export function highlightTerms(input: string): string[] {
-  return [
-    ...new Set(
-      input
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, " ")
-        .split(/\s+/)
-        .filter((term) => term.length > 1)
-        .slice(0, 8)
-    ),
-  ];
+  return allTermForms(input);
 }
 
 /** What a story should have marked in it. Absent fields are left alone. */

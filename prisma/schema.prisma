@@ -50,6 +50,11 @@ model Article {
   category    Category
   region      Region   @default(INDIA)
   tags        String[]
+  // Companies named in the headline or excerpt, resolved against the curated
+  // dictionary in `lib/entities.ts`. Stored rather than matched at read time
+  // for the same reason `tags` is: it costs nothing at ingest and keeps a
+  // company page a plain indexed array query instead of a scan over prose.
+  entities    String[]
   publishedAt DateTime
   fetchedAt   DateTime @default(now())
 
@@ -69,6 +74,8 @@ model Article {
   // it as an index that should not exist and writes a DROP for it. Sector
   // filters are `tags && ARRAY[...]`, which without this is a sequential scan.
   @@index([tags], type: Gin)
+  // Same reasoning as the line above, for `entities && ARRAY[...]`.
+  @@index([entities], type: Gin)
   @@index([category, publishedAt])
   @@index([publishedAt])
   @@index([region, publishedAt])

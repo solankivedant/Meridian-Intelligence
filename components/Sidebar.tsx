@@ -4,7 +4,21 @@ import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Globe2, MapPin, Radio, Search, TrendingUp, Users } from "lucide-react";
+import {
+  Menu,
+  X,
+  Building2,
+  CalendarDays,
+  CandlestickChart,
+  ChevronDown,
+  Gavel,
+  Globe2,
+  MapPin,
+  Radio,
+  Search,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { PERSONAS } from "@/lib/personas";
 import { AUTHOR } from "@/lib/author";
@@ -111,6 +125,65 @@ export function Sidebar() {
                   color="var(--cat-investment)"
                   hint="Momentum, state support and capital across 25 sectors"
                   active={pathname.startsWith("/opportunities")}
+                  onNavigate={close}
+                />
+              </Group>
+
+              {/* The four market surfaces fold, for the reason the reader
+                  desks do: five entries between Analysis and the eight
+                  sections would push the sections - which is what most
+                  readers open this drawer for - below the fold on a phone.
+                  The hub sits first and un-collapsed inside, so the group is
+                  never a dead end when it is closed. */}
+              <Group
+                label="Markets"
+                collapsible
+                defaultOpen={
+                  pathname.startsWith("/markets") ||
+                  pathname.startsWith("/company") ||
+                  pathname.startsWith("/issuance") ||
+                  pathname.startsWith("/regulators") ||
+                  pathname.startsWith("/calendar")
+                }
+              >
+                <Item
+                  href="/markets"
+                  label="Market desk"
+                  icon={CandlestickChart}
+                  color="var(--cat-economy)"
+                  active={pathname === "/markets"}
+                  onNavigate={close}
+                />
+                <Item
+                  href="/company"
+                  label="Companies"
+                  icon={Building2}
+                  color="var(--cat-business)"
+                  active={pathname.startsWith("/company")}
+                  onNavigate={close}
+                />
+                <Item
+                  href="/issuance"
+                  label="Issuance"
+                  icon={TrendingUp}
+                  color="var(--cat-investment)"
+                  active={pathname === "/issuance"}
+                  onNavigate={close}
+                />
+                <Item
+                  href="/regulators"
+                  label="Regulator actions"
+                  icon={Gavel}
+                  color="var(--cat-policy)"
+                  active={pathname === "/regulators"}
+                  onNavigate={close}
+                />
+                <Item
+                  href="/calendar"
+                  label="Calendar"
+                  icon={CalendarDays}
+                  color="var(--cat-trade)"
+                  active={pathname === "/calendar"}
                   onNavigate={close}
                 />
               </Group>

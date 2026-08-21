@@ -9,12 +9,15 @@ Two independent halves that meet at one Postgres database:
   ─────────────────────────────────          ──────────────────────────────
   RSS feeds ──┐                                     ┌── / (India desk)
   Archive ────┼─► normalise ─► categorise ─┐        ├── /world
-  NewsData ───┘       │                    │        ├── /category/[slug]
-                      └─ dedupe ───────────┤        ├── /search
-                                           ▼        ├── /my-desk
-                                     ┌──────────┐   ├── /sources
-                                     │ Postgres │◄──┤
-                                     └──────────┘   └── /api/suggest
+  NewsData ───┘       │        + entities  │        ├── /category/[slug]
+                      └─ dedupe ───────────┤        ├── /search · /my-desk
+                                           ▼        ├── /opportunities
+                                     ┌──────────┐   ├── /markets ─┬─ /company
+                                     │ Postgres │◄──┤             ├─ /issuance
+                                     └──────────┘   │             ├─ /regulators
+                                           ▲        │             └─ /calendar
+                                           │        ├── /sources
+                                           │        └── /api/suggest
                                            ▲
                                      ┌─────┴─────┐
                                      │  Gemini   │  (wrap, ask, topic brief)
@@ -40,15 +43,20 @@ only coupling is the schema and `lib/categorize.ts`.
 1. **Fetch** - feed or query returns raw items.
 2. **Normalise** (`util.ts`) - strip HTML from descriptions, resolve the real
    publisher (the archive returns aggregator URLs), parse dates.
-3. **Categorise** (`lib/categorize.ts`) - keyword rules assign one of eight
+3. **Identify companies** (`lib/entities.ts`) - a curated dictionary of ~300
+   Indian businesses, matched against a haystack reduced to whole alphanumeric
+   words. Deliberately more precise and less generous than the sector tagger:
+   a wrong sector tag misfiles a story, a wrong company tag makes a claim about
+   a named business. Stored on `Article.entities`.
+4. **Categorise** (`lib/categorize.ts`) - keyword rules assign one of eight
    categories plus any of 25 sector tags. Runs on title + excerpt, so a feed's
    `defaultCategory` only applies when nothing matches. Feeds marked `strict`
    are dropped entirely when nothing matches, which is how a general-interest
    feed avoids dumping sport into policy.
-4. **Deduplicate** (`dedupe.ts`) - `url` is unique in the schema, and a
+5. **Deduplicate** (`dedupe.ts`) - `url` is unique in the schema, and a
    normalised headline key is compared against everything already stored in the
    window being processed. Five outlets carrying one PTI story yield one row.
-5. **Store** - upsert on `url`.
+6. **Store** - upsert on `url`.
 
 ### Two things that were learned the hard way
 
@@ -107,6 +115,25 @@ panels follow, reachable in one click from the masthead's jump links.
 accent cap. `components/ArticleRow.tsx` renders the same record in four
 registers - `lead`, `feature`, `card`, `row` - and mixing registers is what
 gives a long page a reading order.
+
+### The market desk
+
+`/markets` and its four surfaces read the same rows as everything else, through
+two different mechanisms:
+
+| Surface | How it is derived | Where |
+| --- | --- | --- |
+| `/company`, `/company/[slug]` | The stored `entities` column, unnested and rolled up in one cached pass | `lib/company.ts` |
+| `/issuance` | Headlines classified at read time into instrument + stage | `lib/issuance.ts` |
+| `/regulators` | Headlines classified at read time into regulator + instrument + audience | `lib/regulator.ts` |
+| `/calendar` | Generated from rules; two schedules read backwards out of the archive | `lib/marketCalendar.ts` |
+| Sector → index bridge | A static editorial table, no queries at all | `lib/instruments.ts` |
+
+The stored-versus-derived split is explained in `docs/data-model.md`. The
+constraint shaping all five is that **this project holds no exchange data
+licence**, so the desk carries no prices, levels, returns or symbols - only
+counts of coverage and index names. That is stated on each page rather than in a
+footnote, because a page called "Markets" invites the opposite assumption.
 
 ### Search
 

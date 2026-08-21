@@ -45,6 +45,7 @@ story came from; a curated feed scores higher.
 | `category` | Assigned by content, not by feed. |
 | `region` | Desk. |
 | `tags` | `String[]` of sector keys - 25 curated sub-domains. Empty is legal; the UI falls back to showing the category. |
+| `entities` | `String[]` of company keys from `lib/entities.ts` - about 300 curated Indian businesses. Empty is the common case: most stories name nobody in the dictionary. |
 | `publishedAt` | The publisher's timestamp. Everything user-facing sorts and groups on this. |
 | `fetchedAt` | When we saw it. Useful for diagnosing a stalled crawl. |
 
@@ -57,14 +58,28 @@ story came from; a curated feed scores higher.
 | `[region, publishedAt]` | India / World desk feeds |
 | `[region, category, publishedAt]` | A category page narrowed to one desk |
 | GIN on `to_tsvector('english', title \|\| ' ' \|\| excerpt)` | Full-text search |
+| GIN on `tags` | Sector filters (`tags && ARRAY[...]`) and the sector desk's `unnest` |
+| GIN on `entities` | Company pages and the market desk's `unnest` |
 
 The GIN index is created in migration `20260818020834_region_and_search` and is
 **not** expressible in the Prisma schema. The expression in `lib/search.ts` must
 match it exactly - if the two drift, search still returns correct results but
 degrades to a sequential scan over the whole table.
 
-`tags` has no GIN index. Sector filtering uses `hasSome`, which is fast enough
-at current volume because it is always combined with a `publishedAt` bound.
+Both array columns carry a GIN index. Sector and company filtering use
+`hasSome` / `= ANY(...)`, and the sector and market desks both `unnest` the
+arrays across the whole window, which is a sequential scan without one.
+
+### Why companies are stored and issuance is not
+
+`entities` is computed at ingest and stored, because every company page, the
+directory and the market desk all ask for it. The issuance and regulator
+classifications in `lib/issuance.ts` and `lib/regulator.ts` are computed at
+**read** time instead, behind a 15-minute cache: each feeds exactly one page,
+and their rule sets will move often while they are young, so storing them would
+buy a third and fourth backfill script for no query that needs the index. If
+either desk earns its place, promoting it is a migration plus a script and
+nothing in the page changes.
 
 ## `DailyBrief`
 

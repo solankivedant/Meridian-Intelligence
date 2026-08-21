@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Globe2, Radio, TrendingUp, Info, type LucideIcon } from "lucide-react";
+import { MapPin, Globe2, Radio, TrendingUp, CandlestickChart, Info, type LucideIcon } from "lucide-react";
 
 /**
  * The masthead's standing nav.
@@ -17,6 +17,7 @@ const LINKS: { href: string; label: string; icon: LucideIcon; accent?: string }[
   { href: "/", label: "India", icon: MapPin },
   { href: "/world", label: "World", icon: Globe2 },
   { href: "/opportunities", label: "Sectors", icon: TrendingUp, accent: "var(--cat-investment)" },
+  { href: "/markets", label: "Markets", icon: CandlestickChart, accent: "var(--cat-economy)" },
   { href: "/about", label: "About", icon: Info },
   { href: "/sources", label: "Sources", icon: Radio },
 ];

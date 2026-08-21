@@ -1,6 +1,7 @@
 import { Category, Region, SourceType } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { categorize } from "@/lib/categorize";
+import { detectEntities } from "@/lib/entities";
 import { RSS_SOURCES, NEWSDATA_SOURCE } from "./sources";
 import { fetchRssArticles } from "./rss";
 import { fetchNewsDataArticles } from "./newsdata";
@@ -150,6 +151,7 @@ export async function ingestArticles(
     item: RawArticle;
     category: Category;
     tags: string[];
+    entities: string[];
     config: SourceConfig;
   }[] = [];
 
@@ -186,6 +188,10 @@ export async function ingestArticles(
       item,
       category,
       tags,
+      // Named companies, from the same title and excerpt the tagger just read.
+      // Deliberately not a filter: a story that names nobody is still a story,
+      // it simply carries an empty array.
+      entities: detectEntities(item.title, item.excerpt),
       config:
         attributeToPublisher && item.publisher
           ? publisherConfig(item.publisher, config.defaultCategory, config.region)
@@ -197,7 +203,7 @@ export async function ingestArticles(
 
   await sources.resolveAll(accepted.map((a) => a.config));
 
-  const rows = accepted.flatMap(({ item, category, tags, config: sourceConfig }) => {
+  const rows = accepted.flatMap(({ item, category, tags, entities, config: sourceConfig }) => {
     const sourceId = sources.idOf(sourceConfig.name);
     // A source that failed to resolve would take the whole batch down on a
     // null foreign key; dropping the row keeps the rest of the feed.
@@ -210,6 +216,7 @@ export async function ingestArticles(
         category,
         region: config.region,
         tags,
+        entities,
         publishedAt: item.publishedAt,
         sourceId,
       },

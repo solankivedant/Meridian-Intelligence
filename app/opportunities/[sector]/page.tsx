@@ -28,6 +28,9 @@ import { getSectorRead } from "@/lib/sectorBrief";
 import { isGeminiConfigured } from "@/lib/gemini";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { metaForSector } from "@/lib/sectorMeta";
+import { InstrumentPanel } from "@/components/InstrumentPanel";
+import { bridgeForSector } from "@/lib/instruments";
+import { companiesInSector } from "@/lib/entities";
 import { GlyphTile } from "@/components/MetaIcon";
 import { timeAgo } from "@/lib/formatTime";
 
@@ -71,6 +74,8 @@ export default async function SectorPage({
   const sector = sectorByKey(key);
   if (!sector) notFound();
   const face = metaForSector(key);
+  const bridge = bridgeForSector(key);
+  const companies = companiesInSector(key);
 
   const [signals, detail, articles] = await Promise.all([
     safeQuery(() => getSectorSignals(Region.INDIA), [] as SectorSignal[]),
@@ -237,6 +242,55 @@ export default async function SectorPage({
 
           <Section
             index="02"
+            title="Tracked by"
+            accentVar="--cat-economy"
+            note={`${bridge?.indices.length ?? 0} indices`}
+            description="Which listed instrument corresponds to this sector, and which companies in it the archive names."
+          >
+            <div className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
+              <div>
+                <InstrumentPanel bridge={bridge} />
+                <p className="measure mt-4 text-[12.5px] leading-relaxed text-[var(--text-muted)]">
+                  Index names and exchanges only - an editorial mapping, with no
+                  symbols, levels or fund data behind it, because this project
+                  holds no exchange licence. Verify with the exchange before
+                  relying on any of it, and see{" "}
+                  <Link href="/markets" className="underline underline-offset-2">
+                    the market desk
+                  </Link>{" "}
+                  for every sector&rsquo;s mapping at once.
+                </p>
+              </div>
+
+              {companies.length > 0 && (
+                <div>
+                  <p className="kicker mb-1.5 text-[10px] text-[var(--text-primary)]">
+                    Companies filed under this sector
+                  </p>
+                  <p className="measure mb-3.5 text-[12.5px] leading-relaxed text-[var(--text-muted)]">
+                    From the curated dictionary this archive matches headlines
+                    against - not the index constituents, and not exhaustive.
+                  </p>
+                  <ul className="flex flex-wrap gap-x-2 gap-y-1.5">
+                    {companies.map((company) => (
+                      <li key={company.key}>
+                        <Link
+                          href={`/company/${company.key}`}
+                          className="border px-2 py-[2px] text-[12px] text-[var(--text-secondary)] transition-colors hover:bg-[var(--ink-wash)]"
+                          style={{ borderColor: "var(--rule-strong)" }}
+                        >
+                          {company.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            index="03"
             title="The market"
             accentVar="--cat-tech"
             note="machine-written"
@@ -249,7 +303,7 @@ export default async function SectorPage({
 
           {articles.length > 0 && (
             <Section
-              index="03"
+              index="04"
               title="What is actually happening"
               accentVar="--cat-investment"
               note={`${articles.length} latest`}

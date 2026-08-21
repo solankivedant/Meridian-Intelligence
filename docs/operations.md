@@ -36,6 +36,13 @@ npm run backfill -- --months=6 --queries=policy,subsidy,tech
 # A full live-feed pull
 npm run ingest
 
+# Re-run the sector tagger / company extractor over stored articles. Both are
+# dry runs without --apply. Needed after editing lib/categorize.ts or
+# lib/entities.ts, and once after the entities migration lands - the column is
+# added empty, so every company page is blank until this has run.
+npm run retag -- --apply
+npm run entities -- --apply
+
 # Trigger the hosted crons by hand
 curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/ingest
 curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/brief
@@ -43,6 +50,27 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/brief
 
 Ingestion is **idempotent** - every article upserts on its unique `url`, so a
 re-run costs time and nothing else. A missed cron needs no repair.
+
+## Editing the classifier rules
+
+`lib/issuance.ts`, `lib/regulator.ts` and `lib/instruments.ts` are read at
+request time behind `unstable_cache`, and **the cache key does not include the
+rules**. Editing a rule therefore changes nothing you can see until the
+15-minute entry expires - and in development the cache is on disk, at
+`.next/dev/cache`, so it survives restarting `next dev` as well:
+
+```bash
+rm -rf .next/dev/cache && npm run dev
+```
+
+This bites hardest exactly when you are iterating on a rule set, because the
+page keeps confidently rendering the previous classification. A deploy always
+gets a fresh cache, so production is unaffected.
+
+`lib/entities.ts` is different: it runs at ingest and is stored, so editing it
+needs `npm run entities -- --apply` rather than a cache flush. That script is a
+full recompute, so tightening an alias actually removes the rows it used to
+match - which is the whole reason it is not additive the way `retag` is.
 
 ## Health checks
 
@@ -53,6 +81,8 @@ re-run costs time and nothing else. A missed cron needs no repair.
 | Did the wrap generate? | "The wrap" panel; its note names the model and time |
 | Is search healthy? | `/api/suggest?q=policy` should return in well under a second |
 | Is the DB reachable? | Any page renders; empty states everywhere means it is not |
+| Are companies attributed? | `/company` - "companies named" at zero means `npm run entities` has not been run |
+| Is the market desk populated? | `/markets` - each of the four cards carries a live count |
 
 ## Known failure modes
 

@@ -168,11 +168,13 @@ built for breaking-news trading, and the bottom of this file rules out
 real-time data. Neither is being reversed here: the space worth occupying is
 **daily-resolution markets as context for policy**, not a terminal.
 
-### Tier 4A - no market data at all
+### Tier 4A - no market data at all - **shipped**
 
-These use the archive that already exists.
+All five items below are built, and `/markets` is the desk that joins them.
+What each turned out to be worth is recorded under the item; what was left
+undone is listed at the end of the tier.
 
-#### 18. Company and instrument entity pages
+#### 18. Company and instrument entity pages - **done**
 `#9` aimed at listed companies rather than schemes. A curated dictionary of
 ~500 NSE names with their aliases and tickers ("RIL" / "Reliance Industries" /
 `RELIANCE`), matched at ingest alongside `tags`, gives `/company/reliance`:
@@ -181,8 +183,8 @@ every policy, regulatory and business story that touched it, on one timeline.
 *Touches:* a `lib/categorize.ts` sibling, schema (`entities String[]` + index),
 a new route.
 
-#### 19. Sector to instrument bridge
-The 25 sectors in `lib/sectorMeta.ts` map almost one-to-one onto real thematic
+#### 19. Sector to instrument bridge - **done**
+The sectors in `lib/sectorMeta.ts` map almost one-to-one onto real thematic
 and sectoral indices and their ETFs - renewable-energy onto NIFTY Energy,
 defence onto NIFTY India Defence, and semiconductors onto nothing, which is
 itself worth showing. This is a static mapping table and no data feed
@@ -192,13 +194,13 @@ whatsoever, after which `/opportunities` can say "Defence: coverage momentum
 makes #24 legible when it lands. *Touches:* one new constant file,
 `SectorTable` / `PersonaSectorCard`.
 
-#### 20. Primary issuance desk
+#### 20. Primary issuance desk - **done**
 Moneycontrol's IPO feed is already ingested, and headlines carry QIP, rights
 issue, block deal, buyback and OFS in recognisable language. Parse them into a
 status table - filed, open, listed - at `/issuance`.
 *Touches:* text extraction next to #18, one route.
 
-#### 21. Regulator action tracker
+#### 21. Regulator action tracker - **done**
 SEBI's feed is ingested and then flattened into `POLICY_REGULATORY`. Split it:
 circular against order against consultation paper, and record who each one
 binds (brokers, AMCs, research analysts, issuers). The same shape works for RBI
@@ -206,10 +208,57 @@ notifications.
 *Why:* this is `#11`'s "the notification exists rather than the press reported
 it", applied to the one regulator whose feed is already in hand.
 
-#### 22. Market calendar
+#### 22. Market calendar - **done**
 MPC dates, the Budget, earnings season, F&O expiry, index rebalances, IPO
 windows. Half of it falls out of the archive and half is a static table.
 *Touches:* one route, one seed table.
+
+#### What shipping 4A actually taught
+
+- **Precision beat coverage, decisively.** The dictionary is ~300 names rather
+  than the 500 this file asked for, because the binding constraint is not how
+  many companies you list, it is how many of them collide with ordinary
+  business English. ITC is input tax credit, IOC is the Olympic committee, SAIL
+  is a verb, and each one is handled by writing a longer alias rather than by
+  adding machinery. Matching runs on a haystack reduced to whole alphanumeric
+  words, which is the one real departure from `categorize()` and the reason
+  "ONGC's" and "L&T" match at all.
+- **The gaps are the product.** The sector-to-index table was expected to be a
+  convenience; the interesting output is the four sectors with **no** index
+  and the nine more whose only mapping is a loose proxy.
+  "Semiconductors is among the fastest movers on the desk and nothing on either
+  exchange tracks it" is a finding, and a table showing only the neat mappings
+  would have hidden it.
+- **Kind and status are orthogonal.** The issuance desk first treated "listing"
+  as an instrument, which is wrong: a debut is a later moment in an IPO, not a
+  different thing. Separating the instrument from the stage is what makes the
+  desk readable.
+- **Binding-versus-not is the whole regulator page.** A body that issued eleven
+  things and bound somebody with three is doing something a volume count cannot
+  see. That split, not the total, is the lead figure.
+- **A calendar's discipline is what it refuses to print.** Only dates derivable
+  from statute or a published framework are generated. MPC meetings are read
+  backwards out of the archive instead of predicted, and the derivatives expiry
+  weekday - exchange policy that has moved more than once - comes from a single
+  named constant with a verify flag on every row it produces.
+- **Read-time classification was the right call twice.** Companies are stored
+  because four surfaces query them; issuance and regulator actions are derived
+  behind a 15-minute cache because each feeds one page and both rule sets are
+  still moving. Promoting either is a migration and a script.
+
+#### Left undone in 4A
+
+- The dictionary has no state governments, ministries, regulators-as-entities
+  or schemes in it - `#9`'s original scope. Companies were the half that
+  unlocks 4B, so they went first.
+- Issuance events are per *story*, not per *issue*: a heavily-covered IPO
+  appears once per story. Collapsing them needs the clustering in `#2`.
+- The regulator tracker reads headlines, so it has no effective dates and no
+  operative change. That is `#15`, and it is a much larger project.
+- Nothing on the desk is deep-linked from the feed yet: a story that names a
+  company does not link to that company's page from its card.
+
+---
 
 ### Tier 4B - needs end-of-day price data
 

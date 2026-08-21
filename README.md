@@ -91,6 +91,21 @@ NewsData.io API.
   open tap on your API key. The flag gates the button *and* the route: with it
   unset, `/api/ask` returns 404 no matter who posts to it. See
   `lib/features.ts`.
+- **The market desk (`/markets`)** - the same archive read for who it names and
+  what it changes, in four surfaces. `/company` gives every one of ~300 curated
+  Indian businesses its own timeline, matched by dictionary rather than by an
+  NER model (`lib/entities.ts`) and stored on `Article.entities` at ingest.
+  `/issuance` recovers the primary-issuance pipeline - IPO, QIP, rights, OFS,
+  buyback, block deal - from headlines, split by instrument and by stage.
+  `/regulators` separates what 24 regulators actually issued into circulars,
+  master directions, penalties and consultation papers, and marks which of them
+  bind anyone. `/calendar` generates the fiscal, tax, results and derivatives
+  dates from rules rather than from a typed list, and flags anything it cannot
+  confirm. The desk also carries the bridge from each sector to the index that
+  tracks it - including the four that nothing on either exchange tracks, and the
+  nine more where the only mapping is a loose proxy.
+  **There are no prices anywhere on it:** exchange data is licensed, this
+  project holds no licence, and every figure is a count of coverage.
 - **`/api/cron/ingest`** - pulls all sources and stores new articles.
 - **`/api/cron/brief`** - builds the "In brief" panel from the last 24h of
   articles, a handful of highlights per category, which the front page
@@ -118,6 +133,10 @@ states. Populate them:
 ```bash
 # Two years of history from the news archive (a few minutes; safe to re-run).
 npm run backfill -- --months=23
+
+# Attribute the stored archive to companies. The entities column is created
+# empty by its migration, so the market desk is blank until this has run.
+npm run entities -- --apply
 
 # Then the live feeds, and the daily brief.
 curl http://localhost:3000/api/cron/ingest
