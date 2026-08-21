@@ -7,10 +7,10 @@ import { CloudOff } from "lucide-react";
  * Says so when the network has gone.
  *
  * Without it, an offline reader gets a page that simply stops responding:
- * search returns nothing, the ask box fails, links go nowhere, and none of it
- * looks like a connection problem. The one part that still works is the saved
- * shelf, which is stored locally - so the banner points at it rather than just
- * reporting bad news.
+ * search returns nothing, the ask box fails, a like never lands, links go
+ * nowhere, and none of it looks like a connection problem. What is already
+ * rendered stays readable, so the banner says that rather than only reporting
+ * bad news.
  */
 export function OfflineBanner() {
   const [offline, setOffline] = useState(false);
@@ -48,11 +48,8 @@ export function OfflineBanner() {
       />
       <p className="text-[13px] leading-relaxed text-[var(--text-secondary)]">
         <strong className="font-semibold text-[var(--text-primary)]">You are offline.</strong>{" "}
-        New stories, search and the AI panels need a connection - your{" "}
-        <a href="/saved" className="underline underline-offset-2 hover:text-[var(--text-primary)]">
-          saved stories
-        </a>{" "}
-        are stored in this browser and still work.
+        New stories, search, likes and the AI panels all need a connection.
+        Whatever is already on this page stays readable.
       </p>
     </div>
   );

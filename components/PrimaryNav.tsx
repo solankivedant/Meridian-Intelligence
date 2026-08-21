@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Globe2, Radio, Bookmark, TrendingUp, Info, type LucideIcon } from "lucide-react";
-import { SavedCount } from "./SavedCount";
+import { MapPin, Globe2, Radio, TrendingUp, Info, type LucideIcon } from "lucide-react";
 
 /**
  * The masthead's standing nav.
@@ -11,15 +10,14 @@ import { SavedCount } from "./SavedCount";
  * The drawer holds everything - two desks, eight sections, search, sources -
  * but a destination you have to open a menu to discover is a destination most
  * readers never find, and a page whose own name appears nowhere on screen is
- * one you can't place. These four are the top-level places; the sections stay
- * in the drawer, where their colour legend belongs.
+ * one you can't place. These are the top-level places; the sections stay in
+ * the drawer, where their colour legend belongs.
  */
 const LINKS: { href: string; label: string; icon: LucideIcon; accent?: string }[] = [
   { href: "/", label: "India", icon: MapPin },
   { href: "/world", label: "World", icon: Globe2 },
   { href: "/opportunities", label: "Sectors", icon: TrendingUp, accent: "var(--cat-investment)" },
   { href: "/about", label: "About", icon: Info },
-  { href: "/saved", label: "Saved", icon: Bookmark, accent: "var(--cat-subsidy)" },
   { href: "/sources", label: "Sources", icon: Radio },
 ];
 
@@ -53,7 +51,6 @@ export function PrimaryNav() {
               aria-hidden
             />
             {label}
-            {href === "/saved" && <SavedCount />}
           </Link>
         );
       })}

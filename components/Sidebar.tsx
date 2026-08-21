@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe2, MapPin, Radio, Search, Bookmark, TrendingUp, Users } from "lucide-react";
+import { Menu, X, ChevronDown, Globe2, MapPin, Radio, Search, TrendingUp, Users } from "lucide-react";
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { PERSONAS } from "@/lib/personas";
 import { AUTHOR } from "@/lib/author";
@@ -121,7 +121,7 @@ export function Sidebar() {
                   the drawer into a page of prose, and the desk names already
                   say who they are for. The hints still run on /for, where
                   there is room to explain. */}
-              <Group label="Read it as your job">
+              <Group label="Read it as your job" collapsible defaultOpen={pathname.startsWith("/for")}>
                 {PERSONAS.map((persona) => {
                   const href = `/for/${persona.key}`;
                   return (
@@ -141,18 +141,6 @@ export function Sidebar() {
                   label="All reader desks"
                   icon={Users}
                   active={pathname === "/for"}
-                  onNavigate={close}
-                />
-              </Group>
-
-              <Group label="Yours">
-                <Item
-                  href="/saved"
-                  label="Saved stories"
-                  icon={Bookmark}
-                  color="var(--cat-subsidy)"
-                  hint="Kept in this browser - no account, works offline"
-                  active={pathname === "/saved"}
                   onNavigate={close}
                 />
               </Group>
@@ -187,11 +175,53 @@ export function Sidebar() {
   );
 }
 
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
+/**
+ * One labelled block of the drawer.
+ *
+ * A group can fold. Only one does: the six reader desks sat between Analysis
+ * and the eight sections, so the sections - which are what most readers open
+ * this drawer for - started below the fold on a phone. Closed by default, they
+ * are one line instead of seven and everything under them moves up; the
+ * heading still names them, so nothing is hidden, only stacked.
+ *
+ * It opens itself when the reader is already on one of the pages inside it: a
+ * group that folded away the current page would answer "where am I" with
+ * silence.
+ */
+function Group({
+  label,
+  collapsible = false,
+  defaultOpen = true,
+  children,
+}: {
+  label: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const contentId = useId();
+
   return (
     <div className="border-b py-3" style={{ borderColor: "var(--rule)" }}>
-      <p className="kicker px-5 pb-1.5 text-[10px] text-[var(--text-muted)]">{label}</p>
-      {children}
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-controls={contentId}
+          className="kicker flex w-full items-center gap-1.5 px-5 pb-1.5 text-left text-[10px] text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+        >
+          {label}
+          <ChevronDown
+            className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+            aria-hidden
+          />
+        </button>
+      ) : (
+        <p className="kicker px-5 pb-1.5 text-[10px] text-[var(--text-muted)]">{label}</p>
+      )}
+      {(!collapsible || open) && <div id={contentId}>{children}</div>}
     </div>
   );
 }

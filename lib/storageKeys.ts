@@ -19,5 +19,5 @@ export const STORAGE_KEYS = {
   recentSearches: "pbe:recent",
   readLog: "pbe:read",
   lastVisit: "pbe:visit",
-  saved: "pbe:saved",
+  liked: "pbe:liked",
 } as const;

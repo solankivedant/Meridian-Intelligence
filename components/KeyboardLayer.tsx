@@ -4,10 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
-import { Category } from "@/lib/enums";
 import { setDensity, setTheme, useDensity, useTheme, type Theme } from "@/lib/prefs";
 import { markRead } from "@/lib/reading";
-import { toggleSaved } from "@/lib/saved";
+import { recordLike, revertLike, toggleLikedLocally } from "@/lib/likes";
 import { CommandPalette } from "./CommandPalette";
 
 /**
@@ -19,7 +18,7 @@ import { CommandPalette } from "./CommandPalette";
  * stories currently rendered, moves real DOM focus between them - which keeps
  * the browser's own focus ring, Enter-to-open and screen-reader announcements
  * working - and reads the dataset of whichever one is focused when a key asks
- * it to save or open.
+ * it to like or open.
  *
  * It never fires while the reader is typing: the search field, the ask box and
  * the palette all take precedence.
@@ -121,7 +120,6 @@ export function KeyboardLayer() {
           h: "/",
           i: "/",
           w: "/world",
-          b: "/saved",
           o: "/opportunities",
           s: "/sources",
         };
@@ -158,18 +156,17 @@ export function KeyboardLayer() {
           window.open(story.href, "_blank", "noopener,noreferrer");
           break;
         }
-        case "s": {
+        case "l": {
           const story = focused();
           if (!story) return;
           event.preventDefault();
-          const data = story.dataset;
-          toggleSaved({
-            id: data.storyId as string,
-            title: data.storyTitle as string,
-            url: story.href,
-            sourceName: data.storySource ?? "",
-            category: data.storyCategory as Category,
-            publishedAt: data.storyPublished ?? new Date().toISOString(),
+          // The button on the row owns the number; from the keyboard there is
+          // no number on screen to correct, so this only has to record the
+          // press and put it back if the write fails.
+          const id = story.dataset.storyId as string;
+          const nowLiked = toggleLikedLocally(id);
+          void recordLike(id, nowLiked).then((server) => {
+            if (server === null) revertLike(id, !nowLiked);
           });
           break;
         }
@@ -227,13 +224,12 @@ const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
   { keys: ["j"], label: "Next story", group: "Reading" },
   { keys: ["k"], label: "Previous story", group: "Reading" },
   { keys: ["o"], label: "Open the focused story", group: "Reading" },
-  { keys: ["s"], label: "Save or unsave the focused story", group: "Reading" },
+  { keys: ["l"], label: "Like or unlike the focused story", group: "Reading" },
   { keys: ["Esc"], label: "Drop focus, close anything open", group: "Reading" },
   { keys: ["⌘", "K"], label: "Command palette", group: "Finding" },
   { keys: ["/"], label: "Jump to search", group: "Finding" },
   { keys: ["g", "h"], label: "India desk", group: "Finding" },
   { keys: ["g", "w"], label: "World desk", group: "Finding" },
-  { keys: ["g", "b"], label: "Saved stories", group: "Finding" },
   { keys: ["g", "o"], label: "Sector opportunities", group: "Finding" },
   { keys: ["g", "s"], label: "Sources", group: "Finding" },
   { keys: ["t"], label: "Cycle theme - system, light, dark", group: "Display" },

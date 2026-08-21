@@ -19,6 +19,13 @@ export type FeedArticle = {
   tags: string[];
   publishedAt: Date;
   source: { name: string };
+  /**
+   * The shared like count. Optional because a few callers build a FeedArticle
+   * from something other than an Article row - a brief highlight, a search
+   * projection - and a story nobody has liked reads the same as one whose
+   * count was never fetched.
+   */
+  likes?: number;
 };
 
 /**
@@ -310,6 +317,7 @@ function storyRef(article: FeedArticle): StoryRef {
     sourceName: article.source.name,
     category: article.category,
     publishedAt: article.publishedAt.toISOString(),
+    likes: article.likes ?? 0,
   };
 }
 

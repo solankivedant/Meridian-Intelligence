@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  Bookmark,
   Check,
   Clock,
   CornerDownLeft,
@@ -27,7 +26,6 @@ import {
 import { CATEGORY_META } from "@/lib/categoryMeta";
 import { clearRecentSearches, setDensity, setTheme, unmuteAll, useDensity, useMutedSources, useRecentSearches } from "@/lib/prefs";
 import { clearReadLog, markManyRead } from "@/lib/reading";
-import { useSavedStories } from "@/lib/saved";
 
 type Command = {
   id: string;
@@ -68,7 +66,6 @@ export function CommandPalette({
 
   const density = useDensity();
   const muted = useMutedSources();
-  const saved = useSavedStories();
   const recent = useRecentSearches();
 
   // A palette that reopens holding the last search is a palette you have to
@@ -110,16 +107,6 @@ export function CommandPalette({
         color: "var(--cat-investment)",
         keywords: "invest sectors money cagr market growth opportunity",
         run: go("/opportunities"),
-      },
-      {
-        id: "go-saved",
-        label: "Saved stories",
-        hint: saved.length > 0 ? `${saved.length} on the shelf` : "Nothing saved yet",
-        group: "Go to",
-        icon: Bookmark,
-        color: "var(--cat-subsidy)",
-        keywords: "reading list bookmarks shelf",
-        run: go("/saved"),
       },
       { id: "go-sources", label: "Sources", group: "Go to", icon: Radio, keywords: "publishers feeds provenance", run: go("/sources") },
     ];
@@ -275,7 +262,7 @@ export function CommandPalette({
     }
 
     return items;
-  }, [router, onClose, onShowShortcuts, density, muted.length, saved.length, recent]);
+  }, [router, onClose, onShowShortcuts, density, muted.length, recent]);
 
   const needle = query.trim().toLowerCase();
   const matches = needle

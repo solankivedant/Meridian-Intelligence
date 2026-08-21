@@ -17,18 +17,40 @@ const MATCH_EXPRESSION = Prisma.sql`to_tsvector('english', a."title" || ' ' || a
 
 export { MAX_QUERY_LENGTH };
 
-/** `all` AND-s the terms (search-box semantics); `any` OR-s them. */
-export type MatchMode = "all" | "any";
+/**
+ * How the words in a query relate to each other.
+ *
+ *  - `all`    every word must appear, anywhere in the story. Search-box
+ *             semantics, and the default.
+ *  - `any`    at least one word appears. Widens a query that returned little;
+ *             also what the topic desk uses to gather candidates.
+ *  - `exact`  the words appear together, in the order typed. Postgres' phrase
+ *             operator, so "reserve bank" stops matching a story that says
+ *             "reserve" in one paragraph and "bank" in another.
+ */
+export type MatchMode = "all" | "any" | "exact";
+
+export const MATCH_MODES: { key: MatchMode; label: string; hint: string }[] = [
+  { key: "all", label: "All words", hint: "Every word appears somewhere in the story" },
+  { key: "any", label: "Any word", hint: "At least one of the words appears - a wider net" },
+  { key: "exact", label: "Exact phrase", hint: "The words together, in the order typed" },
+];
+
+export function isMatchMode(value: string | undefined): value is MatchMode {
+  return MATCH_MODES.some((mode) => mode.key === value);
+}
 
 /**
  * Turns free text into a tsquery.
  *
- * Every term gets a `:*` prefix wildcard so partial words match while typing -
- * "semicon" should find "semiconductor". Terms are AND-ed by default, which is
- * what people expect from a search box; `any` exists for the topic desk, where
- * a phrase like "EV battery subsidies" should still retrieve candidates when
- * no single story contains all three words. Input is reduced to alphanumerics
- * first: `to_tsquery` throws on stray operators, and a thrown query is a 500.
+ * In `all` and `any` every term gets a `:*` prefix wildcard so partial words
+ * match while typing - "semicon" should find "semiconductor". `exact` drops the
+ * wildcards and joins with `<->`, Postgres' "immediately followed by" operator:
+ * a reader who asked for a phrase asked for the phrase, and a trailing wildcard
+ * would quietly widen it again.
+ *
+ * Input is reduced to alphanumerics first: `to_tsquery` throws on stray
+ * operators, and a thrown query is a 500.
  */
 export function toTsQuery(input: string, mode: MatchMode = "all"): string | null {
   const terms = input
@@ -40,6 +62,7 @@ export function toTsQuery(input: string, mode: MatchMode = "all"): string | null
     .slice(0, 8);
 
   if (terms.length === 0) return null;
+  if (mode === "exact") return terms.join(" <-> ");
   return terms.map((term) => `${term}:*`).join(mode === "any" ? " | " : " & ");
 }
 
@@ -65,6 +88,7 @@ type SearchRow = {
   tags: string[];
   publishedAt: Date;
   sourceName: string;
+  likes: number;
 };
 
 function filterConditions(filters: SearchFilters): Prisma.Sql[] {
@@ -106,7 +130,7 @@ export async function searchArticles(
   const [rows, totals] = await Promise.all([
     db.$queryRaw<SearchRow[]>`
       SELECT a."id", a."title", a."excerpt", a."url", a."category", a."tags",
-             a."publishedAt", s."name" AS "sourceName"
+             a."publishedAt", a."likes", s."name" AS "sourceName"
       FROM "Article" a
       JOIN "Source" s ON s."id" = a."sourceId"
       WHERE ${where}
@@ -128,6 +152,7 @@ export async function searchArticles(
       category: row.category,
       tags: row.tags,
       publishedAt: row.publishedAt,
+      likes: row.likes,
       source: { name: row.sourceName },
     })),
     total: Number(totals[0]?.count ?? 0),

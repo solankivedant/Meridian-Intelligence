@@ -155,6 +155,134 @@ products.
 
 ---
 
+## Tier 4 - the markets layer
+
+The project carries a great deal of *narrative* about markets - roughly twenty
+market and finance feeds, an `ECONOMY_MARKETS` section, a `finance-stocks`
+sector tag - and not one *number*. Everything below closes that gap, ordered
+not by ambition but by how much licensed data it needs, because that is the
+only thing that actually gates any of it.
+
+Two standing decisions bound this whole tier. The PRD says the product is not
+built for breaking-news trading, and the bottom of this file rules out
+real-time data. Neither is being reversed here: the space worth occupying is
+**daily-resolution markets as context for policy**, not a terminal.
+
+### Tier 4A - no market data at all
+
+These use the archive that already exists.
+
+#### 18. Company and instrument entity pages
+`#9` aimed at listed companies rather than schemes. A curated dictionary of
+~500 NSE names with their aliases and tickers ("RIL" / "Reliance Industries" /
+`RELIANCE`), matched at ingest alongside `tags`, gives `/company/reliance`:
+every policy, regulatory and business story that touched it, on one timeline.
+*Why:* it is the join key. Nothing in 4B or 4C is buildable without it.
+*Touches:* a `lib/categorize.ts` sibling, schema (`entities String[]` + index),
+a new route.
+
+#### 19. Sector to instrument bridge
+The 25 sectors in `lib/sectorMeta.ts` map almost one-to-one onto real thematic
+and sectoral indices and their ETFs - renewable-energy onto NIFTY Energy,
+defence onto NIFTY India Defence, and semiconductors onto nothing, which is
+itself worth showing. This is a static mapping table and no data feed
+whatsoever, after which `/opportunities` can say "Defence: coverage momentum
++38%, tracked by NIFTY India Defence and 4 ETFs".
+*Why:* the cheapest item in the tier by a wide margin, and it is the thing that
+makes #24 legible when it lands. *Touches:* one new constant file,
+`SectorTable` / `PersonaSectorCard`.
+
+#### 20. Primary issuance desk
+Moneycontrol's IPO feed is already ingested, and headlines carry QIP, rights
+issue, block deal, buyback and OFS in recognisable language. Parse them into a
+status table - filed, open, listed - at `/issuance`.
+*Touches:* text extraction next to #18, one route.
+
+#### 21. Regulator action tracker
+SEBI's feed is ingested and then flattened into `POLICY_REGULATORY`. Split it:
+circular against order against consultation paper, and record who each one
+binds (brokers, AMCs, research analysts, issuers). The same shape works for RBI
+notifications.
+*Why:* this is `#11`'s "the notification exists rather than the press reported
+it", applied to the one regulator whose feed is already in hand.
+
+#### 22. Market calendar
+MPC dates, the Budget, earnings season, F&O expiry, index rebalances, IPO
+windows. Half of it falls out of the archive and half is a static table.
+*Touches:* one route, one seed table.
+
+### Tier 4B - needs end-of-day price data
+
+Read "Decide before building any of 4B" below before starting any of these.
+
+#### 23. An `Instrument` / `PriceBar` schema
+Daily close only. Indices first: Nifty 50, Bank Nifty, the sectoral indices,
+the 10-year G-sec, USD/INR, gold. Individual equities can wait for #18 to prove
+the entity dictionary.
+*Touches:* a migration, one ingest module, one more GitHub Actions schedule -
+the same pattern `run.ts` already uses.
+
+#### 24. Coverage momentum against index return
+**The flagship of this tier.** `lib/opportunity.ts` already computes each
+sector's *share* of coverage over time. Draw the matching sector index's return
+on the same axis and the chart answers a question nothing else answers: policy
+attention on defence is up 40% this quarter - had the market already priced it?
+*Why:* a two-year India policy archive paired with sector returns is the one
+thing here that is genuinely hard to copy. Everything else in this tier is a
+data-licensing exercise; this is the product.
+*Touches:* #19, #23, a chart in `components/charts`. Load the `dataviz` skill.
+
+#### 25. Policy event studies
+Given #18 and #23: take a PLI announcement or a duty change and show the
+relevant index at t-1, t, t+5, t+20. Descriptive history, presented as history -
+see the regulatory note below.
+
+#### 26. A macro desk
+Repo rate, CPI, WPI, IIP, GST collections, GDP, the 10-year yield, forex
+reserves, the trade deficit. Every one of these is published by RBI, MoSPI or
+PIB, whose feeds are *already ingested* - what is missing is extracting the
+number from the release rather than filing the release. `/macro`, with a
+sparkline each and "last changed on ___, and here is the story".
+*Why:* it needs no exchange licence at all, and it sits closer to the existing
+policy remit than anything else in 4B.
+
+#### 27. Rates and bonds desk
+`lib/leadStory.ts` currently *penalises* RBI auction results as routine - right
+for choosing a lead story, but as structured data those results are the G-sec
+curve, state SDL spreads and the issuance calendar, free and daily.
+
+### Tier 4C - needs accounts (`#8`)
+
+#### 28. Policy-exposure screener
+Not a price screener. "Rank listed companies by how much subsidy and regulatory
+coverage touched their sector over 90 days" inverts the usual instrument: the
+screen is on policy flow, not on fundamentals.
+
+#### 29. Watchlist as a filtered policy feed
+Paste holdings, get the whole dashboard scoped to those companies and their
+sectors, delivered as the existing daily wrap. The retention hook, and the
+first thing here anyone would pay for.
+
+#### 30. An ETF and fund lens for the investor desk
+`/for/investor` re-ranks stories today; with #19 it can also carry the funds
+that track each sector. AMFI publishes NAV data openly.
+
+### Decide before building any of 4B
+
+1. **Licensing.** NSE and BSE price data is licensed even when delayed, and
+   scraping their endpoints both breaks constantly and violates their terms.
+   The legitimate cheap paths are AMFI NAVs, RBI's DBIE, and World Bank / IMF
+   series; Yahoo Finance is unofficial and grey. Settle this before the
+   migration in #23, not after.
+2. **Positioning.** Anything intraday reverses a stated PRD decision. EOD is
+   the line.
+3. **Regulatory posture.** Per-instrument scores and anything phrased as a
+   "signal" drift towards investment advice, which in India is SEBI
+   research-analyst territory. Keep every figure descriptive and historical,
+   keep AI-written text labelled as it already is, and carry a disclaimer.
+
+---
+
 ## Engineering debt worth paying
 
 | Item | Why it matters |
@@ -175,3 +303,10 @@ products.
 Kept here so they stop being re-proposed: user comments and social features,
 real-time/tick data, full-text republishing, paywalled content, and any
 editorialising that is not clearly labelled as AI-written.
+
+Derivatives belong on this list too, and are worth spelling out because Tier 4
+invites the question. Futures and options are where the breaking-news trading
+audience lives, which is precisely the audience the PRD excludes, and the data
+is simultaneously the most expensive and the most tightly licensed of anything
+discussed above. Expiry dates on the calendar (#22) is the right amount of
+derivatives coverage for this product.

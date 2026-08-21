@@ -53,9 +53,22 @@ model Article {
   publishedAt DateTime
   fetchedAt   DateTime @default(now())
 
+  // Likes are a property of the story, not of a reader: this site has no
+  // accounts, so there is nobody to attribute one to and nothing to scope a
+  // per-reader table by. The counter is the whole record - every reader sees
+  // the same number, and which stories a given browser has liked is kept in
+  // that browser (see lib/likes.ts) purely so the button can show its state
+  // and be pressed again to take it back.
+  likes Int @default(0)
+
   sourceId String
   source   Source @relation(fields: [sourceId], references: [id])
 
+  // Declared here as well as in `20260818020834_region_and_search`, which
+  // created it by hand: left out of the schema, every later `migrate dev` diffs
+  // it as an index that should not exist and writes a DROP for it. Sector
+  // filters are `tags && ARRAY[...]`, which without this is a sequential scan.
+  @@index([tags], type: Gin)
   @@index([category, publishedAt])
   @@index([publishedAt])
   @@index([region, publishedAt])
