@@ -1,5 +1,6 @@
 import { ArticleGrid } from "./ArticleGrid";
 import type { FeedArticle } from "./ArticleRow";
+import type { StoryHighlight } from "./Highlight";
 import { withLeadFirst } from "@/lib/leadStory";
 import { metaForCategory } from "@/lib/categoryMeta";
 import { SectionIcon } from "./MetaIcon";
@@ -44,10 +45,13 @@ function groupBySection(articles: FeedArticle[], startIndex: number): SectionGro
 export function SectionFeed({
   articles,
   startIndex = 1,
+  highlight,
 }: {
   articles: FeedArticle[];
   /** Number the first tile carries. Pages continue the count, e.g. 41 on p2. */
   startIndex?: number;
+  /** Words the reader asked for, marked in every tile. */
+  highlight?: StoryHighlight;
 }) {
   const groups = groupBySection(articles, startIndex);
 
@@ -86,6 +90,7 @@ export function SectionFeed({
               articles={rest}
               showCategory={false}
               startIndex={group.start}
+              highlight={highlight}
             />
           </section>
         );

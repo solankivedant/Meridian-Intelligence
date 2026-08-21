@@ -8,6 +8,7 @@ import { tagLabel } from "@/lib/categorize";
 import { SectorIcon } from "./MetaIcon";
 import { clockTime, timeAgo } from "@/lib/formatTime";
 import { deck } from "@/lib/deck";
+import { Highlight, type StoryHighlight } from "./Highlight";
 
 export type FeedArticle = {
   id: string;
@@ -40,6 +41,7 @@ export function ArticleRow({
   showCategory = true,
   index,
   note,
+  highlight,
 }: {
   article: FeedArticle;
   variant?: ArticleVariant;
@@ -48,6 +50,12 @@ export function ArticleRow({
   index?: number;
   /** Editorial line on why this story is here - the topic desk sets it. */
   note?: string;
+  /**
+   * Words to mark in this story, when the reader arrived by asking for them.
+   * Threaded from whichever page knows the query - the search results, or a
+   * feed narrowed to a publisher.
+   */
+  highlight?: StoryHighlight;
 }) {
   const meta = metaForCategory(article.category);
   const accent = `var(${meta.colorVar})`;
@@ -69,13 +77,15 @@ export function ArticleRow({
         </div>
         <StoryLink {...story} className="mt-2.5 block">
           <h3 className="headline text-[28px] leading-[1.12] text-[var(--text-primary)] sm:text-[38px]">
-            <span className="link-underline">{article.title}</span>
+            <span className="link-underline">
+              <Highlight text={article.title} terms={highlight?.text} />
+            </span>
           </h3>
           {/* Clamped even at display size: some feeds ship an entire
               statistical table as the description. */}
           {excerpt && (
             <p className="story-deck measure mt-3 line-clamp-4 text-[15px] leading-[1.65] text-[var(--text-secondary)]">
-              {excerpt}
+              <Highlight text={excerpt} terms={highlight?.text} />
             </p>
           )}
         </StoryLink>
@@ -83,7 +93,7 @@ export function ArticleRow({
             the base of the column so the lead and the rail beside it end on
             the same line whichever of the two runs shorter. */}
         <div className="mt-auto pt-5">
-          <Byline article={article} />
+          <Byline article={article} highlight={highlight} />
           <TagList tags={article.tags} className="mt-3" />
         </div>
       </article>
@@ -98,16 +108,18 @@ export function ArticleRow({
         </Slugline>
         <StoryLink {...story} className="mt-2 block">
           <h3 className="headline-tight line-clamp-3 text-[20px] text-[var(--text-primary)] sm:text-[23px]">
-            <span className="link-underline">{article.title}</span>
+            <span className="link-underline">
+              <Highlight text={article.title} terms={highlight?.text} />
+            </span>
           </h3>
           {excerpt && (
             <p className="story-deck measure mt-2 line-clamp-2 text-[14px] leading-[1.6] text-[var(--text-secondary)]">
-              {excerpt}
+              <Highlight text={excerpt} terms={highlight?.text} />
             </p>
           )}
         </StoryLink>
         <EditorNote note={note} accent={accent} />
-        <Byline article={article} className="mt-2.5" />
+        <Byline article={article} className="mt-2.5" highlight={highlight} />
       </article>
     );
   }
@@ -128,16 +140,18 @@ export function ArticleRow({
           {/* Regulators file headlines that run to nine lines; unclamped, one
               of them sets the height of every tile in its row. */}
           <h3 className="headline-tight line-clamp-4 text-[16px] text-[var(--text-primary)] sm:text-[17px]">
-            <span className="link-underline">{article.title}</span>
+            <span className="link-underline">
+              <Highlight text={article.title} terms={highlight?.text} />
+            </span>
           </h3>
           {excerpt && (
             <p className="story-deck mt-1.5 line-clamp-2 text-[13px] leading-[1.55] text-[var(--text-secondary)]">
-              {excerpt}
+              <Highlight text={excerpt} terms={highlight?.text} />
             </p>
           )}
         </StoryLink>
         <EditorNote note={note} accent={accent} />
-        <Byline article={article} className="mt-auto pt-3" revealActions />
+        <Byline article={article} className="mt-auto pt-3" revealActions highlight={highlight} />
       </article>
     );
   }
@@ -154,13 +168,16 @@ export function ArticleRow({
         <div className="min-w-0 flex-1">
           <StoryLink {...story}>
             <h3 className="headline-tight text-[16px] text-[var(--text-primary)] sm:text-[17px]">
-              <span className="link-underline">{article.title}</span>
+              <span className="link-underline">
+              <Highlight text={article.title} terms={highlight?.text} />
+            </span>
             </h3>
           </StoryLink>
           <Byline
             article={article}
             className="mt-1.5"
             showCategory={showCategory}
+            highlight={highlight}
             // The day header already establishes the date, so a row only
             // needs a clock - shown in the right margin where the eye can
             // read the column, and folded into the byline on narrow screens.
@@ -240,6 +257,7 @@ function Byline({
   showCategory = false,
   timeDisplay = "always",
   revealActions = false,
+  highlight,
 }: {
   article: FeedArticle;
   className?: string;
@@ -247,13 +265,17 @@ function Byline({
   timeDisplay?: "always" | "narrow-only";
   /** Keep the action cluster out of the way until the row is hovered. */
   revealActions?: boolean;
+  highlight?: StoryHighlight;
 }) {
   const meta = metaForCategory(article.category);
 
   return (
     <div className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 ${className}`}>
       <span className="text-[12px] font-medium text-[var(--text-secondary)]">
-        {article.source.name}
+        {/* `anywhere`, not `word-start`: the publisher filter is a substring
+            match, so "mint" has to mark itself inside "livemint.com" exactly
+            as it did when the row was selected. */}
+        <Highlight text={article.source.name} terms={highlight?.source} match="anywhere" />
       </span>
       {showCategory && (
         <>

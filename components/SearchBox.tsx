@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, CornerDownLeft } from "lucide-react";
 import { MAX_QUERY_LENGTH } from "@/lib/searchLimits";
 import { rememberSearch } from "@/lib/prefs";
+import { Highlight, highlightTerms } from "./Highlight";
 
 type Suggestion = {
   id: string;
@@ -99,6 +100,9 @@ export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
   };
 
   const showList = open && query.length >= 2 && suggestions.length > 0;
+  // Marked against the words actually sent to the API, not the raw field: a
+  // trailing half-typed character would otherwise mark nothing at all.
+  const terms = highlightTerms(usable ? results.query : query);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Escape") {
@@ -203,7 +207,7 @@ export function SearchBox({ defaultValue = "" }: { defaultValue?: string }) {
               />
               <span className="min-w-0 flex-1">
                 <span className="headline-tight block truncate text-[14px] text-[var(--text-primary)]">
-                  {suggestion.title}
+                  <Highlight text={suggestion.title} terms={terms} />
                 </span>
                 <span className="meta mt-0.5 block truncate text-[10px]">
                   {suggestion.sourceName} &middot; {suggestion.categoryLabel}

@@ -9,6 +9,7 @@ import { Pagination } from "./Pagination";
 import { EmptyState } from "./EmptyState";
 import { NewSinceBanner } from "./NewSinceBanner";
 import { ArticleRow, type FeedArticle } from "./ArticleRow";
+import type { StoryHighlight } from "./Highlight";
 import { Category } from "@/lib/enums";
 import { metaForCategory } from "@/lib/categoryMeta";
 import type { BoardGroup } from "@/lib/sectionBoard";
@@ -49,6 +50,12 @@ export function ArchiveSection({
   board?: BoardGroup[];
 }) {
   const narrowed = isNarrowed(parsed);
+  // A feed narrowed to a publisher should say which byline earned each row its
+  // place - "mint" reaching both `Mint - Markets` and `livemint.com` is easier
+  // to trust when you can see the match rather than infer it.
+  const highlight: StoryHighlight | undefined = parsed.src
+    ? { source: [parsed.src] }
+    : undefined;
   // Grouping follows the sort: a feed ordered by section wants section
   // headings, and datelines over one-story days would only fragment it.
   const bySection = parsed.sort === "section";
@@ -90,7 +97,7 @@ export function ArchiveSection({
       />
 
       {boarded ? (
-        <SectionBoard sections={board.map(boardSection)} />
+        <SectionBoard sections={board.map((group) => boardSection(group, highlight))} />
       ) : articles.length === 0 ? (
         <EmptyState filtered={narrowed} />
       ) : (
@@ -99,6 +106,7 @@ export function ArchiveSection({
             <SectionFeed
               articles={articles}
               startIndex={(parsed.page - 1) * parsed.pageSize + 1}
+              highlight={highlight}
             />
           ) : (
             <DayFeed
@@ -107,6 +115,7 @@ export function ArchiveSection({
               // Page 2 starts at 41, not at 1 - the number is the story's
               // position in the whole filtered list, not on the screen.
               startIndex={(parsed.page - 1) * parsed.pageSize + 1}
+              highlight={highlight}
             />
           )}
           <Pagination
@@ -130,7 +139,7 @@ export function ArchiveSection({
  * keeps the feed's markup identical to the rest of the site and keeps the
  * category metadata (an icon component among it) off the wire.
  */
-function boardSection(group: BoardGroup): BoardSection {
+function boardSection(group: BoardGroup, highlight?: StoryHighlight): BoardSection {
   const meta = metaForCategory(group.category);
   const accent = `var(${meta.colorVar})`;
 
@@ -152,7 +161,13 @@ function boardSection(group: BoardGroup): BoardSection {
         {/* The box header names the section above every tile in it, so
             repeating it on each card would only be noise. Numbering runs
             within the section, because that is the list being paged. */}
-        <ArticleRow article={article} variant="card" showCategory={false} index={i + 1} />
+        <ArticleRow
+          article={article}
+          variant="card"
+          showCategory={false}
+          index={i + 1}
+          highlight={highlight}
+        />
       </StoryCell>
     )),
   };

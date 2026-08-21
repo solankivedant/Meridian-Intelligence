@@ -149,6 +149,29 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/*
+ * A search hit, in running text.
+ *
+ * Ink and paper, swapped: `--text-primary` and `--paper` already flip with the
+ * theme, so one rule gives a black block on white in the light theme and a
+ * white block on black in the dark, without either being written down twice.
+ * The usual yellow wash was not an option - eight category hues already carry
+ * meaning here, and a ninth colour would read as a section nobody could name.
+ *
+ * `box-decoration-break` matters more than it looks: headlines wrap, and a
+ * marked phrase broken across two lines otherwise loses its padding on the
+ * second line and reads as two different marks.
+ */
+mark.search-hit {
+  background-color: var(--text-primary);
+  color: var(--paper);
+  padding: 0.05em 0.14em;
+  border-radius: 1px;
+  font-weight: 500;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 /* ---- editorial primitives ---------------------------------------------- */
 
 /* Headlines. Newsreader is an optical-size variable serif - letting the
@@ -424,6 +447,16 @@ a:focus-visible .link-underline,
     margin-bottom: 8pt;
     box-shadow: none;
     background: none !important;
+  }
+
+  /* On paper the hit is an underline, not a block: a page of black rectangles
+     is unreadable and empties a cartridge. */
+  mark.search-hit {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-weight: 700;
+    text-decoration: underline;
   }
 
   /* A printed headline whose link is invisible is a dead end. */

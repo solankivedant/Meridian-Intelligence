@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Category } from "@/lib/enums";
 import { metaForCategory } from "@/lib/categoryMeta";
+import { Highlight } from "./Highlight";
 import { MuteToggle } from "./MuteToggle";
 
 export type SourceEntry = {
@@ -158,7 +159,9 @@ function SourceRow({
   muted: boolean;
 }) {
   const meta = metaForCategory(source.category);
-  const label = <Highlighted text={source.name} query={query} />;
+  // `anywhere`: the filter above is a substring match, so the mark has to be
+  // able to land mid-word - "hindu" inside "BusinessLine - Hindu".
+  const label = <Highlight text={source.name} terms={query ? [query] : undefined} match="anywhere" />;
 
   return (
     <li
@@ -191,31 +194,5 @@ function SourceRow({
         {source.count.toLocaleString("en-IN")}
       </span>
     </li>
-  );
-}
-
-/**
- * Marks the matched run inside a name.
- *
- * Filtered lists are read fast, and a row's reason for surviving the filter is
- * often mid-word ("hindu" in "Business Standard - Hindu Business Line"). The
- * mark is a tint, not a highlighter block, so a filtered list still reads as
- * the same list.
- */
-function Highlighted({ text, query }: { text: string; query: string }) {
-  const at = query ? text.toLowerCase().indexOf(query.toLowerCase()) : -1;
-  if (at === -1) return <>{text}</>;
-
-  return (
-    <>
-      {text.slice(0, at)}
-      <mark
-        className="rounded-[2px] px-[1px] font-medium text-[var(--text-primary)]"
-        style={{ backgroundColor: "var(--ink-wash)" }}
-      >
-        {text.slice(at, at + query.length)}
-      </mark>
-      {text.slice(at + query.length)}
-    </>
   );
 }

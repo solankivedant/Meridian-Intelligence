@@ -1,4 +1,5 @@
 import { ArticleRow, FeedArticle } from "./ArticleRow";
+import type { StoryHighlight } from "./Highlight";
 import { StoryCell } from "./StoryCell";
 import { metaForCategory } from "@/lib/categoryMeta";
 
@@ -25,6 +26,7 @@ export function ArticleGrid({
   showCategory = true,
   startIndex,
   annotations,
+  highlight,
 }: {
   articles: FeedArticle[];
   feature?: FeedArticle;
@@ -33,6 +35,8 @@ export function ArticleGrid({
   startIndex?: number;
   /** Per-article editorial note, keyed by article id. */
   annotations?: Record<string, string>;
+  /** Words the reader asked for, marked in every tile. */
+  highlight?: StoryHighlight;
 }) {
   // The feature is displayed first, so it takes the first number.
   const numberOf = (offset: number) =>
@@ -48,6 +52,7 @@ export function ArticleGrid({
             showCategory={showCategory}
             index={numberOf(0)}
             note={annotations?.[feature.id]}
+            highlight={highlight}
           />
         </Cell>
       )}
@@ -59,6 +64,7 @@ export function ArticleGrid({
             showCategory={showCategory}
             index={numberOf(feature ? i + 1 : i)}
             note={annotations?.[article.id]}
+            highlight={highlight}
           />
         </Cell>
       ))}

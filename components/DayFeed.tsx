@@ -1,5 +1,6 @@
 import { ArticleGrid } from "./ArticleGrid";
 import type { FeedArticle } from "./ArticleRow";
+import type { StoryHighlight } from "./Highlight";
 import { withLeadFirst } from "@/lib/leadStory";
 import { dayKey, dayLabel, shortDate } from "@/lib/formatTime";
 
@@ -49,11 +50,14 @@ export function DayFeed({
   articles,
   showCategory = true,
   startIndex = 1,
+  highlight,
 }: {
   articles: FeedArticle[];
   showCategory?: boolean;
   /** Number the first tile carries. Pages continue the count, e.g. 41 on p2. */
   startIndex?: number;
+  /** Words the reader asked for, marked in every tile. */
+  highlight?: StoryHighlight;
 }) {
   const groups = groupByDay(articles, startIndex);
 
@@ -87,6 +91,7 @@ export function DayFeed({
               articles={rest}
               showCategory={showCategory}
               startIndex={group.start}
+              highlight={highlight}
             />
           </section>
         );

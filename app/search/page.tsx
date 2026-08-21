@@ -5,6 +5,7 @@ import { searchArticles, MAX_QUERY_LENGTH } from "@/lib/search";
 import { metaForSlug, CATEGORY_META } from "@/lib/categoryMeta";
 import { Section } from "@/components/Section";
 import { ArticleGrid } from "@/components/ArticleGrid";
+import { highlightTerms } from "@/components/Highlight";
 import { Pagination } from "@/components/Pagination";
 import { SectionIcon } from "@/components/MetaIcon";
 import { PAGE_SIZE, PHONE_PAGE_SIZE } from "@/lib/feedQuery";
@@ -35,6 +36,9 @@ export default async function SearchPage({
   const region = parseRegion(params.region);
   const categoryMeta = params.category ? metaForSlug(params.category) : undefined;
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  // The same words the query was built from, so what is marked in the results
+  // is what was actually matched against.
+  const terms = highlightTerms(query);
   // Same reasoning as the feed: forty results is a page on a laptop and a pit
   // on a phone.
   const pageSize = (await isPhoneRequest()) ? PHONE_PAGE_SIZE : PAGE_SIZE;
@@ -141,7 +145,11 @@ export default async function SearchPage({
               : "Try fewer words, or widen the desk and section filters above."
           }
         >
-          <ArticleGrid articles={articles} startIndex={(page - 1) * pageSize + 1} />
+          <ArticleGrid
+            articles={articles}
+            startIndex={(page - 1) * pageSize + 1}
+            highlight={{ text: terms }}
+          />
           <Pagination
             basePath="/search"
             params={{}}
